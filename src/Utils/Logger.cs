@@ -6,7 +6,7 @@ namespace DiscardMod.Utils;
 /// </summary>
 public static class Logger
 {
-    public static void Log(string message)      => DiscardModMain.Logger.Info(message);
+    public static void Log(string message) => DiscardModMain.Logger.Info(message);
     public static void LogWarning(string message) => DiscardModMain.Logger.Warn(message);
-    public static void LogError(string message)   => DiscardModMain.Logger.Error(message);
+    public static void LogError(string message) => DiscardModMain.Logger.Error(message);
 }

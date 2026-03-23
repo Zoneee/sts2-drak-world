@@ -1,154 +1,114 @@
-# 🚀 VS Code 一键部署 - 快速开始
+# VS Code 一键部署 — 快速上手
 
-## ⚡ 最快 5 秒启动
+## 最快上手（3 步）
 
-### 第一次设置（一次性）
+### 第一步：确认 sts2.dll 已就位
 
-1. **VS Code 中打开项目**
-   ```bash
-   code /home/alphonse/projects/STS2-Dark-World
-   ```
-
-2. **重新加载 VS Code** (F1 → "Developer: Reload Window")
-   - 这样会加载 `.vscode/` 配置
-
-3. **完成！** ✅
-
-### 每次编译 + 部署
-
-**按 Ctrl+Shift+B**
-
-就这样！自动完成：
-- ✅ 编译代码
-- ✅ 复制 DLL 到游戏目录
-- ✅ 复制 modInfo.json
-
-输出示例：
-```
-Build succeeded.
-   0 Warning(s)
-   0 Error(s)
-✅ Release DLL deployed!
-✅ modInfo.json deployed!
+```bash
+ls lib/sts2.dll   # 必须存在，否则先从游戏目录复制
 ```
 
----
+如果文件不存在，见 [lib/README.md](../lib/README.md)。
 
-## 🎮 完整工作流（1 分钟）
+### 第二步：在 VS Code 中打开项目
 
-### 步骤 1: 编辑代码
+```bash
+code /home/alphonse/projects/STS2-Dark-World
+```
 
-编辑 `src/Cards/DarkFlameFragment.cs` 或其他卡牌文件
-
-### 步骤 2: 一键部署
+### 第三步：编译 + 自动部署
 
 ```
 Ctrl+Shift+B
-↓
-等待完成（通常 5-10 秒）
 ```
 
-### 步骤 3: 测试
+完成！自动流程：
+- 编译代码 → `src/bin/Release/net9.0/STS2_Discard_Mod.dll`
+- 部署 DLL 到 `{游戏目录}/mods/STS2_Discard_Mod/`
+- 部署 `STS2_Discard_Mod.json` 到同目录
+
+---
+
+## 每日开发循环
 
 ```
-Alt+Tab → 切换到 STS2
-Ctrl+Shift+Esc → 关闭游戏（或直接关闭）
-重新启动 STS2
-创建新游戏 → 选 Mystic → 检查卡牌
-```
-
-### 步骤 4: 调试（可选）
-
-如果需要设置断点：
-
-```
-Ctrl+Shift+D → 选 "Build + Deploy: Debug"
-↓
-启动游戏
-↓
-F5 → Attach to Process → Godot.exe
-↓
-在代码中点击行号左边设置红色断点
-↓
-游戏中触发卡牌效果 → 代码自动暂停
+1. 编辑 src/Cards/*.cs 或 Main.cs
+2. Ctrl+Shift+B  →  等待 5-10 秒
+3. 启动 / 重启 STS2
+4. 创建游戏 → 选择储君（Regent）→ 检查卡牌
+5. 查看日志中是否有 "Registered 4 discard-trigger cards"
 ```
 
 ---
 
-## 📋 所有快捷键
+## 快捷键速查
 
-| 按键             | 结果                                |
-| ---------------- | ----------------------------------- |
-| **Ctrl+Shift+B** | 编译 + 部署（默认 Release）⭐ 最常用 |
-| **Ctrl+Shift+D** | 打开任务菜单（选其他选项）          |
-| **F5**           | 附加调试器                          |
-| **Ctrl+`**       | 打开/关闭终端                       |
-| **Ctrl+J**       | 切换 VS Code 面板                   |
-
----
-
-## 🐛 如果部署失败
-
-### 错误: "PowerShell 脚本禁用"
-
-执行一次：
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-### 错误: "文件无法访问"
-
-检查游戏是否在运行。如果在运行，需要先：
-```
-关闭游戏 → 再部署 DLL → 重启游戏
-```
-
-### 错误: "找不到路径"
-
-编辑 `.vscode/tasks.json`，修改：
-```json
-"D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/"
-```
-
-替换为你的实际游戏路径。
+| 按键 | 操作 |
+|------|------|
+| **Ctrl+Shift+B** | 编译 Release + 自动部署 ⭐ |
+| **Ctrl+`** | 打开/关闭终端 |
+| **Ctrl+Shift+P** | 命令面板 |
+| **F5** | 附加调试器（需要游戏在运行） |
 
 ---
 
-## 💾 每次编译后的文件
+## 部署失败怎么办
+
+### "找不到游戏目录"
+
+csproj 中的 `ModsPath` 未能解析。临时手动部署：
+
+```bash
+# Linux
+cp src/bin/Release/net9.0/STS2_Discard_Mod.dll \
+  ~/.local/share/Steam/steamapps/common/Slay\ the\ Spire\ 2/mods/STS2_Discard_Mod/
+```
+
+或编辑 `.vscode/tasks.json`，将 `ModsPath` 改为你的实际路径。
+
+### "文件被占用"
+
+游戏正在运行时无法替换 DLL。先关闭游戏再部署：
 
 ```
-D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\
-├── STS2_Discard_Mod.dll   ← 自动复制
-├── modInfo.json           ← 自动复制
-└── baselib/               ← 已有（无需处理）
+关闭 STS2 → Ctrl+Shift+B → 重启 STS2
+```
+
+### "构建失败 — sts2.dll not found"
+
+```bash
+ls lib/sts2.dll   # 检查文件
+# 如果不存在，从游戏目录复制，见 lib/README.md
 ```
 
 ---
 
-## 🔄 开发循环速度对比
+## 部署后的文件结构
 
-### ❌ 手动方式（之前）
-1. 编译 → 5 秒
-2. 打开文件管理器 → 5 秒
-3. 找到 mods 文件夹 → 5 秒
-4. 复制 DLL → 10 秒
-5. 复制 modInfo.json → 10 秒
-6. **总耗时: ~35 秒 ⏱️**
+```
+{游戏目录}/mods/STS2_Discard_Mod/
+├── STS2_Discard_Mod.dll     ← 编译的 mod
+└── STS2_Discard_Mod.json    ← mod 清单 (id, has_dll, version…)
+```
 
-### ✅ VS Code 一键方式（现在）
-1. Ctrl+Shift+B → 完全自动 → 10 秒
-2. **总耗时: ~10 秒 ⏱️**
-
-**节省 70% 时间！** 🚀
+> `localization/` 目前仅用于 CI/CD 打包，游戏运行时暂不需要（等实际本地化实现后再部署）。
 
 ---
 
-## 📚 更多文档
+## 验证 mod 已加载
 
-- 详细工作流: [docs/VSCODE_WORKFLOW.md](../VSCODE_WORKFLOW.md)
-- 调试指南: [docs/GODOT_DEBUG_GUIDE.md](../GODOT_DEBUG_GUIDE.md)
-- 部署指南: [docs/WINDOWS_DEPLOYMENT.md](../WINDOWS_DEPLOYMENT.md)
+启动游戏后，在 STS2 日志中搜索 `STS2DiscardMod`：
+
+```
+[STS2DiscardMod][INFO] STS2 Discard-Trigger Mod loading...
+[STS2DiscardMod][INFO] Registered 4 discard-trigger cards to RegentCardPool
+[STS2DiscardMod][INFO] STS2 Discard-Trigger Mod loaded!
+```
+
+日志文件位置：
+- Windows: `%APPDATA%\Roaming\STS2\logs\`
+- Linux: `~/.local/share/STS2/logs/`
 
 ---
 
-**现在就试试: Ctrl+Shift+B** ✨
+更多内容见 [DEV_GUIDE.md](DEV_GUIDE.md)。

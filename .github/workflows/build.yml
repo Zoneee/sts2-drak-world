@@ -10,55 +10,77 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.x
-    
-    - name: Restore dependencies
-      run: dotnet restore src/
-      continue-on-error: true
-    
-    - name: Build
-      run: dotnet build src/ --configuration Release --no-restore
-    
-    - name: Test
-      run: dotnet test src/ --configuration Release --no-build --verbosity normal
-      continue-on-error: true
-    
-    - name: Package Mod
+
+    # sts2.dll is proprietary and not committed to the repo.
+    # Store it as a base64-encoded GitHub Actions secret named STS2_DLL_B64:
+    #   base64 -w0 path/to/sts2.dll | xclip  (then paste into the secret)
+    # Without this secret the build step is skipped and a warning is emitted.
+    - name: Restore sts2.dll from secret
+      id: restore_dll
       run: |
-        mkdir -p dist
-        cp -v src/bin/Release/*.dll dist/ || echo "No DLL files found"
-        cp -v src/*.mod dist/ 2>/dev/null || echo "No .mod files found"
-        cd dist && ls -la
-    
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+        if [ -n "${{ secrets.STS2_DLL_B64 }}" ]; then
+          echo "${{ secrets.STS2_DLL_B64 }}" | base64 -d > lib/sts2.dll
+          echo "has_dll=true" >> "$GITHUB_OUTPUT"
+          echo "sts2.dll restored from secret ($(wc -c < lib/sts2.dll) bytes)"
+        else
+          echo "has_dll=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::Secret STS2_DLL_B64 is not set — build steps skipped."
+          echo "To enable CI builds, add the secret: base64 -w0 lib/sts2.dll"
+        fi
+
+    - name: Restore dependencies
+      if: steps.restore_dll.outputs.has_dll == 'true'
+      run: dotnet restore src/
+
+    - name: Build (Release)
+      if: steps.restore_dll.outputs.has_dll == 'true'
+      run: dotnet build src/ --configuration Release --no-restore
+
+    # Package layout:  dist/STS2_Discard_Mod/
+    #   STS2_Discard_Mod.dll       — compiled mod
+    #   STS2_Discard_Mod.json      — manifest (id, has_dll, version, …)
+    #   localization/              — localisation JSON files
+    - name: Package mod
+      if: steps.restore_dll.outputs.has_dll == 'true'
+      run: |
+        mkdir -p dist/STS2_Discard_Mod
+        cp src/bin/Release/net9.0/STS2_Discard_Mod.dll dist/STS2_Discard_Mod/
+        cp STS2_Discard_Mod.json dist/STS2_Discard_Mod/
+        cp -r src/localization dist/STS2_Discard_Mod/
+        echo "=== Packaged files ==="
+        find dist/ -type f | sort
+
+    - name: Upload build artifact
+      if: steps.restore_dll.outputs.has_dll == 'true'
+      uses: actions/upload-artifact@v4
       with:
-        name: STS2_Discard_Mod_Build
+        name: STS2_Discard_Mod
         path: dist/
         retention-days: 30
-    
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/v')
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # On tag push: create a release zip and publish it
+    - name: Create release archive
+      if: startsWith(github.ref, 'refs/tags/v') && steps.restore_dll.outputs.has_dll == 'true'
+      run: |
+        cd dist
+        zip -r ../STS2_Discard_Mod_${{ github.ref_name }}.zip STS2_Discard_Mod/
+        echo "Archive: STS2_Discard_Mod_${{ github.ref_name }}.zip"
+
+    - name: Publish GitHub Release
+      if: startsWith(github.ref, 'refs/tags/v') && steps.restore_dll.outputs.has_dll == 'true'
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
+        files: STS2_Discard_Mod_${{ github.ref_name }}.zip
+        fail_on_unmatched_files: true
+        generate_release_notes: true
         prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
-    
-    - name: Upload Release Assets
-      if: startsWith(github.ref, 'refs/tags/v')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: dist/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

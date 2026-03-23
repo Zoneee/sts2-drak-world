@@ -1,289 +1,306 @@
-# Developer Guide
+# 开发指南
 
-## First-Time Setup
+## 首次设置
 
-### Prerequisites
+### 环境要求
 
-1. **Install .NET SDK 9.0+**
-   - [Download](https://dotnet.microsoft.com/download)
-   - Verify: `dotnet --version`
+1. **.NET SDK 9.0+** — 验证：`dotnet --version`
+2. **Slay the Spire 2**（Steam 安装）
+3. `lib/sts2.dll` — 见下方步骤
 
-2. **Install Godot 4.5.1+**
-   - [Download](https://godotengine.org/download)
-   - Not required for building mod DLL, but useful for understanding game structure
+### 获取 sts2.dll
 
-3. **Install Slay the Spire 2 (via Steam)**
-   - Launch once to create base mod folder
-   - Locate mods folder (see README.md for path by OS)
+`sts2.dll` 是游戏专有文件，不提交到 git。需手动从游戏目录复制：
 
-4. **Setup Git SSH Keys (for GitHub pull/push)**
-   - [GitHub SSH Setup Guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
-   - Verify: `ssh -T git@github.com`
+**Windows（PowerShell）：**
+```powershell
+$src = "D:\G_games\steam\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll"
+$dst = "\\wsl$\Ubuntu\home\alphonse\projects\STS2-Dark-World\lib\sts2.dll"
+Copy-Item $src $dst
+```
 
-### Clone & Build
+**Linux：**
+```bash
+cp ~/.local/share/Steam/steamapps/common/Slay\ the\ Spire\ 2/data_sts2_linuxbsd_x86_64/sts2.dll \
+   ~/projects/STS2-Dark-World/lib/
+```
+
+### 克隆 & 构建
 
 ```bash
-# Clone repo
 git clone git@github.com:Zoneee/sts2-drak-world.git
 cd sts2-drak-world
-
-# Restore NuGet packages + build
 dotnet build src/
-
-# Output: src/bin/Release/STS2_Discard_Mod.dll (success!)
+# Build succeeded. 0 Error(s), 4 Warning(s)  ← STS003 警告，正常
 ```
 
 ---
 
-## Project Structure Walkthrough
+## 项目结构
 
-### **What Goes Where**
+```
+src/
+├── Main.cs                      # [ModInitializer] 入口，调用 RegisterCards()
+├── Cards/
+│   ├── DarkFlameFragment.cs     # 暗焰残页 — Skill/Common/1-cost
+│   ├── SwiftCut.cs              # 迅影斩  — Attack/Common/0-cost
+│   ├── ToxinRecord.cs           # 毒素记录 — Skill/Uncommon/1-cost
+│   └── ShatteredEcho.cs         # 破碎回响 — Skill/Rare/2-cost
+├── Utils/
+│   └── Logger.cs                # MegaCrit Logger 封装（可选）
+├── localization/
+│   └── eng/cards.json           # 卡牌标题与描述（STS001 分析器要求）
+├── project.godot                # Godot 工程引用（STS2 需要）
+└── STS2_Discard_Mod.csproj      # 项目文件
+```
 
-| Folder               | Purpose                                      | Example                       |
-| -------------------- | -------------------------------------------- | ----------------------------- |
-| `src/`               | C# source code + project file                | `Main.cs`, `Cards/*.cs`       |
-| `docs/`              | Documentation (design, architecture, guides) | `DESIGN.md`, `DEBUGGING.md`   |
-| `design/`            | Original game design notes                   | `draft.md`                    |
-| `.github/workflows/` | GitHub Actions CI/CD                         | `build.yml`                   |
-| `dist/`              | Compiled release artifacts (auto-generated)  | `.zip` files for distribution |
-
-### **Key Files**
-
-- **`src/STS2_Discard_Mod.csproj`** — NuGet dependencies (BaseLib, Harmony)
-- **`src/Main.cs`** — Mod entry point; card registration
-- **`src/Cards/`** — Individual card implementations (one file per card)
-- **`src/Utils/Logger.cs`** — Logging helper with `[DiscardMod]` prefix
-- **`src/Utils/CardRegistry.cs`** — Centralized card ID management
+**根目录：**
+```
+STS2_Discard_Mod.json    # mod 清单（id/has_dll/has_pck/dependencies/affects_gameplay）
+lib/sts2.dll             # 游戏 DLL（gitignored）
+nuget.config             # 指向本地 packages/ 目录
+```
 
 ---
 
-## Creating Your First Card
+## 关键 STS2 API
 
-### Template: Copy-Paste to Get Started
+### 卡牌基类：`CardModel`
 
-**File**: `src/Cards/MyNewCard.cs`
+所有卡牌继承自 `MegaCrit.Sts2.Core.Models.CardModel`：
 
 ```csharp
-using System;
-using BaseLib.Cards;
-using BaseLib.Modding;
-using UnityEngine;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
+using System.Threading.Tasks;
 
-namespace DiscardMod.Cards {
-    public class MyNewCard : CustomCard, IDiscardTrigger {
-        public static string CardID = "DiscardMod_MyNewCard";
-        
-        public override void Initialize() {
-            // Metadata
-            base.SetCardData(new CardData {
-                ID = CardID,
-                CardName = "My New Card",
-                CardText = "When discarded: ...",
-                Type = CardType.Skill,
-                Rarity = CardRarity.Common,
-                Cost = 0,
-                Target = CardTarget.Aim,  // or SingleAlly, AllEnemies, None, etc.
-                Upgrades = new string[] {
-                    "Upgrade Text Here"
-                },
-            });
-        }
-        
-        public override bool CanPlay(AbstractPlayer player) {
-            // Set to false if card should not be playable
-            return true;
-        }
-        
-        public bool OnDiscard(AbstractCard card, AbstractPlayer player) {
-            // This fires when card is discarded
-            Utils.Logger.Log($"MyNewCard discarded!");
-            
-            // Add your effect logic here
-            // Example: Deal damage
-            // DamageAction action = new DamageAction(AbstractDungeon.getRandomMonster(), 
-            //     new DamageInfo(player, 6, DamageType.NORMAL), CardColor.COLORLESS);
-            // AbstractDungeon.actionManager.addToBottom(action);
-            
-            return true; // Success
-        }
+namespace DiscardMod.Cards;
+
+public class MyCard : CardModel
+{
+    // 构造函数：(费用, 类型, 稀有度, 目标, 显示在卡库中)
+    public MyCard()
+        : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, true) { }
+
+    // 打出时触发
+    public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        DiscardModMain.Logger.Info("MyCard played");
+        await Task.CompletedTask;
+    }
+
+    // 升级时触发
+    public override void OnUpgrade() { }
+}
+```
+
+**可用枚举值：**
+
+| 枚举 | 可用值 |
+|------|--------|
+| `CardType` | `None, Attack, Skill, Power, Status, Curse, Quest` |
+| `CardRarity` | `None, Basic, Common, Uncommon, Rare, Ancient, Event, Token, Status, Curse, Quest` |
+| `TargetType` | `None, Self, AnyEnemy, AllEnemies, RandomEnemy, AnyPlayer, AnyAlly, AllAllies, TargetedNoCreature, Osty` |
+
+### 卡牌注册：`ModHelper.AddModelToPool`
+
+在 `Main.cs` 的 `RegisterCards()` 中注册：
+
+```csharp
+using MegaCrit.Sts2.Core.Modding;
+using MegaCrit.Sts2.Core.Models.CardPools;
+
+ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(MyCard));
+```
+
+**可用角色池：**
+`IroncladCardPool`, `SilentCardPool`, `DefectCardPool`, `NecrobinderCardPool`,  
+`RegentCardPool`, `ColorlessCardPool`, `CurseCardPool`, `StatusCardPool`, 等
+
+### 本地化
+
+每张 `CardModel` 子类都需要在 `localization/eng/cards.json` 中有对应条目，否则 STS001 报错：
+
+```json
+{
+  "MY_CARD.title": "My Card",
+  "MY_CARD.description": "Card description here."
+}
+```
+
+键名规则：类名转大写下划线（`MyCard` → `MY_CARD`）。
+
+> STS003 警告（建议继承 `BaseLib.Abstracts.CustomCardModel`）：当前直接继承 `CardModel` 即可正常使用，该警告不阻止构建或运行。
+
+---
+
+## 添加新卡牌
+
+### 步骤
+
+1. **创建卡牌文件** `src/Cards/YourCard.cs`（复制下方模板）
+2. **添加本地化条目** 到 `src/localization/eng/cards.json`
+3. **在 `Main.cs` 注册** — 调用 `ModHelper.AddModelToPool`
+4. **构建验证** — `dotnet build src/` → 0 errors
+
+### 完整模板
+
+```csharp
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
+using System.Threading.Tasks;
+
+namespace DiscardMod.Cards;
+
+/// <summary>
+/// 卡牌中文名 (EnglishName)
+/// Type/Rarity/Cost/Target
+/// 效果说明
+/// </summary>
+public class YourCard : CardModel
+{
+    public YourCard()
+        : base(/*cost*/ 1, CardType.Skill, CardRarity.Common, TargetType.Self, true) { }
+
+    public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        DiscardModMain.Logger.Info("YourCard played");
+        // TODO: 实现效果
+        await Task.CompletedTask;
+    }
+
+    public override void OnUpgrade()
+    {
+        // TODO: 升级效果
     }
 }
 ```
 
-### Steps to Add a Card
+### 对应的本地化条目
 
-1. **Create file** in `src/Cards/YourCardName.cs`
-2. **Copy template** above, update:
-   - Class name: `YourCardName`
-   - CardID: `"DiscardMod_YourCardName"`
-   - CardName: Display name in-game
-   - OnDiscard() logic
-3. **Register in Main.cs**:
-   ```csharp
-   CardRegistry.Register(typeof(YourCardName));
-   ```
-4. **Build & test**:
-   ```bash
-   dotnet build src/
-   # Deploy to STS2 mods folder (see README.md)
-   ```
-5. **Verify in-game**:
-   - Launch STS2
-   - Check console for `[DiscardMod] Loaded` + card in pool
+```json
+"YOUR_CARD.title": "卡牌名",
+"YOUR_CARD.description": "效果描述。"
+```
+
+### 对应的注册代码（Main.cs）
+
+```csharp
+ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(YourCard));
+```
 
 ---
 
-## Building & Testing
+## 构建与部署
 
-### Build Locally
+### 本地构建
 
 ```bash
-# Debug build (faster, includes symbols)
+# Debug 构建（含调试符号）
 dotnet build src/ --configuration Debug
 
-# Release build (optimized, ready to distribute)
+# Release 构建（优化，用于分发）
 dotnet build src/ --configuration Release
 
-# Clean build (remove old artifacts first)
+# 全量重建
 dotnet clean src/ && dotnet build src/ --configuration Release
 ```
 
-### Deploy to STS2 (Manual)
+输出文件：`src/bin/Release/net9.0/STS2_Discard_Mod.dll`
 
-**Linux/macOS**:
+### 部署到 STS2
+
+csproj 内置 MSBuild target（`CopyToModsFolderOnBuild`），构建后自动将 DLL 和 `STS2_Discard_Mod.json` 部署到正确位置：
+
+```
+{游戏目录}/mods/STS2_Discard_Mod/
+├── STS2_Discard_Mod.dll
+└── STS2_Discard_Mod.json
+```
+
+**前提条件**：游戏已安装，csproj 中的路径能找到 `mods/` 目录。
+
+**手动部署（Linux）：**
 ```bash
-# Copy DLL to STS2 mods folder
-cp src/bin/Release/STS2_Discard_Mod.dll \
-  ~/.steam/debian-installation/steamapps/common/Slay\ the\ Spire\ 2/mods/
+MOD_DIR="$HOME/.local/share/Steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod"
+mkdir -p "$MOD_DIR"
+cp src/bin/Release/net9.0/STS2_Discard_Mod.dll "$MOD_DIR/"
+cp STS2_Discard_Mod.json "$MOD_DIR/"
+cp -r src/localization "$MOD_DIR/"
 ```
 
-**Windows (PowerShell)**:
+**手动部署（Windows PowerShell）：**
 ```powershell
-# Copy DLL to STS2 mods folder
-Copy-Item -Path "src\bin\Release\STS2_Discard_Mod.dll" `
-  -Destination $env:PROGRAMFILES\Steam\steamapps\common\Slay the Spire 2\mods\
+$modDir = "D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\STS2_Discard_Mod"
+New-Item -ItemType Directory -Force -Path $modDir
+Copy-Item src\bin\Release\net9.0\STS2_Discard_Mod.dll $modDir
+Copy-Item STS2_Discard_Mod.json $modDir
+Copy-Item src\localization $modDir -Recurse
 ```
 
-### Launch & Test
+### VS Code 一键部署
 
-1. **Launch STS2** from Steam
-2. **Open in-game console**: Input.is_action_pressed("show_logs")
-3. **Check for mod load message**: `[DiscardMod] Loaded`
-4. **Start a run** and look for your card in the card pool
-5. **Discard the card** and verify effect fires
+```
+Ctrl+Shift+B  →  编译 Release + 自动部署
+```
+
+详见 [QUICK_START.md](QUICK_START.md)。
 
 ---
 
-## Debugging
+## 调试
 
-### Console Logging
+### 日志查看
 
-All mod logs automatically prefix with `[DiscardMod]` (via Logger.cs):
+所有 mod 日志通过 `DiscardModMain.Logger`（`MegaCrit.Sts2.Core.Logging.Logger`）：
 
 ```csharp
-// In your card code
-Utils.Logger.Log("Card discarded! Dealing 6 damage.");
-Utils.Logger.LogWarning("Something unexpected happened.");
-Utils.Logger.LogError("Critical error in OnDiscard()");
+DiscardModMain.Logger.Info("正常消息");
+DiscardModMain.Logger.Warn("警告消息");
+DiscardModMain.Logger.Error("错误消息");
+DiscardModMain.Logger.Debug("调试消息");
 ```
 
-### In-Game Console Access
+**STS2 日志文件位置：**
+- Windows: `%APPDATA%\Roaming\STS2\logs\`
+- Linux: `~/.local/share/STS2/logs/`
 
-**Open console**:
-- Press: `Input.is_action_pressed("show_logs")` (depends on STS2 input bindings)
-- Alternative: Check STS2 output log file:
-  - Windows: `%APPDATA%\STS2\log.txt` or Steam logs folder
-  - Linux: `~/.local/share/STS2/log.txt`
-  - macOS: `~/Library/Logs/STS2/log.txt`
+过滤 mod 日志：搜索 `STS2DiscardMod`。
 
-### Common Issues
+### 常见问题
 
-See [DEBUGGING.md](DEBUGGING.md) for detailed troubleshooting.
+**问题：mod 不加载（无 `Registered 4 discard-trigger cards` 日志）**
+1. 确认 `mods/STS2_Discard_Mod/STS2_Discard_Mod.json` 存在且 `"has_dll": true`
+2. 确认 `mods/STS2_Discard_Mod/STS2_Discard_Mod.dll` 存在
+3. 重新构建：`dotnet clean src/ && dotnet build src/ --configuration Release`
+
+**问题：构建报错 "STS2.dll not found"**
+- `lib/sts2.dll` 不存在。按首次设置步骤从游戏目录复制。
+
+**问题：STS001 分析器报错 "Localization X.title not found"**
+- 在 `src/localization/eng/cards.json` 中添加对应的 `CARD_NAME.title` 和 `CARD_NAME.description` 条目。
+
+**问题：构建报错 "MSB3270 (arch mismatch)"**
+- 已在 csproj 中通过 `NoWarn` 抑制，正常可忽略。
 
 ---
 
-## Workflow: Day-to-Day Development
+## manifest 格式（STS2_Discard_Mod.json）
 
-### Typical Workflow
-
-1. **Edit card** in `src/Cards/MyCard.cs`
-2. **Build**: `dotnet build src/ --configuration Release`
-3. **Copy to STS2 mods folder** (see above)
-4. **Launch STS2** and test
-5. **Repeat** until satisfied
-
-### Faster Iteration (Optional)
-
-Use a **script to auto-copy** after each build:
-
-**Linux/macOS** (`build_and_deploy.sh`):
-```bash
-#!/bin/bash
-dotnet build src/ --configuration Release
-cp src/bin/Release/STS2_Discard_Mod.dll ~/.steam/debian-installation/steamapps/common/"Slay the Spire 2"/mods/
-echo "✅ Deployed to STS2"
+```json
+{
+  "id": "STS2DiscardMod",
+  "name": "显示名称",
+  "author": "作者",
+  "description": "描述",
+  "version": "v0.1.0",
+  "has_pck": false,
+  "has_dll": true,
+  "dependencies": [],
+  "affects_gameplay": true
+}
 ```
 
-**Windows** (`build_and_deploy.ps1`):
-```powershell
-dotnet build src --configuration Release
-Copy-Item "src\bin\Release\STS2_Discard_Mod.dll" "$env:PROGRAMFILES\Steam\steamapps\common\Slay the Spire 2\mods\"
-Write-Host "✅ Deployed to STS2"
-```
-
-### Committing Work
-
-```bash
-# Stage changes
-git add src/Cards/MyNewCard.cs
-
-# Commit with clear message
-git commit -m "feat: add MyNewCard discard-trigger card"
-
-# Push to GitHub
-git push origin main
-```
-
----
-
-## Useful Commands
-
-| Command               | Purpose                   |
-| --------------------- | ------------------------- |
-| `dotnet build src/`   | Full build                |
-| `dotnet clean src/`   | Remove build artifacts    |
-| `dotnet publish src/` | Package for distribution  |
-| `git log --oneline`   | View commit history       |
-| `git status`          | Check uncommitted changes |
-| `git diff src/`       | View code changes         |
-
----
-
-## Testing Multiplayer (Local Network)
-
-1. **Build mod** on your machine
-2. **Deploy** to STS2 mods folder
-3. **Launch STS2** as Host (create multiplayer game, 4 players)
-4. **Launch STS2** again as Client (via Steam → Invite Friend or Local Network)
-5. **Both join same game**
-6. **Play and verify**:
-   - Do discard effects fire on both clients?
-   - Any desyncs or crashes?
-   - Console logs appear on both sides?
-
----
-
-## Resources
-
-- [BaseLib-StS2 API Docs](https://alchyr.github.io/BaseLib-Wiki/) — Card creation reference
-- [Harmony Patching Guide](https://harmony.pardeike.net/) — If you need to hook game events
-- [ModTemplate-StS2](https://github.com/Alchyr/ModTemplate-StS2) — Reference C# mod skeleton
-- [STS2 Console Commands](https://slay-the-spire-wiki.fandom.com/wiki/Console) — In-game debugging
-
----
-
-## Getting Help
-
-- **Stuck?** Check [DEBUGGING.md](DEBUGGING.md) or [DESIGN.md](DESIGN.md)
-- **Questions?** Open GitHub Issue or check [STS2 Discord #modding](https://discord.gg/slaythespire)
-- **Found a bug?** Report via GitHub Issues with console logs
+`id` 必须与 `[ModInitializer]` 类中的 `ModId` 常量一致。

@@ -1,166 +1,155 @@
-# STS2 Discard-Trigger Multiplayer Mod
+# STS2 弃触发 Mod (Discard-Trigger)
 
-**杀戮尖塔2 - "弃触发"卡牌系统 mod**
+**杀戮尖塔2 — "弃触发"卡牌系统 mod**
 
-A Slay the Spire 2 mod that introduces a "discard-trigger" card system where cards activate powerful effects when discarded (not when played). Designed for 4-player multiplayer gameplay over Steam.
+向 Slay the Spire 2 添加"弃触发"卡牌机制的 mod：将牌弃置时触发强力效果。4 张卡牌注册到 `RegentCardPool`（储君角色池）。
 
-## Quick Start
+## 快速开始
 
-### Prerequisites
-- **.NET SDK 9.0+** ([Download](https://dotnet.microsoft.com/download))
-- **Godot 4.5.1+** ([Download](https://godotengine.org/download))
-- **Slay the Spire 2** (installed via Steam)
-- **Git** with SSH keys configured for GitHub
+### 环境要求
 
-### Development Setup (VS Code)
+- **.NET SDK 9.0+** — [下载](https://dotnet.microsoft.com/download)，验证：`dotnet --version`
+- **Slay the Spire 2**（Steam 安装）
+- `lib/sts2.dll` — 从游戏目录手动复制（见下方）
+
+### 首次设置
 
 ```bash
-# Clone repository
 git clone git@github.com:Zoneee/sts2-drak-world.git
 cd sts2-drak-world
 
-# Open in VS Code
-code .
+# 从游戏目录复制 sts2.dll 到 lib/
+# Windows (PowerShell):
+# Copy-Item "D:\G_games\steam\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll" lib\
+
+# Linux:
+# cp ~/.local/share/Steam/steamapps/common/Slay\ the\ Spire\ 2/data_sts2_linuxbsd_x86_64/sts2.dll lib/
+
+dotnet build src/
+# → Build succeeded. 0 Error(s)
 ```
 
-**One-Click Build + Deploy:**
-
-```
-Press: Ctrl+Shift+B
-
-Automatically compiles and deploys DLL to your STS2 mods folder!
-```
-
-See [docs/QUICK_START.md](docs/QUICK_START.md) for complete workflow.
-
-### Build (Manual)
+### 编译与部署
 
 ```bash
-# Build Release version
+# 编译 Release 版本
 dotnet build src/ --configuration Release
 
-# Output: src/bin/Release/net9.0/STS2_Discard_Mod.dll
+# 输出: src/bin/Release/net9.0/STS2_Discard_Mod.dll
 ```
 
-### Install
-
-1. Locate your STS2 mods folder:
-   - **Windows**: `D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\` (customize in `.vscode/tasks.json`)
-   - **Linux**: `~/.steam/debian-installation/steamapps/common/Slay the Spire 2/mods/`
-   - **macOS**: `~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/mods/`
-
-2. Copy files to mods folder:
-   - `src/bin/Release/net9.0/STS2_Discard_Mod.dll`
-   - `modInfo.json` (from project root)
-
-3. Launch STS2 and create a Mystic character to see discard-trigger cards
-
-**⭐ Tip:** Using VS Code? Just press `Ctrl+Shift+B` to automate this entire process!
-
-### Multiplayer Testing
-
-1. **Host**: Create a multiplayer game (4-player, local or Steam friends)
-2. **All Players**: Ensure identical mod version is installed
-3. **Gameplay**: Discard-trigger cards appear in the card pool
-4. **Debug**: Open in-game console (`showlogs` command) to check for events
-
-## Core Mechanic: "Discard-Trigger"
-
-These cards activate **special effects when discarded**, not when played:
-
-- **迅切** (Swift Cut) — 0 cost: Draw 2, discard 1 → Refund 1 energy if discarded card has discard effect
-- **暗焰残页** (Dark Flame Fragment) — 1 cost: Cannot play. When discarded: +6 damage to all enemies
-- **毒记** (Toxin Record) — 1 cost: Cannot play. When discarded: Apply 8 poison to random enemy
-- **碎念回响** (Shattered Echo) — 1 cost: Discard 1 card. If discarded card has discard effect: Draw 2 more cards
-- *(Cards 5-8 in development)*
-
-## Development
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for code structure and implementation details.
-
-## Development Workflow
-
-### VS Code Auto-Deploy (Recommended)
-
-**One-command everything:**
-```
-Ctrl+Shift+B  →  Compile + Deploy automatically!
-```
-
-**Features:**
-- ✅ Compiles your code
-- ✅ Copies DLL to game directory
-- ✅ Copies modInfo.json
-- ✅ Real-time error display
-- ✅ Integrated terminal output
-
-See [docs/VSCODE_WORKFLOW.md](docs/VSCODE_WORKFLOW.md) for complete guide.
-
-### Debugging in Visual Studio Code
+**VS Code 一键编译 + 自动部署到游戏目录（需要游戏安装）：**
 
 ```
-1. Press Ctrl+Shift+B to build and deploy Debug version
-2. Launch STS2 and create a Mystic game
-3. Press F5 → Attach to Process → Select Godot.exe
-4. Set breakpoints in VS Code (click line number)
-5. Trigger card effects in-game, code pauses at breakpoints
+Ctrl+Shift+B
 ```
 
-See [docs/GODOT_DEBUG_GUIDE.md](docs/GODOT_DEBUG_GUIDE.md) for detailed debugging strategies.
+### 安装到游戏
 
-### Manual Build & Test
+将以下文件复制到 STS2 mod 目录下的 `STS2_Discard_Mod/` 子文件夹：
 
-```bash
-# Build mod
-dotnet build src/ --configuration Release
+| 文件 | 说明 |
+|------|------|
+| `STS2_Discard_Mod.dll` | 编译好的 mod DLL |
+| `STS2_Discard_Mod.json` | mod 清单 |
+| `localization/` | 本地化 JSON 文件 |
 
-# Deploy manually (Windows)
-Copy-Item src/bin/Release/net9.0/STS2_Discard_Mod.dll -Destination "D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/" -Force
+Mod 目录路径：
+- **Windows**: `D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\STS2_Discard_Mod\`
+- **Linux**: `~/.local/share/Steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod/`
+- **macOS**: `~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod/`
 
-# Or use Python script for automation
-python deploy.ps1 -Configuration Release
+> 编译后 csproj 内置的 MSBuild target 会自动部署（条件：游戏目录存在）。
+
+---
+
+## 核心机制："弃触发"
+
+这 4 张卡牌注册到 `RegentCardPool`，并在 `OnPlay()` 中实现效果（弃触发逻辑通过 Harmony 补丁监听弃牌事件实现，待完善）：
+
+| 卡牌 | 类型 | 稀有度 | 费用 | 目标 |
+|------|------|--------|------|------|
+| **暗焰残页** DarkFlameFragment | Skill | Common | 1 | AnyEnemy |
+| **迅影斩** SwiftCut | Attack | Common | 0 | AnyEnemy |
+| **毒素记录** ToxinRecord | Skill | Uncommon | 1 | Self |
+| **破碎回响** ShatteredEcho | Skill | Rare | 2 | Self |
+
+---
+
+## 项目结构
+
+```
+STS2-Dark-World/
+├── src/
+│   ├── Main.cs                        # 入口点 [ModInitializer]，注册卡牌
+│   ├── Cards/                         # 每张卡牌一个文件，继承 CardModel
+│   ├── Utils/Logger.cs                # MegaCrit Logger 封装
+│   ├── localization/eng/cards.json    # 卡牌标题/描述本地化
+│   └── STS2_Discard_Mod.csproj        # 项目文件
+├── lib/
+│   └── sts2.dll                       # 游戏 DLL（不提交到 git）
+├── STS2_Discard_Mod.json              # mod 清单
+├── .github/workflows/build.yml        # CI/CD
+└── docs/                              # 详细文档
 ```
 
-### Debug in-Game
+---
 
-- Look for **`[DiscardMod]`** log prefix in console
-- Check [docs/DEBUGGING.md](docs/DEBUGGING.md) for common issues
-- Enable detailed logging in [src/Utils/Logger.cs](src/Utils/Logger.cs)
+## 开发工作流
 
-## Documentation
+```
+编辑代码 → Ctrl+Shift+B（编译+部署）→ 启动游戏测试
+```
 
-| Document                                            | Purpose                                |
-| --------------------------------------------------- | -------------------------------------- |
-| [QUICK_START.md](docs/QUICK_START.md) 🟢             | **Start here!** One-click deploy setup |
-| [VSCODE_WORKFLOW.md](docs/VSCODE_WORKFLOW.md)       | Complete VS Code automation guide      |
-| [GODOT_DEBUG_GUIDE.md](docs/GODOT_DEBUG_GUIDE.md)   | Debugging strategies for Godot/STS2    |
-| [WINDOWS_DEPLOYMENT.md](docs/WINDOWS_DEPLOYMENT.md) | Windows-specific installation guide    |
-| [DESIGN.md](docs/DESIGN.md)                         | Card mechanics and balance framework   |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md)             | Code structure and mod framework       |
-| [DEV_GUIDE.md](docs/DEV_GUIDE.md)                   | How to create new cards                |
-| [DEBUGGING.md](docs/DEBUGGING.md)                   | Troubleshooting and log analysis       |
+详见 [docs/DEV_GUIDE.md](docs/DEV_GUIDE.md)。
 
-## Project Status
+### 日志
 
-**v0.1.0-alpha** (In Development)
-- [x] Phase 1: Repository setup ✅
-- [x] Phase 2: Base framework ✅
-- [x] Phase 3: Core 4 cards ✅
-- [x] Phase 4: VS Code automation ✅ (NEW!)
-- [ ] Phase 5: Remaining 4 cards
-- [ ] Phase 6: Multiplayer testing
-- [ ] Phase 7: Release packaging
+所有 mod 日志通过 `DiscardModMain.Logger`（MegaCrit Logger），游戏内控制台可见：
 
-See [docs/CHANGELOG.md](docs/CHANGELOG.md) for detailed version history.
+```
+[STS2DiscardMod][INFO] STS2 Discard-Trigger Mod loading...
+[STS2DiscardMod][INFO] Registered 4 discard-trigger cards to RegentCardPool
+[STS2DiscardMod][INFO] STS2 Discard-Trigger Mod loaded!
+```
 
-## Community
+---
 
-- **Discord**: [Slay the Spire Discord](https://discord.gg/slaythespire) — #modding channel
-- **GitHub Issues**: Report bugs or suggest features
+## CI/CD
 
-## License
+GitHub Actions 工作流（`.github/workflows/build.yml`）：
 
-See [LICENSE](LICENSE) for details.
+- **触发**：push 到 `master`/`main`，或推送 `v*` tag
+- **构建**：需要将 `sts2.dll` 以 base64 存入 GitHub secret `STS2_DLL_B64`（见 `build.yml` 注释）
+- **发布**：推送 `v*` tag 时自动创建 GitHub Release，上传 `STS2_Discard_Mod_vX.X.X.zip`
+
+---
+
+## 文档
+
+| 文档 | 内容 |
+|------|------|
+| [docs/DEV_GUIDE.md](docs/DEV_GUIDE.md) | 添加卡牌、构建、部署完整指南 |
+| [docs/QUICK_START.md](docs/QUICK_START.md) | VS Code 一键部署快速指南 |
+| [docs/DEBUGGING.md](docs/DEBUGGING.md) | 调试与日志分析 |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 项目架构 |
+| [docs/DESIGN.md](docs/DESIGN.md) | 卡牌设计思路 |
+| [design/draft.md](design/draft.md) | 原始设计草稿 |
+
+---
+
+## 项目状态
+
+**v0.1.0-alpha（开发中）**
+
+- [x] 正确的项目结构（参考 StS2-Quick-Restart）
+- [x] 使用真实 STS2 API（`CardModel`、`ModHelper`）
+- [x] 4 张卡牌注册到 `RegentCardPool`
+- [x] 本地化文件（满足 STS001 分析器）
+- [x] CI/CD（需配置 `STS2_DLL_B64` secret）
+- [ ] 弃触发逻辑（Harmony 补丁监听弃牌事件）
+- [ ] 实际战斗效果（伤害/毒素/摸牌）
+- [ ] 游戏内测试
 
 ---
 
