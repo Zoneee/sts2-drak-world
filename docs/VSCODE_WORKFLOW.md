@@ -22,8 +22,8 @@ Ctrl+Shift+B  →  自动运行 "Build: Release"
 
 两者都会自动：
 1. 编译 mod
-2. 复制 DLL 到游戏目录
-3. 复制 modInfo.json 到游戏目录
+2. 复制 DLL 到游戏 `mods/STS2_Discard_Mod/` 子目录
+3. 复制 `STS2_Discard_Mod.json` 到游戏子目录
 
 ---
 
@@ -43,7 +43,7 @@ Ctrl+Shift+B  →  自动运行 "Build: Release"
 | ----------------------- | ----------------------------------- |
 | Deploy: Release DLL     | 复制 Release DLL 到游戏目录         |
 | Deploy: Debug DLL + PDB | 复制 Debug DLL + 调试符号到游戏目录 |
-| Deploy: modInfo.json    | 复制 modInfo.json 配置文件          |
+| Deploy: JSON manifest   | 复制 STS2_Discard_Mod.json 配置文件 |
 
 ### 组合任务（推荐）
 
@@ -56,7 +56,7 @@ Ctrl+Shift+B  →  自动运行 "Build: Release"
 
 | 任务名称               | 功能                          |
 | ---------------------- | ----------------------------- |
-| Attach Debugger: Godot | 显示如何附加到 Godot.exe 进程 |
+| Attach Debugger: STS2  | 显示如何附加到 STS2/Godot 进程 |
 
 ---
 
@@ -186,12 +186,16 @@ F5 附加调试器（可选）
 ## 🎮 游戏部署路径
 
 ```
-D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\
-├── STS2_Discard_Mod.dll    ← Release 或 Debug 版本
-├── STS2_Discard_Mod.pdb    ← 仅 Debug 时存在
-├── modInfo.json            ← mod 元数据
-└── baselib/                ← 依赖 mod
+{游戏目录}/mods/
+└── STS2_Discard_Mod/
+    ├── STS2_Discard_Mod.dll    ← Release 或 Debug 版本
+    ├── STS2_Discard_Mod.pdb    ← 仅 Debug 时存在
+    └── STS2_Discard_Mod.json   ← mod 元数据
 ```
+
+**注意**: mod 部署在独立子目录 `STS2_Discard_Mod/` 中，不直接放在 `mods/` 根目录下。
+
+**csproj 自动完成此部署** (`CopyToModsFolderOnBuild` target)，无需 VS Code 任务手动复制文件。
 
 ---
 
@@ -201,16 +205,15 @@ D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\
 
 ```
 ✅ Release DLL deployed!
-✅ modInfo.json deployed!
+✅ STS2_Discard_Mod.json deployed!
 ```
 
-如果看不到这些信息，检查：
-1. 游戏路径是否正确（编辑 tasks.json）
-2. PowerShell 执行策略：
-   ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-   ```
-3. 文件权限（mods 目录是否可写）
+实际上, csproj 的 `CopyToModsFolderOnBuild` target 会在编译后自动部署，
+不依赖 VS Code 任务。如果自动部署不工作（游戏未安装或路径不同），
+检查 csproj 中 `SteamLibraryPath` 并通过构建参数覆盖:
+```bash
+dotnet build src/ -c Release -p:SteamLibraryPath=/your/custom/steam/steamapps
+```
 
 ---
 
