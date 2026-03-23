@@ -2,47 +2,88 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-    
-    <!-- Assembly metadata -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>STS2_Discard_Mod</AssemblyName>
     <RootNamespace>DiscardMod</RootNamespace>
     <Version>0.1.0</Version>
-    
-    <!-- Build output -->
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <PublishDir>dist\</PublishDir>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    
-    <!-- Disable auto-generated assembly info to avoid conflicts -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- Disable arch mismatch warning (MSIL mod vs platform-specific game) -->
+    <NoWarn>$(NoWarn);MSB3270</NoWarn>
   </PropertyGroup>
 
-  <!-- NuGet Package Dependencies -->
-  <ItemGroup>
-    <!-- Harmony: Runtime patching for discard event detection -->
-    <PackageReference Include="HarmonyX" Version="2.10.2" />
-  </ItemGroup>
+  <!-- OS Detection -->
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+    <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
+    <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+  </PropertyGroup>
 
-  <!-- STS2 Game DLL Reference -->
-  <!-- STEP 1: Copy sts2.dll from game folder to lib/sts2.dll (see lib/README.md) -->
-  <!-- STEP 2: Uncomment the block below -->
-  <!-- STEP 3: Delete src/Stubs/ModInitializerStub.cs -->
-  <!-- STEP 4: Uncomment the 'using MegaCrit.*' lines in Main.cs and Logger.cs -->
-  <!--
+  <!-- Local lib/ override — copy sts2.dll and 0Harmony.dll here for cross-platform dev -->
+  <PropertyGroup>
+    <LocalLibPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../lib'))</LocalLibPath>
+    <Sts2DataDir Condition="'$(Sts2DataDir)' == '' and Exists('$(LocalLibPath)/sts2.dll')">$(LocalLibPath)</Sts2DataDir>
+  </PropertyGroup>
+
+  <!-- Windows — auto-detect Steam; falls back to user's known path -->
+  <PropertyGroup Condition="'$(IsWindows)' == 'true' and '$(Sts2DataDir)' == ''">
+    <AutoSteamPath>$(registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)\steamapps</AutoSteamPath>
+    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == '' and Exists('$(AutoSteamPath)/common/Slay the Spire 2')">$(AutoSteamPath)</SteamLibraryPath>
+    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">D:/G_games/steam/steamapps</SteamLibraryPath>
+    <Sts2DataDir>$(SteamLibraryPath)/common/Slay the Spire 2/data_sts2_windows_x86_64</Sts2DataDir>
+    <ModsPath Condition="'$(ModsPath)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2/mods/</ModsPath>
+  </PropertyGroup>
+
+  <!-- Linux — default Steam path -->
+  <PropertyGroup Condition="'$(IsLinux)' == 'true' and '$(Sts2DataDir)' == ''">
+    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">$(HOME)/.local/share/Steam/steamapps</SteamLibraryPath>
+    <Sts2DataDir>$(SteamLibraryPath)/common/Slay the Spire 2/data_sts2_linuxbsd_x86_64</Sts2DataDir>
+    <ModsPath Condition="'$(ModsPath)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2/mods/</ModsPath>
+  </PropertyGroup>
+
+  <!-- macOS -->
+  <PropertyGroup Condition="'$(IsOSX)' == 'true' and '$(Sts2DataDir)' == ''">
+    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">$(HOME)/Library/Application Support/Steam/steamapps</SteamLibraryPath>
+    <Sts2DataDir>$(SteamLibraryPath)/common/Slay the Spire 2/SlayTheSpire2.app/Contents/Resources/data_sts2_macos_x86_64</Sts2DataDir>
+    <ModsPath Condition="'$(ModsPath)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2/SlayTheSpire2.app/Contents/MacOS/mods/</ModsPath>
+  </PropertyGroup>
+
+  <!-- Game DLL references (from lib/ or game data folder) -->
   <ItemGroup>
-    <Reference Include="sts2">
-      <HintPath>..\lib\sts2.dll</HintPath>
+    <Reference Include="0Harmony">
+      <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="sts2">
+      <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
+      <Private>false</Private>
+      <Publicize>True</Publicize>
+    </Reference>
   </ItemGroup>
-  -->
 
-  <!-- Define stub constant when sts2.dll is NOT available -->
-  <PropertyGroup Condition="!Exists('$(MSBuildProjectDirectory)/../lib/sts2.dll')">
-    <DefineConstants>$(DefineConstants);STS2_NOT_AVAILABLE</DefineConstants>
-  </PropertyGroup>
+  <!-- Build utilities -->
+  <ItemGroup>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*"/>
+  </ItemGroup>
+
+  <!-- Manifest shown in project but not compiled -->
+  <ItemGroup>
+    <None Include="../STS2_Discard_Mod.json"/>
+  </ItemGroup>
+
+  <!-- Auto-deploy DLL + manifest to mods folder after build -->
+  <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent"
+          Condition="'$(ModsPath)' != '' and Exists('$(ModsPath)')">
+    <Message Text="Deploying to $(ModsPath)$(MSBuildProjectName)/" Importance="high"/>
+    <MakeDir Directories="$(ModsPath)$(MSBuildProjectName)/"/>
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../STS2_Discard_Mod.json"
+          DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+  </Target>
 
 </Project>

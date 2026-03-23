@@ -29,12 +29,16 @@ lib/*.dll
 lib/*.pdb
 !lib/README.md
 
-# Godot
+# Godot build cache (per-project)
 .godot/
+src/.godot/
 *.gdextension
 *.gdplugin
 mono_crash*.json
 user.godot
+
+# NuGet local packages folder (from nuget.config)
+packages/
 
 # STS2 Mod Cache
 mods/
