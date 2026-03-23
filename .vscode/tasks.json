@@ -45,7 +45,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Release/net9.0/STS2_Discard_Mod.dll' -Destination $dest -Force -Verbose; Write-Host '✅ Release DLL deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
+                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Release/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; Write-Host '✅ Release DLL deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
             ],
             "presentation": {
                 "reveal": "always",
@@ -62,7 +62,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Debug/net9.0/STS2_Discard_Mod.dll' -Destination $dest -Force -Verbose; Copy-Item -Path 'src/bin/Debug/net9.0/STS2_Discard_Mod.pdb' -Destination $dest -Force -Verbose; Write-Host '✅ Debug DLL + PDB deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
+                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.pdb' -Destination $dest -Force -Verbose; Write-Host '✅ Debug DLL + PDB deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
             ],
             "presentation": {
                 "reveal": "always",
@@ -74,12 +74,12 @@
             }
         },
         {
-            "label": "Deploy: mod_manifest.json",
+            "label": "Deploy: STS2_Discard_Mod.json",
             "type": "shell",
             "command": "powershell",
             "args": [
                 "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'mod_manifest.json' -Destination $dest -Force -Verbose; Write-Host '✅ mod_manifest.json deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
+                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'STS2_Discard_Mod.json' -Destination $dest -Force -Verbose; Write-Host '✅ STS2_Discard_Mod.json deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
             ],
             "presentation": {
                 "reveal": "always",
@@ -95,7 +95,7 @@
             "dependsOn": [
                 "Build: Release",
                 "Deploy: Release DLL",
-                "Deploy: mod_manifest.json"
+                "Deploy: STS2_Discard_Mod.json"
             ],
             "problemMatcher": [],
             "group": {
@@ -112,7 +112,7 @@
             "dependsOn": [
                 "Build: Debug",
                 "Deploy: Debug DLL + PDB",
-                "Deploy: mod_manifest.json"
+                "Deploy: STS2_Discard_Mod.json"
             ],
             "problemMatcher": [],
             "group": {

@@ -34,12 +34,12 @@ param(
 )
 
 # ==================== 配置 ====================
-$projectRoot = Split-Path -Parent $PSScriptRoot
-$gameModsDir = "D:\G_games\steam\steamapps\common\Slay the Spire 2\mods"
+$projectRoot = $PSScriptRoot
+$gameModsDir = "D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\STS2_Discard_Mod"
 $dllSourceDir = "$projectRoot\src\bin\$Configuration\net9.0"
-$dllName = "STS2_Discard_Mod.dll"
-$pdbName = "STS2_Discard_Mod.pdb"
-$modInfoSource = "$projectRoot\modInfo.json"
+$dllName = "STS2DiscardMod.dll"
+$pdbName = "STS2DiscardMod.pdb"
+$modInfoSource = "$projectRoot\STS2_Discard_Mod.json"
 
 # ==================== 函数 ====================
 
@@ -136,14 +136,14 @@ function Deploy-Files {
         }
     }
 
-    # 复制 modInfo.json
+    # 复制 manifest
     if (Test-Path $modInfoSource) {
-        Write-Info "复制 modInfo.json..."
+        Write-Info "复制 STS2_Discard_Mod.json..."
         Copy-Item -Path $modInfoSource -Destination $gameModsDir -Force -Verbose | Out-Host
-        Write-Success "modInfo.json 已部署"
+        Write-Success "STS2_Discard_Mod.json 已部署"
     }
     else {
-        Write-Warning-Custom "modInfo.json 不存在: $modInfoSource"
+        Write-Warning-Custom "STS2_Discard_Mod.json 不存在: $modInfoSource"
     }
 
     return $true
@@ -162,7 +162,7 @@ function Show-Summary {
     Write-Header "部署完成"
 
     $dllFile = Join-Path $gameModsDir $dllName
-    $modInfoFile = Join-Path $gameModsDir "modInfo.json"
+    $modInfoFile = Join-Path $gameModsDir "STS2_Discard_Mod.json"
 
     if (Test-Path $dllFile) {
         $size = Get-FileSize $dllFile
@@ -171,7 +171,7 @@ function Show-Summary {
     }
 
     if (Test-Path $modInfoFile) {
-        Write-Success "modInfo.json - 已更新"
+        Write-Success "STS2_Discard_Mod.json - 已更新"
     }
 
     Write-Info "部署位置: $gameModsDir"

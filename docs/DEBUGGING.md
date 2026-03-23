@@ -1,173 +1,185 @@
-# Debugging Guide
+# 调试与故障排查
 
-## Log File Location
+这份文档是当前仓库唯一的完整调试说明，包含日志定位、常见错误和 VS Code 附加调试器流程。
 
-STS2 uses BepInEx. Mod messages appear in the BepInEx log:
+## 1. 先看哪里有日志
 
+### BepInEx 日志
+
+模组加载与运行时输出主要看：
+
+```text
+{game}/BepInEx/LogOutput.log
 ```
-{game_install_dir}/BepInEx/LogOutput.log
-```
 
-Typical paths:
-- **Linux**: `~/.local/share/Steam/steamapps/common/Slay the Spire 2/BepInEx/LogOutput.log`
-- **Windows**: `D:\G_games\steam\steamapps\common\Slay the Spire 2\BepInEx\LogOutput.log`
-- **macOS**: `~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/MacOS/BepInEx/LogOutput.log`
+常见路径：
 
-### Filtering Mod Logs
+- Linux：`~/.local/share/Steam/steamapps/common/Slay the Spire 2/BepInEx/LogOutput.log`
+- Windows：`D:\G_games\steam\steamapps\common\Slay the Spire 2\BepInEx\LogOutput.log`
+- macOS：`~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/MacOS/BepInEx/LogOutput.log`
 
-All mod messages are prefixed with `[STS2DiscardMod]`:
+### 游戏日志过滤
+
+模组日志前缀是 `STS2DiscardMod`。
+
+Linux 或 macOS：
 
 ```bash
-# Follow log in real-time (Linux/macOS)
-tail -f BepInEx/LogOutput.log | grep '\[STS2DiscardMod\]'
-
-# Windows PowerShell
-Get-Content BepInEx\LogOutput.log -Wait | Select-String '\[STS2DiscardMod\]'
+tail -f BepInEx/LogOutput.log | grep 'STS2DiscardMod'
 ```
 
-Expected on successful load:
+Windows PowerShell：
+
+```powershell
+Get-Content BepInEx\LogOutput.log -Wait | Select-String 'STS2DiscardMod'
 ```
-[Info   : STS2DiscardMod] loading...
-[Info   : STS2DiscardMod] Registered 4 discard-trigger cards to RegentCardPool
-[Info   : STS2DiscardMod] loaded!
-```
 
----
-
-## Logging in Code
-
-The logger is exposed as a static property on `DiscardModMain`:
+## 2. 代码里怎么打日志
 
 ```csharp
-// In any card or helper class:
-DiscardModMain.Logger.Info("message");
-DiscardModMain.Logger.Debug("verbose details");
-DiscardModMain.Logger.Warning("something unexpected");
-DiscardModMain.Logger.Error("something failed");
+DiscardModMain.Logger.Info("普通信息");
+DiscardModMain.Logger.Debug("调试细节");
+DiscardModMain.Logger.Warning("异常状态");
+DiscardModMain.Logger.Error("错误信息");
 ```
 
-`Logger` is `MegaCrit.Sts2.Core.Logging.Logger` with id `"STS2DiscardMod"`.
+最适合先确认三件事：
 
----
+1. 模组有没有进入 `Initialize()`
+2. `RegisterCards()` 有没有执行
+3. 某张卡的 `OnPlay()` 有没有被调用
 
-## Common Issues
+## 3. 最常见的问题
 
-### Mod Not Loading
+### 问题 A：模组没有加载
 
-**Symptom**: No `[STS2DiscardMod]` lines in `BepInEx/LogOutput.log` after game starts.
+现象：日志里完全没有 `STS2DiscardMod`。
 
-1. Verify the mod folder exists and has both files:
-   ```
-   {game}/mods/STS2_Discard_Mod/
-   ├── STS2_Discard_Mod.dll
-   └── STS2_Discard_Mod.json
-   ```
-2. Check that `STS2_Discard_Mod.json` matches the expected format:
-   ```json
-   {
-     "id": "STS2DiscardMod",
-     "has_dll": true,
-     "has_pck": false,
-     "affects_gameplay": true
-   }
-   ```
-3. Rebuild from scratch:
-   ```bash
-   dotnet clean src/ && dotnet build src/ --configuration Release
-   ```
-4. Check BepInEx log for `TypeLoadException` or `FileNotFoundException` — these indicate a missing dependency or wrong .NET target.
+依次检查：
 
-### Cards Not Appearing in Pool
+1. live 目录是否正确
 
-**Symptom**: Mod loads but 储君 (Regent) card pool doesn't include the new cards.
-
-1. Check the log for: `Registered 4 discard-trigger cards to RegentCardPool`
-2. Verify each `AddModelToPool` call is present in `Main.cs`:
-   ```csharp
-   ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(DarkFlameFragment));
-   // (× 4 cards)
-   ```
-3. Check the localization JSON — a missing key can silently prevent a card from appearing:
-   ```
-   src/localization/eng/cards.json
-   ```
-   Required keys: `DARK_FLAME_FRAGMENT.title`, `DARK_FLAME_FRAGMENT.description`, and equivalent for all 4 cards.
-
-### Card Plays But Does Nothing
-
-**Symptom**: Card can be played from hand, but no effect occurs.
-
-This is expected for now — all `OnPlay()` bodies are stubs:
-```csharp
-public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
-{
-    DiscardModMain.Logger.Info("SwiftCut played");   // just logs
-    await Task.CompletedTask;                         // no effect
-}
+```text
+{game}/mods/STS2_Discard_Mod/
+├── STS2DiscardMod.dll
+└── STS2_Discard_Mod.json
 ```
 
-To implement an effect, replace the stub with real game actions. See `docs/DEV_GUIDE.md`.
+2. `STS2_Discard_Mod.json` 中是否至少包含：
 
-### Build Error STS001
-
-**Symptom**: Build fails with `STS001: Missing localization key for card 'CARDNAME.title'`.
-
-Add the key to `src/localization/eng/cards.json`:
 ```json
 {
-    "CARD_CLASS_NAME": {
-        "title": "Card Display Name",
-        "description": "Card description text."
-    }
+  "id": "STS2DiscardMod",
+  "has_dll": true,
+  "has_pck": false,
+  "affects_gameplay": true
 }
 ```
 
-The key must be the **uppercase** class name with underscores.
+3. 是否误把 `cards.json` 部署到了 live 模组目录
 
-### Crash on Launch
+```text
+{game}/mods/STS2_Discard_Mod/localization/eng/cards.json
+```
 
-1. Open `BepInEx/LogOutput.log` and look for `Exception` or `Error` near the top.
-2. Common causes:
-   - `TypeLoadException` — wrong `net9.0` target or missing reference DLL
-   - `MissingMethodException` — game API changed; rebuild with updated `sts2.dll`
-3. Try disabling the mod (rename or remove the subfolder) to confirm STS2 itself still launches.
+如果存在，删掉再重启游戏。
 
----
+4. 重新构建：
 
-## Attaching a Debugger (Optional)
+```bash
+dotnet clean src/ && dotnet build src/ --configuration Release
+```
 
-For step-through debugging:
+### 问题 B：日志报“找不到程序集”
 
-1. Build with Debug configuration:
-   ```bash
-   dotnet build src/ --configuration Debug
-   ```
-   This produces `STS2_Discard_Mod.pdb` alongside the DLL (auto-deployed by `CopyToModsFolderOnBuild`).
+这通常说明 manifest 的 `id` 与最终 DLL 名不一致。
 
-2. In VS Code, install the **C# Dev Kit** extension.
+当前仓库的正确组合是：
 
-3. Launch the game, then use **Run and Debug → Attach to Process** and select the STS2/Godot process.
+- `id`: `STS2DiscardMod`
+- DLL: `STS2DiscardMod.dll`
 
-4. Set breakpoints in `src/Cards/*.cs` or `src/Main.cs` — they will be hit when the game executes that code.
+### 问题 C：卡牌没出现在卡池里
 
----
+依次检查：
 
-## Quick Reference
+1. `Main.cs` 中是否调用了 4 次 `ModHelper.AddModelToPool(...)`
+2. 日志里是否出现 `Registered 4 discard-trigger cards to RegentCardPool`
+3. `src/localization/eng/cards.json` 是否补齐了对应键
 
-| Action | Command |
-| --- | --- |
-| Rebuild mod | `dotnet clean src/ && dotnet build src/ --configuration Release` |
-| Watch log (Linux) | `tail -f {game}/BepInEx/LogOutput.log \| grep STS2DiscardMod` |
-| Find deployed DLL | `find ~/.local/share/Steam -name "STS2_Discard_Mod.dll"` |
-| Check mod folder | `ls -la {game}/mods/STS2_Discard_Mod/` |
+### 问题 D：卡牌能打出但没有效果
 
----
+当前阶段这是预期行为。仓库里大多数 `OnPlay()` 还是占位实现。
 
-## Reporting Issues
+### 问题 E：构建报 `STS001`
 
-When filing a GitHub Issue, include:
+说明本地化键缺失。当前仓库用扁平键格式：
 
-1. OS + STS2 version
-2. Exact error text (copy from `BepInEx/LogOutput.log`)
-3. The relevant `[STS2DiscardMod]` log section
-4. Steps to reproduce
+```json
+{
+  "YOUR_CARD.title": "标题",
+  "YOUR_CARD.description": "描述"
+}
+```
+
+## 4. VS Code 附加调试器
+
+### 第一步：构建 Debug 版本
+
+```bash
+dotnet build src/ --configuration Debug
+```
+
+成功后会得到：
+
+```text
+{game}/mods/STS2_Discard_Mod/
+├── STS2DiscardMod.dll
+├── STS2DiscardMod.pdb
+└── STS2_Discard_Mod.json
+```
+
+### 第二步：附加进程
+
+1. 启动游戏
+2. 在 VS Code 打开“运行和调试”
+3. 选择“Attach to Process”
+4. 选择 STS2 或 Godot 进程
+5. 在 `src/Main.cs` 或 `src/Cards/*.cs` 下断点
+
+### 第三步：验证断点命中
+
+最稳妥的断点位置：
+
+- `DiscardModMain.Initialize()`
+- `DiscardModMain.RegisterCards()`
+- 目标卡牌的 `OnPlay()`
+
+## 5. 快速自检命令
+
+重建：
+
+```bash
+dotnet clean src/ && dotnet build src/ --configuration Release
+```
+
+查找部署后的 DLL：
+
+```bash
+find ~/.local/share/Steam -name "STS2DiscardMod.dll"
+```
+
+检查 live 模组目录：
+
+```bash
+ls -la {game}/mods/STS2_Discard_Mod/
+```
+
+## 6. 提交问题时应附带的信息
+
+如果需要继续排查，请至少提供：
+
+1. 操作系统与游戏版本
+2. 最新日志中的错误原文
+3. `mods/STS2_Discard_Mod/` 当前目录结构
+4. 你执行过的构建命令

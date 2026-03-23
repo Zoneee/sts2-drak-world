@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../../mnt/c/Users/heina/AppData/Roaming/SlayTheSpire2/logs"
+		}
+	],
+	"settings": {
+		"omnisharp.enableEditorConfigSupport": true,
+		"git.ignoreLimitWarning": true
+	}
+}

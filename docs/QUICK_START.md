@@ -1,114 +1,82 @@
-# VS Code 一键部署 — 快速上手
+# 3 分钟快速上手
 
-## 最快上手（3 步）
+这份文档只回答一件事：怎样最快把当前仓库编译并让游戏加载到最新 DLL。
 
-### 第一步：确认 sts2.dll 已就位
+## 第一步：确认 `sts2.dll` 已放到 `lib/`
 
 ```bash
-ls lib/sts2.dll   # 必须存在，否则先从游戏目录复制
+ls lib/sts2.dll
 ```
 
-如果文件不存在，见 [lib/README.md](../lib/README.md)。
+如果不存在，先从游戏目录复制。完整步骤见 [DEV_GUIDE.md](DEV_GUIDE.md)。
 
-### 第二步：在 VS Code 中打开项目
+## 第二步：打开项目
 
 ```bash
 code /home/alphonse/projects/STS2-Dark-World
 ```
 
-### 第三步：编译 + 自动部署
+## 第三步：一键构建并自动部署
 
-```
+```text
 Ctrl+Shift+B
 ```
 
-完成！自动流程：
-- 编译代码 → `src/bin/Release/net9.0/STS2_Discard_Mod.dll`
-- 部署 DLL 到 `{游戏目录}/mods/STS2_Discard_Mod/`
-- 部署 `STS2_Discard_Mod.json` 到同目录
+默认会执行 `Build: Release`，成功后会自动把文件部署到：
 
----
-
-## 每日开发循环
-
-```
-1. 编辑 src/Cards/*.cs 或 Main.cs
-2. Ctrl+Shift+B  →  等待 5-10 秒
-3. 启动 / 重启 STS2
-4. 创建游戏 → 选择储君（Regent）→ 检查卡牌
-5. 查看日志中是否有 "Registered 4 discard-trigger cards"
-```
-
----
-
-## 快捷键速查
-
-| 按键 | 操作 |
-|------|------|
-| **Ctrl+Shift+B** | 编译 Release + 自动部署 ⭐ |
-| **Ctrl+`** | 打开/关闭终端 |
-| **Ctrl+Shift+P** | 命令面板 |
-| **F5** | 附加调试器（需要游戏在运行） |
-
----
-
-## 部署失败怎么办
-
-### "找不到游戏目录"
-
-csproj 中的 `ModsPath` 未能解析。临时手动部署：
-
-```bash
-# Linux
-cp src/bin/Release/net9.0/STS2_Discard_Mod.dll \
-  ~/.local/share/Steam/steamapps/common/Slay\ the\ Spire\ 2/mods/STS2_Discard_Mod/
-```
-
-或编辑 `.vscode/tasks.json`，将 `ModsPath` 改为你的实际路径。
-
-### "文件被占用"
-
-游戏正在运行时无法替换 DLL。先关闭游戏再部署：
-
-```
-关闭 STS2 → Ctrl+Shift+B → 重启 STS2
-```
-
-### "构建失败 — sts2.dll not found"
-
-```bash
-ls lib/sts2.dll   # 检查文件
-# 如果不存在，从游戏目录复制，见 lib/README.md
-```
-
----
-
-## 部署后的文件结构
-
-```
+```text
 {游戏目录}/mods/STS2_Discard_Mod/
-├── STS2_Discard_Mod.dll     ← 编译的 mod
-└── STS2_Discard_Mod.json    ← mod 清单 (id, has_dll, version…)
+├── STS2DiscardMod.dll
+└── STS2_Discard_Mod.json
 ```
 
-> `localization/` 目前仅用于 CI/CD 打包，游戏运行时暂不需要（等实际本地化实现后再部署）。
+## 第四步：启动游戏验证
 
----
+启动游戏后，检查日志中是否出现：
 
-## 验证 mod 已加载
-
-启动游戏后，在 STS2 日志中搜索 `STS2DiscardMod`：
-
-```
+```text
 [STS2DiscardMod][INFO] STS2 Discard-Trigger Mod loading...
 [STS2DiscardMod][INFO] Registered 4 discard-trigger cards to RegentCardPool
 [STS2DiscardMod][INFO] STS2 Discard-Trigger Mod loaded!
 ```
 
-日志文件位置：
-- Windows: `%APPDATA%\Roaming\STS2\logs\`
-- Linux: `~/.local/share/STS2/logs/`
+## 如果自动部署失败
 
----
+### 情况 1：找不到游戏目录
 
-更多内容见 [DEV_GUIDE.md](DEV_GUIDE.md)。
+手动构建：
+
+```bash
+dotnet build src/ --configuration Release
+```
+
+然后把下面两个文件复制到游戏目录：
+
+```text
+src/bin/Release/net9.0/STS2DiscardMod.dll
+STS2_Discard_Mod.json
+```
+
+### 情况 2：DLL 被占用
+
+关闭游戏后重新执行：
+
+```text
+Ctrl+Shift+B
+```
+
+### 情况 3：`cards.json` 相关报错
+
+确认 live 模组目录里没有这类额外文件：
+
+```text
+{游戏目录}/mods/STS2_Discard_Mod/localization/eng/cards.json
+```
+
+当前加载器会把它误判为 manifest。
+
+## 下一步
+
+- 想看完整开发流程：见 [DEV_GUIDE.md](DEV_GUIDE.md)
+- 想看 VS Code 任务与快捷键：见 [VSCODE_WORKFLOW.md](VSCODE_WORKFLOW.md)
+- 想排查日志或附加调试器：见 [DEBUGGING.md](DEBUGGING.md)

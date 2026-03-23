@@ -1,265 +1,102 @@
-# VS Code 快速工作流指南
+# 编辑器工作流速查（VS Code）
 
-## 🎯 快速启动
+这份文档只说明 VS Code 里的任务、快捷键和推荐开发流程。
 
-### 一键编译 + 部署
+## 1. 最常用操作
 
-**使用 Ctrl+Shift+B 运行默认构建任务:**
+### 日常构建
 
-```
-Ctrl+Shift+B  →  自动运行 "Build: Release"
-```
-
-### 完整编译 + 部署流程
-
-**Ctrl+Shift+P 打开任务菜单，选择:**
-
-```
-"Build + Deploy: Release"  (推荐用于快速测试)
-或
-"Build + Deploy: Debug"    (用于调试会话)
+```text
+Ctrl+Shift+B
 ```
 
-两者都会自动：
-1. 编译 mod
-2. 复制 DLL 到游戏 `mods/STS2_Discard_Mod/` 子目录
-3. 复制 `STS2_Discard_Mod.json` 到游戏子目录
+会运行默认任务：`Build: Release`。
 
----
+### 调试构建
 
-## 📋 所有可用任务
+使用任务面板选择：
 
-### 编译任务
+- `Build: Debug`
+- `Build + Deploy: Debug`
 
-| 任务名称           | 快捷键         | 功能                                    |
-| ------------------ | -------------- | --------------------------------------- |
-| **Build: Release** | `Ctrl+Shift+B` | 编译 Release 版本（优化，用于最终部署） |
-| Build: Debug       | 无             | 编译 Debug 版本（包含调试符号）         |
-| Clean Build        | 无             | 清理所有编译输出                        |
+## 2. 当前任务列表
 
-### 部署任务
+### 构建任务
 
-| 任务名称                | 功能                                |
-| ----------------------- | ----------------------------------- |
-| Deploy: Release DLL     | 复制 Release DLL 到游戏目录         |
-| Deploy: Debug DLL + PDB | 复制 Debug DLL + 调试符号到游戏目录 |
-| Deploy: JSON manifest   | 复制 STS2_Discard_Mod.json 配置文件 |
+| 任务名           | 用途     |
+| ---------------- | -------- |
+| `Build: Release` | 日常构建 |
+| `Build: Debug`   | 调试构建 |
+| `Clean Build`    | 清理输出 |
 
-### 组合任务（推荐）
+### 部署相关任务
 
-| 任务名称                    | 功能                | 推荐场景           |
-| --------------------------- | ------------------- | ------------------ |
-| **Build + Deploy: Release** | 编译 → 部署 Release | 快速测试，最终部署 |
-| **Build + Deploy: Debug**   | 编译 → 部署 Debug   | 调试会话前         |
+| 任务名                          | 用途                 |
+| ------------------------------- | -------------------- |
+| `Deploy: Release DLL`           | 手动复制 Release DLL |
+| `Deploy: Debug DLL + PDB`       | 手动复制 Debug 产物  |
+| `Deploy: STS2_Discard_Mod.json` | 手动复制 manifest    |
 
-### 调试任务
+### 组合任务
 
-| 任务名称              | 功能                           |
-| --------------------- | ------------------------------ |
-| Attach Debugger: STS2 | 显示如何附加到 STS2/Godot 进程 |
+| 任务名                    | 用途                   |
+| ------------------------- | ---------------------- |
+| `Build + Deploy: Release` | 构建并手动部署 Release |
+| `Build + Deploy: Debug`   | 构建并手动部署 Debug   |
 
----
+## 3. 推荐工作流
 
-## 🚀 典型工作流
+### 场景 A：改代码后快速验证
 
-### 场景 1: 快速测试（最常用）
+1. 修改 `src/Main.cs` 或 `src/Cards/*.cs`
+2. 按 `Ctrl+Shift+B`
+3. 重启游戏
+4. 看日志是否出现 `STS2DiscardMod`
 
-```
-1. 编辑代码
-   └─ 修改 src/Cards/*.cs or src/Main.cs
+### 场景 B：准备断点调试
 
-2. 按 Ctrl+Shift+B (或 Ctrl+Shift+D → Build + Deploy: Release)
-   └─ 自动编译 + 部署
-
-3. 切换到游戏
-   └─ 重启 STS2
-   └─ 创建新游戏测试
-```
-
-### 场景 2: 调试会话
-
-```
-1. 按 Ctrl+Shift+D → "Build + Deploy: Debug"
-   └─ 编译 + 部署 Debug 版本（带符号）
-
+1. 运行 `Build + Deploy: Debug`
 2. 启动游戏
-   └─ STS2 会加载最新的 DLL
+3. 打开“运行和调试”并附加到进程
+4. 在源码里下断点
 
-3. 按 F5 或 Debug → Attach to Process
-   └─ 选择 Godot.exe
-   └─ 现在可以在代码中设置断点
+### 场景 C：路径有问题时临时手动部署
 
-4. 在游戏中触发效果
-   └─ 代码会在断点处暂停
-   └─ 可以检查变量、堆栈等
+1. 正常执行构建
+2. 使用单独的部署任务补复制
+3. 确认 live 模组目录结构正确
+
+## 4. 部署目录约定
+
+当前仓库约定的正确 live 结构是：
+
+```text
+{游戏目录}/mods/STS2_Discard_Mod/
+├── STS2DiscardMod.dll
+├── STS2DiscardMod.pdb    # 仅 Debug 时存在
+└── STS2_Discard_Mod.json
 ```
 
-### 场景 3: 添加新卡牌
+不要往这个目录里额外复制 `cards.json`。
 
-```
-1. 创建新文件 src/Cards/NewCard.cs
+## 5. 常用快捷键
 
-2. 编写代码
+| 快捷键         | 作用             |
+| -------------- | ---------------- |
+| `Ctrl+Shift+B` | 运行默认构建任务 |
+| `Ctrl+Shift+P` | 打开命令面板     |
+| `Ctrl+J`       | 打开或关闭面板   |
+| `F5`           | 启动或附加调试器 |
 
-3. Ctrl+Shift+B 编译
-   └─ 错误会在 VS Code "最多" 窗口显示
+## 6. 路径自定义
 
-4. 如果编译成功：Ctrl+Shift+D → "Build + Deploy: Release"
-   └─ 自动部署
+如果你的游戏安装路径和默认值不同，有两种方式：
 
-5. 重启游戏测试
-```
+1. 优先通过 `dotnet build ... -p:SteamLibraryPath=...` 覆盖
+2. 只在必要时修改 `.vscode/tasks.json` 里的手动部署路径
 
----
+## 7. 配合文档
 
-## ⌨️ 键盘快捷键速查
-
-| 快捷键         | 操作                             |
-| -------------- | -------------------------------- |
-| `Ctrl+Shift+B` | 运行默认构建 (Release)           |
-| `Ctrl+Shift+D` | 打开任务菜单（选择其他构建选项） |
-| `Ctrl+`+``     | 开启/关闭集成终端                |
-| `Ctrl+J`       | 切换面板（查看编译输出）         |
-| `F5`           | 启动调试/附加调试器              |
-
-### 自定义快捷键
-
-编辑 `.vscode/keybindings.json` 添加快捷键：
-
-```json
-[
-    {
-        "key": "ctrl+shift+d",
-        "command": "workbench.action.tasks.runTask",
-        "args": "Build + Deploy: Debug"
-    },
-    {
-        "key": "ctrl+shift+r",
-        "command": "workbench.action.tasks.runTask",
-        "args": "Build + Deploy: Release"
-    }
-]
-```
-
----
-
-## 🔧 自定义部署路径
-
-如果你的游戏路径不同，编辑 `.vscode/tasks.json`：
-
-找到：
-```json
-"args": ["-Command", "Copy-Item -Path ... -Destination 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/' ..."]
-```
-
-替换路径：
-```json
-"args": ["-Command", "Copy-Item -Path ... -Destination 'C:/YOUR_PATH/Slay the Spire 2/mods/' ..."]
-```
-
-> ⚠️ 在 PowerShell 中，Windows 路径使用 `/` 或 `\\` 都可以，但 `/` 更简洁。
-
----
-
-## 📊 工作流图
-
-```
-编辑代码
-   ↓
-Ctrl+Shift+B (编译)
-   ↓
-自动部署 ✅
-   ↓
-切换游戏
-   ↓
-重启 STS2
-   ↓
-创建新游戏测试
-   ↓
-F5 附加调试器（可选）
-   ↓
-检查卡牌/效果
-```
-
----
-
-## 🎮 游戏部署路径
-
-```
-{游戏目录}/mods/
-└── STS2_Discard_Mod/
-    ├── STS2_Discard_Mod.dll    ← Release 或 Debug 版本
-    ├── STS2_Discard_Mod.pdb    ← 仅 Debug 时存在
-    └── STS2_Discard_Mod.json   ← mod 元数据
-```
-
-**注意**: mod 部署在独立子目录 `STS2_Discard_Mod/` 中，不直接放在 `mods/` 根目录下。
-
-**csproj 自动完成此部署** (`CopyToModsFolderOnBuild` target)，无需 VS Code 任务手动复制文件。
-
----
-
-## ✅ 验证部署成功
-
-任务执行后，终端应显示：
-
-```
-✅ Release DLL deployed!
-✅ STS2_Discard_Mod.json deployed!
-```
-
-实际上, csproj 的 `CopyToModsFolderOnBuild` target 会在编译后自动部署，
-不依赖 VS Code 任务。如果自动部署不工作（游戏未安装或路径不同），
-检查 csproj 中 `SteamLibraryPath` 并通过构建参数覆盖:
-```bash
-dotnet build src/ -c Release -p:SteamLibraryPath=/your/custom/steam/steamapps
-```
-
----
-
-## 💡 Pro 技巧
-
-### 自动监听文件变化
-
-VS Code 可以配置自动编译。在 `.vscode/settings.json` 添加：
-
-```json
-{
-    "dotnet.autoGenerateAssets": true,
-    "editor.formatOnSave": true
-}
-```
-
-### Watch 模式（实验性）
-
-如果需要完全自动化，创建 PowerShell 脚本 `watch-deploy.ps1`：
-
-```powershell
-param([string]$Config = "Release")
-
-while ($true) {
-    Clear-Host
-    Write-Host "🔄 编译中..." -ForegroundColor Cyan
-    dotnet build "src/" --configuration $Config
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ 编译成功，部署中..." -ForegroundColor Green
-        Copy-Item "src/bin/$Config/net9.0/STS2_Discard_Mod.dll" -Destination "D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/" -Force
-        Write-Host "✅ 部署完成！", $((Get-Date).ToString("HH:mm:ss")) -ForegroundColor Green
-    } else {
-        Write-Host "❌ 编译失败!" -ForegroundColor Red
-    }
-
-    Write-Host "`n⏳ 等待文件变化... (按 Ctrl+C 停止)" -ForegroundColor Yellow
-    Start-Sleep -Seconds 5
-}
-```
-
-运行：
-```bash
-powershell -ExecutionPolicy Bypass -File watch-deploy.ps1
-```
-
----
-
-**🎉 现在你可以按 Ctrl+Shift+B 一键编译+部署！**
+- 想看完整开发说明：见 [DEV_GUIDE.md](DEV_GUIDE.md)
+- 想看调试流程：见 [DEBUGGING.md](DEBUGGING.md)
+- 想看 Windows 专项路径：见 [WINDOWS_DEPLOYMENT.md](WINDOWS_DEPLOYMENT.md)

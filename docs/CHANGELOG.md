@@ -1,108 +1,57 @@
-# Changelog
+# 版本历史
 
-All notable changes to the STS2 Discard-Trigger Mod will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
+本文件记录已经落地到仓库中的变更，不记录纯设计想法。
 
 ## [Unreleased]
 
-### In Progress
-- `OnPlay()` implementations for all 4 cards (currently empty stubs)
-- Discard trigger detection via Harmony patch
+### 开发中
 
----
+- 4 张卡牌的 `OnPlay()` 真实效果
+- 弃牌触发事件监听
+- 游戏内实际验证与平衡调整
 
-## [0.1.0-alpha] — TBD
+## [0.1.0-alpha]
 
-### Added
+### 已完成
 
-#### Cards (4 cards, `RegentCardPool` / 储君角色)
+#### 框架
 
-| 中文名 | English | Class | Type | Cost | Rarity | Target |
-| --- | --- | --- | --- | --- | --- | --- |
-| 迅影斩 | Swift Cut | `SwiftCut` | Attack | 0 | Common | AnyEnemy |
-| 暗焰残页 | Dark Flame Fragment | `DarkFlameFragment` | Skill | 1 | Common | AnyEnemy |
-| 毒素记录 | Toxin Record | `ToxinRecord` | Skill | 1 | Uncommon | Self |
-| 碎念回响 | Shattered Echo | `ShatteredEcho` | Skill | 2 | Rare | Self |
+- 建立 `DiscardModMain` 模组入口
+- 配置 `STS2DiscardMod` 日志前缀
+- 建立 `STS2_Discard_Mod.json` manifest
+- 项目可以在 `net9.0` 下成功构建
 
-All cards are registered via `ModHelper.AddModelToPool(typeof(RegentCardPool), ...)`.  
-All `OnPlay()` bodies are placeholder stubs pending effect implementation.
+#### 卡牌
 
-#### Framework
+- 新增 4 张卡牌类
+- 已将 4 张卡注册到 `RegentCardPool`
+- 已补齐对应本地化键
 
-- `[ModInitializer(nameof(Initialize))]` entry point on static class `DiscardModMain`
-- `MegaCrit.Sts2.Core.Logging.Logger` with mod ID `STS2DiscardMod`
-- `ModHelper.AddModelToPool` for card pool registration
-- `src/localization/eng/cards.json` with 8 localization keys (satisfies STS001)
-- `STS2_Discard_Mod.json` manifest at project root
+#### 构建与部署
 
-#### Build & CI/CD
+- 配置 `CopyToModsFolderOnBuild` 自动部署
+- 统一 live 目录结构为 `mods/STS2_Discard_Mod/`
+- 统一 DLL 名为 `STS2DiscardMod.dll`
+- 修复 manifest 与 DLL 命名不一致导致的加载失败问题
+- 停止把 `cards.json` 部署到 live 模组目录，避免被误判为 manifest
 
-- `Microsoft.NET.Sdk`, `net9.0`, `BepInEx.AssemblyPublicizer.MSBuild v0.4.3`
-- `Alchyr.Sts2.ModAnalyzers` — STS003 warnings (acceptable), STS001 enforces localization
-- `CopyToModsFolderOnBuild` MSBuild target: auto-deploys DLL + JSON to `mods/STS2_Discard_Mod/`
-- GitHub Actions (`build.yml`): builds on push to `main`, creates Release on `v*` tags
-- Requires `STS2_DLL_B64` repository secret for CI builds
+#### 文档
 
-#### Documentation
+- 重写 `README.md`
+- 收敛快速上手、开发、调试、Windows 部署、Godot 调试说明
+- 将主要文档统一为中文
 
-- `README.md` — Installation, card list, CI instructions
-- `docs/DEV_GUIDE.md` — Developer setup, card template, build workflow
-- `docs/QUICK_START.md` — Quick install and first run
-- `docs/ARCHITECTURE.md` — Code structure, API reference
-- `docs/DEBUGGING.md` — BepInEx log location, common issues
-- `docs/CHANGELOG.md` — This file
+### 当前已知限制
 
-### Known Issues
+- 卡牌目前主要是注册成功，效果未完成
+- 弃牌触发机制尚未实现
+- 游戏内完整验证尚未完成
 
-- All `OnPlay()` methods are empty — cards appear in pool but have no effects yet
-- Discard trigger mechanic not implemented (no Harmony patches yet)
-- `STS003` warnings on card constructors (acceptable per ModAnalyzers docs)
-- In-game appearance unverified (no actual test run completed)
+## 后续版本方向
 
----
+### [0.2.0] 计划
 
-## [0.2.0] — TBD
-
-### Planned
-
-- `OnPlay()` implementations for all 4 cards
-- Discard trigger via Harmony patch on STS2 discard event
-- In-game playtesting and balance tuning
-- Additional cards (5–8) based on playtesting feedback
-
----
-
-## Development History
-
-### Setup Phase (Completed)
-- [x] Repository initialized: `git@github.com:Zoneee/sts2-drak-world.git`
-- [x] `.gitignore` for C#/.NET/Godot/STS2 artifacts
-- [x] Correct project structure matching `erasels/StS2-Quick-Restart`
-- [x] `nuget.config`, `src/project.godot`, assembly references
-
-### Framework Phase (Completed)
-- [x] `Main.cs` with `[ModInitializer]` + `ModHelper.AddModelToPool`
-- [x] 4 × `CardModel` subclasses in `src/Cards/`
-- [x] `src/localization/eng/cards.json` with all 8 keys
-- [x] `STS2_Discard_Mod.json` manifest
-- [x] Build passing: 0 errors, 4 STS003 warnings
-- [x] CI/CD fixed and working (`build.yml`)
-
-### Pending
-- [ ] Implement `OnPlay()` for each card
-- [ ] Research STS2 API for discard events
-- [ ] Implement discard trigger via Harmony patch
-- [ ] In-game testing (cards visible in pool, effects fire on discard)
-- [ ] Balance tuning
-
----
-
-## Acknowledgments
-
-- **STS2 Mod API**: MegaCrit / `sts2.dll`
-- **Reference mod**: [erasels/StS2-Quick-Restart](https://github.com/erasels/StS2-Quick-Restart)
-- **ModAnalyzers**: [Alchyr](https://github.com/Alchyr/)
+- 完成 4 张卡的实际效果
+- 接入弃牌事件监听
+- 完成至少一轮游戏内验证
+- 根据结果调整数值与设计

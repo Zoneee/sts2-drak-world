@@ -1,202 +1,410 @@
-# Game Design: Discard-Trigger Card System
+# 卡牌设计文档
 
-## Overview
+这份文档描述的是设计目标，不代表当前仓库已经实现全部效果。
 
-This mod introduces a novel card mechanic to Slay the Spire 2: **"Discard-Trigger"** cards that activate powerful effects *when discarded*, rather than when played from hand.
+当前真实状态请优先看 [MOD_REGISTRY.md](MOD_REGISTRY.md) 和 [CHANGELOG.md](CHANGELOG.md)。
 
-## Core Philosophy
+## 1. 设计目标
 
-**Traditional STS2 Cards**: Play → Get Effect → Discard  
-**Discard-Trigger Cards**: Draw/Keep → Discard via Other Effect → Trigger Special Effect
+本模组想引入一类“弃牌后触发”的卡牌，让玩家围绕以下循环构筑：
 
-This inverts the normal card economy, allowing players to build synergies around:
-1. **Passive card draw** (finding the right cards)
-2. **Active discard effects** (triggering them via other cards or effects)
-3. **Recycling/recovery** (rebuilding the deck after discard loops)
+1. 抽到目标卡
+2. 借助其他效果把它弃掉
+3. 在弃牌瞬间触发收益
+4. 再通过抽牌或回收继续连动
 
-## Mechanical Framework
+和传统“打出即生效”不同，这类卡牌更依赖手牌运营和弃牌引擎。
 
-### Card Properties
+## 2. 核心机制：弃触发
 
-All discard-trigger cards share these properties:
+### 机制定义
 
-| Property              | Value                          | Notes                                            |
-| --------------------- | ------------------------------ | ------------------------------------------------ |
-| **Playability**       | Cannot Play or Play Effect = 0 | Player must use other effects to trigger         |
-| **Finder-Ability**    | Findable in card pool          | Normal relic/pool access                         |
-| **Discard Detection** | Via BaseLib hooks              | Triggers when card leaves hand to discard pile   |
-| **Energy Cost**       | 0–1 (variable)                 | Cost is "payment" for draft, not for usage       |
-| **Rarity**            | Common–Uncommon                | Prevents powercreep; encourages synergy building |
+- 这类牌可以正常抽到，也可以留在手里
+- 当它们被“丢弃”时，会触发额外效果
+- 一部分牌不适合正常打出，甚至可以设计为：
+	- 无法打出
+	- 或正常打出收益偏低，但弃掉收益更高
 
-### Card Types
+### 核心循环
 
-1. **Direct Damage on Discard** (e.g., "Dark Flame Fragment")
-   - Pure offensive; simplest case
-   - Enables: Combo with multi-discard effects for burst damage
-   - Example: Discard 3 "Dark Flame" → +18 total damage
+1. 通过过牌快速找到组件
+2. 用主动弃牌手段把“弃触发牌”送进弃牌堆
+3. 在弃牌过程中打伤害、上状态、叠资源
+4. 再通过回收或检索形成连段
 
-2. **Debuff Application** (e.g., "Toxin Record")
-   - Status-based; enables multi-turn value
-   - Enables: Boss scaling, poison-based decks
-   - Example: Discard 5 "Toxin" → +40 poison layers
+## 3. 设计原则
 
-3. **Card Draw / Energy Refund** (e.g., "Swift Cut", "Shattered Echo")
-   - Enabler cards; create deck loops
-   - Enables: Chaining discard effects, sustained card advantage
-   - Example: Discard "Shattered Echo" → Draw 2 more → Chain more discards
+- 触发收益要明显，但不能在前期无限滚雪球
+- 需要额外的弃牌手段，不能单卡自洽过强
+- 普通卡也要能作为体系启动器，而不是只能靠高稀有度卡启动
+- 多人环境下不应造成同步复杂度过高
+- 体系需要同时具备启动、收益、循环和结算四个层次
 
-4. **Utility** (Future cards 5–8)
-   - Block generation, artifact gain, power scaling, etc.
-   - TBD based on balance testing
+## 4. 八张原型卡设计
 
----
+下面这 8 张牌描述的是体系原型，不代表当前仓库已经全部实现。
 
-## 8 Card Roster
+### 1. 迅切
 
-### Tier 1: Foundation (Cards for every deck)
+- 类型：技能
+- 费用：0
+- 稀有度：普通
 
-#### 1. **迅切** (Swift Cut)
-**Type**: Skill | **Cost**: 0 | **Rarity**: Common | **Upgrade**: ✓
+效果：
 
-**Base Effect**:
-- Draw 2 cards
-- Discard 1 card
-- If the discarded card is a discard-trigger card, gain 1 Energy
+- 抽 2 张牌，然后弃 1 张牌
+- 如果本次弃掉的是一张“弃触发”牌，获得 1 点能量
 
-**Upgrade Effect**:
-- Draw 3 cards
-- Discard 1 card
-- If the discarded card is a discard-trigger card, gain 1 Energy
+升级：
 
-**Design Intent**: 
-- Entry point to the system; pure 0-cost card draw
-- Refund mechanic incentivizes holding discard-trigger cards
-- Synergizes with: All discard-trigger cards
+- 抽 3 张牌，然后弃 1 张牌
+- 如果本次弃掉的是一张“弃触发”牌，获得 1 点能量
 
----
+设计意图：
 
-### Tier 2: Damage Enablers
+- 作为体系基础启动器
+- 用 0 费过牌和弃牌帮助玩家快速进入节奏
+- 当命中关键牌时提供流畅度补偿
 
-#### 2. **暗焰残页** (Dark Flame Fragment)
-**Type**: Skill | **Cost**: 1 | **Rarity**: Common | **Upgrade**: ✓
-**Playability**: Cannot Play
+### 2. 暗焰残页
 
-**Base Effect**:
-- When discarded: Deal 6 damage to all enemies
+- 类型：技能 / 特殊牌
+- 费用：1
+- 稀有度：普通
 
-**Upgrade Effect**:
-- When discarded: Deal 9 damage to all enemies
+效果：
 
-**Design Intent**:
-- Clearest "discard-trigger" mechanic; no ambiguity
-- Stacks multiplicatively with multi-discard (3 discards = 18 dmg)
-- Enables: Burst damage combos, early act scaling
+- 无法打出
+- 当这张牌被丢弃时，对所有敌人造成 6 点伤害
 
----
+升级：
 
-#### 3. **毒记** (Toxin Record)
-**Type**: Skill | **Cost**: 1 | **Rarity**: Common | **Upgrade**: ✓
-**Playability**: Cannot Play
+- 被丢弃时，对所有敌人造成 9 点伤害
 
-**Base Effect**:
-- When discarded: Apply 8 Poison to a random enemy
+设计意图：
 
-**Upgrade Effect**:
-- When discarded: Apply 12 Poison to a random enemy
+- 最标准的“弃掉才有收益”示例牌
+- 明确告诉玩家这套体系不是靠手打，而是靠弃牌发动
 
-**Design Intent**:
-- Poison scaling provides long-term value
-- Less burst-dependent than Dark Flame; better for extended runs
-- Enables: Boss-scaling decks, poison-focused synergy
+### 3. 毒记
 
----
+- 类型：技能 / 特殊牌
+- 费用：1
+- 稀有度：普通
 
-### Tier 3: Combo Enablers
+效果：
 
-#### 4. **碎念回响** (Shattered Echo)
-**Type**: Skill | **Cost**: 1 | **Rarity**: Common | **Upgrade**: ✓
+- 无法打出
+- 当这张牌被丢弃时，对一个随机敌人施加 5 层易伤或 6 层中毒
 
-**Base Effect**:
-- Discard 1 card from hand
-- If that card is a discard-trigger card, draw 2 cards
+推荐稳定版：
 
-**Upgrade Effect**:
-- Discard 1 card from hand
-- If that card is a discard-trigger card, draw 3 cards
+- 当这张牌被丢弃时，对随机敌人施加 8 层中毒
 
-**Design Intent**:
-- Enabler for chaining discard effects
-- Turbo-charges deck cycles
-- Enables: Long combo turns, consistent card velocity
+升级：
 
----
+- 提高施加层数
 
-### Tier 4: Advanced Mechanics (Cards 5–8) — TBD
+设计意图：
 
-**Candidates** (Placeholder):
+- 为体系补足持续收益和打 boss 的维度
+- 与直伤型牌形成输出分工
 
-- **Card 5**: Artifact/Block generator on discard
-- **Card 6**: Power scaling (e.g., +1 strength per discard-trigger)
-- **Card 7**: Multi-discard amplifier (e.g., "Discard 2, trigger both")
-- **Card 8**: Recovery/Recycle (e.g., "Discard pile → Hand")
+### 4. 碎念回响
 
-*To be designed after Phase 4 balance testing.*
+- 类型：技能
+- 费用：1
+- 稀有度：普通
 
----
+效果：
 
-## Gameplay Loop
+- 弃 1 张牌
+- 若弃掉的是“弃触发”牌，再抽 2 张牌
 
-### Early Run (Acts 1–2)
+升级：
 
-1. **Draft Phase**: Pick up 1–3 discard-trigger cards + "Swift Cut" / "Shattered Echo"
-2. **Play Phase**: Use support cards to discard triggers
-3. **Output**: Consistent damage + status debuffs
-4. **Scaling**: Linear (more copies = more triggers)
+- 弃 1 张牌
+- 若弃掉的是“弃触发”牌，再抽 3 张牌
 
-### Late Run (Acts 3+)
+设计意图：
 
-1. **Synergy Phase**: Build around specific trigger types (e.g., all poison, all damage)
-2. **Enabler Phase**: Stack card-draw + discard effects to create mega-turns
-3. **Output**: 30–100 damage per turn + heavy debuffs OR infinite loops (if available)
-4. **Scaling**: Exponential (exponential if we add recycling mechanics)
+- 作为体系桥梁卡
+- 把“弃触发”转换为继续过牌的能力，形成连锁
 
----
+### 5. 回收思路
 
-## Balance Principles
+- 类型：技能
+- 费用：1
+- 稀有度：普通
 
-### Design Constraints
+效果：
 
-1. **No 0-cost triggers** (except Swift Cut): Prevents infinite loops in Act 1
-2. **Random targeting where applicable**: Allows RNG to nerf overpowered turns
-3. **Requires setup**: Player must play other cards to activate triggers
-4. **Tuned for 4-player**: All damage/status values balanced assuming 4 enemies present
+- 从弃牌堆选择 1 张“弃触发”牌加入手牌
+- 本回合其费用 -1
+- 你可以弃 1 张牌
 
-### Balance Levers (Tuning Knobs)
+升级：
 
-- **Damage**: Adjust per-discard value (+6 → +8 → +10)
-- **Status**: Adjust layer counts (+8 → +12 poison)
-- **Energy Refund**: Remove energy refund if overpowered
-- **Draw**: Reduce card draw per trigger if too much velocity
+- 从弃牌堆选择 1 张“弃触发”牌加入手牌
+- 本回合其费用变为 0
+- 然后弃 1 张牌
 
----
+设计意图：
 
-## Multiplayer Considerations
+- 作为资源循环卡
+- 让弃掉的关键牌能再次进入连段
 
-### Sync Requirements
+### 6. 割裂筹划
 
-- All players must run **identical mod version** (game enforces via mod mismatch detection)
-- Discard effects fire **independently per player** (not shared across network)
-- Card pool is **identical for all players** (same seed-based generation)
+- 类型：技能
+- 费用：1
+- 稀有度：非凡或高阶普通
 
-### Balance for 4-Player
+效果：
 
-- Card costs tuned assuming 4 damage targets (not 1)
-- Poison values account for 4-enemy multi-hit scenarios
-- Enabling cards (Swift Cut, Shattered Echo) prevent slowdown from interaction overhead
+- 本回合内，你每丢弃 1 张牌，随机敌人受到 4 点伤害
+- 抽 1 张牌
 
----
+升级：
 
-## Design Document History
+- 每次丢弃造成 6 点伤害
+- 抽 1 张牌
 
-- **v0.1.0-alpha (March 2026)**: Initial 8-card design, ready for prototyping
-- **v0.2.0 (TBD)**: Post-playtesting balance adjustments + Cards 5–8 finalization
+设计意图：
+
+- 作为体系引擎增幅件
+- 让普通弃牌动作也具备稳定收益，而不完全依赖精准命中“弃触发牌”
+
+### 7. 封存冲动
+
+- 类型：技能
+- 费用：2
+- 稀有度：罕见
+
+效果：
+
+- 抽 3 张牌
+- 然后弃至多 2 张牌
+- 每弃 1 张牌，获得 1 点护甲
+- 每有 1 张“弃触发”牌以此法被丢弃，对随机敌人造成 8 点伤害
+
+升级：
+
+- 抽 4 张牌
+- 然后弃至多 2 张牌
+- 每弃 1 张牌，获得 2 点护甲
+- 每有 1 张“弃触发”牌以此法被丢弃，对随机敌人造成 10 点伤害
+
+设计意图：
+
+- 作为中段爆发卡
+- 同时兼顾过牌、弃牌、防御与输出
+
+### 8. 终稿：焚尽备忘
+
+- 类型：技能
+- 费用：2
+- 稀有度：稀有
+
+效果：
+
+- 弃掉你手中的所有“弃触发”牌
+- 每弃掉 1 张，对一个随机敌人造成 10 点伤害，并抽 1 张牌
+- 若本次共弃掉 3 张或更多“弃触发”牌，获得 1 点能量
+
+升级：
+
+- 每弃掉 1 张，对随机敌人造成 14 点伤害，并抽 1 张牌
+- 若共弃掉 3 张或更多，获得 2 点能量
+
+设计意图：
+
+- 作为体系收尾牌
+- 把前期积累的一手组件统一转化为爆发输出与续航
+
+## 5. 这 8 张牌如何形成一个小体系
+
+### 启动组件
+
+- 迅切
+- 碎念回响
+
+作用：快速过牌，把关键牌送进弃牌堆。
+
+### 被丢弃时生效的核心牌
+
+- 暗焰残页
+- 毒记
+
+作用：提供“弃牌 = 收益”的核心满足感。
+
+### 中继与循环
+
+- 回收思路
+- 割裂筹划
+
+作用：让体系具备持续性，而不是打一轮就停。
+
+### 爆发与结算
+
+- 封存冲动
+- 终稿：焚尽备忘
+
+作用：把前面积累的资源转成一波强行动。
+
+## 6. 示例连段
+
+假设手里有：
+
+- 迅切
+- 暗焰残页
+- 毒记
+- 碎念回响
+- 终稿：焚尽备忘
+
+可以按下面方式结算：
+
+1. 使用迅切：抽 2，弃 1，弃掉暗焰残页，对全体造成伤害
+2. 使用碎念回响：再弃 1，弃掉毒记，施加状态，同时继续抽牌
+3. 若中间摸到回收思路，可把关键牌拿回手里继续连段
+4. 最后使用终稿：焚尽备忘，把手里剩余的弃触发牌一起结算成一波输出和补牌
+
+这个连段的核心体验是：
+
+不是单纯亏手牌，而是把手牌转化成另一种战斗价值。
+
+## 7. 规则建议
+
+### A. 给体系明确关键词
+
+建议给这类牌一个统一标签，例如：
+
+- 残页
+- 焚稿
+- 弃咒
+- 遗稿
+
+例如可以写成：
+
+> 当你丢弃一张遗稿牌时，触发其遗稿效果。
+
+这样无论是代码实现还是玩家理解都会更清晰。
+
+### B. 区分主动弃牌和回合结束弃牌
+
+这是非常关键的规则点。
+
+可选方案：
+
+- 方案 1：任何丢弃都触发
+	- 优点：直观、爽快
+	- 缺点：容易过强，回合结束自动弃牌也能白赚
+- 方案 2：仅主动丢弃触发
+	- 优点：可控，更强调操作
+	- 缺点：需要额外规则说明
+
+当前更推荐：
+
+> 仅当这张牌因卡牌效果被丢弃时，触发弃触发效果。
+
+### C. 后续应补足防御向弃触发牌
+
+当前这套原型偏进攻，后面最好补至少 1 张防御型弃触发牌，例如：
+
+- 被丢弃时获得格挡
+- 被丢弃时虚弱敌人
+- 被丢弃时降低敌人力量
+- 被丢弃时生成临时牌
+
+## 8. 主题方向建议
+
+这套机制目前比较适合以下风格：
+
+### 方向 1：焚稿 / 禁术手札
+
+- 丢弃像燃烧手稿
+- 被丢弃时触发咒术、爆炸、诅咒
+
+### 方向 2：飞刀 / 杂耍 / 盗贼
+
+- 丢弃像甩出暗器
+- 过牌很快，弃牌有额外伤害
+
+### 方向 3：精神碎片 / 记忆崩解
+
+- 丢弃不是扔牌，而是撕裂记忆
+- 被丢弃时造成精神、状态、衰弱类效果
+
+从当前机制看，最适合先落地的主题是：
+
+- 盗贼风
+- 焚稿风
+
+## 9. 当前 4 张已落地卡牌的定位
+
+### 迅影斩
+
+- 目标角色：体系启动器
+- 设计方向：抽牌、弃牌、加速手牌循环
+- 当前实现：已注册，效果未完成
+
+### 暗焰残页
+
+- 目标角色：直伤型弃牌触发
+- 设计方向：弃牌时对敌方造成群体伤害
+- 当前实现：已注册，效果未完成
+
+### 毒素记录
+
+- 目标角色：持续伤害型弃牌触发
+- 设计方向：弃牌时施加中毒或类似 debuff
+- 当前实现：已注册，效果未完成
+
+### 碎念回响
+
+- 目标角色：连锁型引擎牌
+- 设计方向：弃牌后补充抽牌或进一步扩大连动
+- 当前实现：已注册，效果未完成
+
+## 10. 计划中的玩法循环
+
+### 早期
+
+- 拿到 1 到 2 张弃牌触发牌
+- 配合基础抽牌或弃牌牌稳定触发
+- 形成基础收益，不追求无限连锁
+
+### 中后期
+
+- 围绕某一触发方向构筑，例如直伤、毒、循环
+- 用高质量弃牌手段连续触发
+- 再用抽牌或回收机制放大单回合收益
+
+## 11. 平衡方向
+
+主要调节杆包括：
+
+- 每次弃牌触发的伤害或层数
+- 抽牌和能量返还的数值
+- 是否允许随机目标，还是指定目标
+- 是否允许多段连续触发
+
+## 12. 后续扩展
+
+未来可以考虑补充以下类型：
+
+- 防御型弃牌触发
+- 强化型弃牌触发
+- 回收牌堆或弃牌堆的工具牌
+- 放大多张触发牌同时结算的放大器
+- 扩充到 12 至 20 张的完整体系
+- 对应遗物、状态和关键词规则
+
+## 13. 使用方式
+
+这份文档用于说明“为什么要这么设计”。
+
+如果你要修改代码：
+
+- 看实现方式：回到 [DEV_GUIDE.md](DEV_GUIDE.md)
+- 看当前真实状态：回到 [MOD_REGISTRY.md](MOD_REGISTRY.md)

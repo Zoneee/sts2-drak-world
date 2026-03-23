@@ -15,7 +15,7 @@ config/features=PackedStringArray("4.5", "C#", "Mobile")
 
 [dotnet]
 
-project/assembly_name="STS2_Discard_Mod"
+project/assembly_name="STS2DiscardMod"
 
 [rendering]
 
