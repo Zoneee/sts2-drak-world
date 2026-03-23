@@ -71,6 +71,7 @@ public class SwiftCut : IDiscardTrigger
             IsPlayable = true,
             BaseDamage = 0,
             UpgradedDamage = 0,
+            CharacterID = "Mystic",
             Description = "Draw 2 cards, then discard 1. If discarded card has discard effect, gain 1 energy.",
             UpgradeDescription = "Draw 3 cards, then discard 1. If discarded card has discard effect, gain 1 energy."
         };

@@ -87,6 +87,7 @@ public class DarkFlameFragment : IDiscardTrigger
             IsPlayable = false,
             BaseDamage = BaseDamage,
             UpgradedDamage = UpgradedDamage,
+            CharacterID = "Mystic",
             Description = "Discard trigger: Deal 6 damage to all enemies when discarded.",
             UpgradeDescription = "Discard trigger: Deal 9 damage to all enemies when discarded."
         };
@@ -107,6 +108,7 @@ public class CardMetadata
     public bool IsPlayable { get; set; }
     public int BaseDamage { get; set; }
     public int UpgradedDamage { get; set; }
+    public string CharacterID { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string UpgradeDescription { get; set; } = string.Empty;
 }

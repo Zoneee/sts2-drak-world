@@ -70,6 +70,7 @@ public class ShatteredEcho : IDiscardTrigger
             IsPlayable = true,
             BaseDamage = 0,
             UpgradedDamage = 0,
+            CharacterID = "Mystic",
             Description = "Discard 1 card from hand. If discarded card has discard effect, draw 2 more cards.",
             UpgradeDescription = "Discard 1 card from hand. If discarded card has discard effect, draw 3 more cards."
         };

@@ -69,6 +69,7 @@ public class ToxinRecord : IDiscardTrigger
             IsPlayable = false,
             BaseDamage = 0,
             UpgradedDamage = 0,
+            CharacterID = "Mystic",
             Description = "Discard trigger: Apply 8 poison to a random enemy when discarded.",
             UpgradeDescription = "Discard trigger: Apply 12 poison to a random enemy when discarded."
         };
