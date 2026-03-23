@@ -74,5 +74,4 @@ packages/
 
 # Dependencies
 node_modules/
-lib/
 include/
