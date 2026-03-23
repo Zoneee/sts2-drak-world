@@ -14,10 +14,10 @@ namespace DiscardMod.Cards;
 /// Discard trigger: draw 2 cards (upgraded: 3).
 /// </summary>
 [Pool(typeof(RegentCardPool))]
-public class ShatteredEcho : CustomCardModel
+public class ShatteredEcho : DiscardModCard
 {
     public ShatteredEcho()
-        : base(2, CardType.Skill, CardRarity.Rare, TargetType.Self, true) { }
+        : base(2, CardType.Skill, CardRarity.Rare, TargetType.Self, "shattered_echo", true) { }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

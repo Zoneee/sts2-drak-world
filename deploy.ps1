@@ -39,6 +39,8 @@ $gameModsDir = "D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\STS2_Dis
 $dllSourceDir = "$projectRoot\src\bin\$Configuration\net9.0"
 $dllName = "STS2DiscardMod.dll"
 $pdbName = "STS2DiscardMod.pdb"
+$pckName = "STS2DiscardMod.pck"
+$harmonyName = "0Harmony.dll"
 $modInfoSource = "$projectRoot\STS2_Discard_Mod.json"
 
 # ==================== 函数 ====================
@@ -114,6 +116,8 @@ function Deploy-Files {
     Write-Header "部署文件"
 
     $dllSource = Join-Path $dllSourceDir $dllName
+    $pckSource = Join-Path $dllSourceDir $pckName
+    $harmonySource = Join-Path $dllSourceDir $harmonyName
 
     # 验证 DLL 文件
     if (-not (Test-Path $dllSource)) {
@@ -125,6 +129,21 @@ function Deploy-Files {
     Write-Info "复制 $dllName..."
     Copy-Item -Path $dllSource -Destination $gameModsDir -Force -Verbose | Out-Host
     Write-Success "DLL 已部署"
+
+    if (Test-Path $harmonySource) {
+        Write-Info "复制 $harmonyName..."
+        Copy-Item -Path $harmonySource -Destination $gameModsDir -Force -Verbose | Out-Host
+        Write-Success "Harmony 运行库已部署"
+    }
+
+    if (Test-Path $pckSource) {
+        Write-Info "复制 $pckName..."
+        Copy-Item -Path $pckSource -Destination $gameModsDir -Force -Verbose | Out-Host
+        Write-Success "PCK 已部署"
+    }
+    else {
+        Write-Warning-Custom "$pckName 不存在：卡图资源不会被 Godot 挂载。请先配置 GODOT_CLI_COMMAND 或 GodotCliCommand 再执行构建。"
+    }
 
     # 复制 PDB (Debug 时)
     if ($Configuration -eq "Debug") {
@@ -163,6 +182,7 @@ function Show-Summary {
 
     $dllFile = Join-Path $gameModsDir $dllName
     $modInfoFile = Join-Path $gameModsDir "STS2_Discard_Mod.json"
+    $pckFile = Join-Path $gameModsDir $pckName
 
     if (Test-Path $dllFile) {
         $size = Get-FileSize $dllFile
@@ -172,6 +192,11 @@ function Show-Summary {
 
     if (Test-Path $modInfoFile) {
         Write-Success "STS2_Discard_Mod.json - 已更新"
+    }
+
+    if (Test-Path $pckFile) {
+        $size = Get-FileSize $pckFile
+        Write-Success "$pckName ($size) - 已更新"
     }
 
     Write-Info "部署位置: $gameModsDir"

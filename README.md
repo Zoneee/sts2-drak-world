@@ -44,6 +44,8 @@ src/bin/Release/net9.0/STS2DiscardMod.dll
 ```text
 {游戏目录}/mods/STS2_Discard_Mod/
 ├── STS2DiscardMod.dll
+├── STS2DiscardMod.pck
+├── 0Harmony.dll
 └── STS2_Discard_Mod.json
 ```
 
@@ -57,7 +59,8 @@ Ctrl+Shift+B
 
 - 模组加载器按 `id` 默认查找 `STS2DiscardMod.dll`，因此 manifest、代码中的 `ModId` 和构建输出名称必须保持一致
 - 运行时不要把 `src/localization/eng/cards.json` 直接复制到模组目录；当前加载器会把额外的 `.json` 误判为 manifest
-- live 模组目录的最小正确结构只有 2 个文件：`STS2DiscardMod.dll` 和 `STS2_Discard_Mod.json`
+- live 模组目录至少要包含 `STS2DiscardMod.dll`、`STS2DiscardMod.pck`、`0Harmony.dll` 和 `STS2_Discard_Mod.json`
+- 卡图这类 `res://STS2DiscardMod/...` 资源必须进入 `.pck`；只把 png 原文件复制到 mods 目录，游戏不会挂载它们
 
 ## 文档索引
 

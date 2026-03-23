@@ -4,7 +4,7 @@
     "author": "alphonse-bot",
     "description": "Discard-trigger card mechanics for the Mystic character. 弃牌触发系统 — 4 unique cards.",
     "version": "v0.1.0",
-    "has_pck": false,
+    "has_pck": true,
     "has_dll": true,
     "dependencies": [
         "BaseLib"

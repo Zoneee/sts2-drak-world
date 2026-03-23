@@ -62,6 +62,8 @@ DiscardModMain.Logger.Error("错误信息");
 ```text
 {game}/mods/STS2_Discard_Mod/
 ├── STS2DiscardMod.dll
+├── STS2DiscardMod.pck
+├── 0Harmony.dll
 └── STS2_Discard_Mod.json
 ```
 
@@ -71,7 +73,7 @@ DiscardModMain.Logger.Error("错误信息");
 {
   "id": "STS2DiscardMod",
   "has_dll": true,
-  "has_pck": false,
+  "has_pck": true,
   "affects_gameplay": true
 }
 ```
@@ -106,6 +108,14 @@ dotnet clean src/ && dotnet build src/ --configuration Release
 1. `Main.cs` 中是否调用了 4 次 `ModHelper.AddModelToPool(...)`
 2. 日志里是否出现 `Registered 4 discard-trigger cards to RegentCardPool`
 3. `src/localization/eng/cards.json` 是否补齐了对应键
+
+如果日志里已经出现 `Registered 4 discard-trigger cards to RegentCardPool`，但随后仍然报：
+
+```text
+No loader found for resource: res://STS2DiscardMod/images/...
+```
+
+那不是“没注册进卡池”，而是 `STS2DiscardMod.pck` 没有生成或没部署，导致卡牌进了卡库但头像资源没有挂载到 `res://`。
 
 ### 问题 D：卡牌能打出但没有效果
 

@@ -14,10 +14,10 @@ namespace DiscardMod.Cards;
 /// Discard trigger: apply 2 Poison to all enemies (upgraded: 3).
 /// </summary>
 [Pool(typeof(RegentCardPool))]
-public class ToxinRecord : CustomCardModel
+public class ToxinRecord : DiscardModCard
 {
     public ToxinRecord()
-        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, true) { }
+        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, "toxin_record", true) { }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

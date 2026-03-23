@@ -67,6 +67,7 @@ Release 输出路径：
 
 ```text
 src/bin/Release/net9.0/STS2DiscardMod.dll
+src/bin/Release/net9.0/STS2DiscardMod.pck
 ```
 
 ### 自动部署
@@ -76,10 +77,21 @@ src/bin/Release/net9.0/STS2DiscardMod.dll
 ```text
 {游戏目录}/mods/STS2_Discard_Mod/
 ├── STS2DiscardMod.dll
+├── STS2DiscardMod.pck
+├── 0Harmony.dll
 └── STS2_Discard_Mod.json
 ```
 
 这也是当前仓库唯一推荐的 live 目录结构。
+
+如果你要让卡图这类 `res://STS2DiscardMod/...` 资源在游戏内可见，构建前必须提供 Godot CLI：
+
+```bash
+export GODOT_CLI_COMMAND='/path/to/godot4'
+dotnet build src/ --configuration Release
+```
+
+在 WSL 下也可以把它指向可直接执行的 Windows Godot 编辑器，例如 `/mnt/c/.../Godot_v4.5.1-stable_mono_win64.exe`。
 
 ### 手动部署
 
@@ -87,6 +99,8 @@ src/bin/Release/net9.0/STS2DiscardMod.dll
 
 ```text
 src/bin/Release/net9.0/STS2DiscardMod.dll
+src/bin/Release/net9.0/STS2DiscardMod.pck
+src/bin/Release/net9.0/0Harmony.dll
 STS2_Discard_Mod.json
 ```
 
@@ -199,7 +213,7 @@ public class YourCard : CardModel
 ```json
 {
   "id": "STS2DiscardMod",
-  "has_pck": false,
+  "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true
 }

@@ -13,6 +13,13 @@
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GodotPackName>$(AssemblyName).pck</GodotPackName>
+    <GodotPackPath>$(OutputPath)$(GodotPackName)</GodotPackPath>
+    <GodotExportPreset Condition="'$(GodotExportPreset)' == ''">STS2 Mod Pack</GodotExportPreset>
+    <GodotCliCommand Condition="'$(GodotCliCommand)' == '' and '$(GODOT_CLI_COMMAND)' != ''">$(GODOT_CLI_COMMAND)</GodotCliCommand>
+  </PropertyGroup>
+
   <!-- OS Detection -->
   <PropertyGroup>
     <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
@@ -48,10 +55,6 @@
 
   <!-- Game DLL references (from lib/ or game data folder) -->
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="sts2">
       <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
       <Private>false</Private>
@@ -61,12 +64,24 @@
 
   <!-- Build utilities -->
   <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.3.3" GeneratePathProperty="true"/>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*"/>
     <PackageReference Include="Alchyr.Sts2.BaseLib" Version="0.1.9"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony" Condition="Exists('$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll')">
+      <HintPath>$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <None Include="$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll"
+          Link="0Harmony.dll"
+          CopyToOutputDirectory="PreserveNewest"
+          Condition="Exists('$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll')" />
   </ItemGroup>
 
   <!-- Localization files for STS build analyzer (STS001 compliance) -->
@@ -77,16 +92,43 @@
   <!-- Manifest shown in project but not compiled -->
   <ItemGroup>
     <None Include="../STS2_Discard_Mod.json"/>
+    <ModAsset Include="STS2DiscardMod/**"/>
   </ItemGroup>
 
-    <!-- Auto-deploy DLL + manifest to mods folder after build -->
+  <Target Name="WarnIfGodotPackCannotBeBuilt" AfterTargets="Build"
+          Condition="'$(GodotCliCommand)' == ''">
+    <Warning Text="Skipping Godot PCK export because GodotCliCommand/GODOT_CLI_COMMAND is not set. Card portraits under STS2DiscardMod/images will not load until $(GodotPackName) is exported and deployed." />
+  </Target>
+
+  <Target Name="ExportGodotPack" AfterTargets="Build"
+          Condition="'$(GodotCliCommand)' != ''">
+    <Message Text="Exporting $(GodotPackName) with $(GodotCliCommand)" Importance="high"/>
+    <Exec Command='$(GodotCliCommand) --headless --path &quot;$(MSBuildProjectDirectory)&quot; --export-pack &quot;$(GodotExportPreset)&quot; &quot;$(GodotPackPath)&quot;' />
+  </Target>
+
+  <!-- Auto-deploy DLL + manifest to mods folder after build -->
   <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent"
           Condition="'$(ModsPath)' != '' and Exists('$(ModsPath)')">
     <Message Text="Deploying to $(ModsPath)$(MSBuildProjectName)/" Importance="high"/>
+      <RemoveDir Directories="$(ModsPath)$(MSBuildProjectName)/images"
+         Condition="Exists('$(ModsPath)$(MSBuildProjectName)/images')"/>
     <MakeDir Directories="$(ModsPath)$(MSBuildProjectName)/"/>
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+      <Copy SourceFiles="$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll"
+        DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"
+        SkipUnchangedFiles="true"
+        Condition="Exists('$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll')"/>
     <Copy SourceFiles="$(MSBuildProjectDirectory)/../STS2_Discard_Mod.json"
           DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+        <Copy SourceFiles="$(GodotPackPath)"
+          DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(GodotPackPath)')"/>
+        <MakeDir Directories="@(ModAsset -> '$(ModsPath)$(MSBuildProjectName)/STS2DiscardMod/%(RecursiveDir)')"/>
+    <Copy SourceFiles="@(ModAsset)"
+          DestinationFiles="@(ModAsset -> '$(ModsPath)$(MSBuildProjectName)/STS2DiscardMod/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="'%(ModAsset.Extension)' != ''"/>
   </Target>
 
 </Project>

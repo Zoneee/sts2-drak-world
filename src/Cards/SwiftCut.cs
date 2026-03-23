@@ -14,10 +14,10 @@ namespace DiscardMod.Cards;
 /// Discard trigger: deal 3 damage to a random enemy (upgraded: 5).
 /// </summary>
 [Pool(typeof(RegentCardPool))]
-public class SwiftCut : CustomCardModel
+public class SwiftCut : DiscardModCard
 {
     public SwiftCut()
-        : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, true) { }
+        : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "swift_cut", true) { }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {

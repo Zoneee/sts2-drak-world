@@ -45,7 +45,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Release/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; Write-Host '✅ Release DLL deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
+                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Release/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; if (Test-Path 'src/bin/Release/net9.0/0Harmony.dll') { Copy-Item -Path 'src/bin/Release/net9.0/0Harmony.dll' -Destination $dest -Force -Verbose; } if (Test-Path 'src/bin/Release/net9.0/STS2DiscardMod.pck') { Copy-Item -Path 'src/bin/Release/net9.0/STS2DiscardMod.pck' -Destination $dest -Force -Verbose; } else { Write-Warning 'STS2DiscardMod.pck not found. Configure GODOT_CLI_COMMAND before building to export card portrait resources.' }; Write-Host '✅ Release runtime deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
             ],
             "presentation": {
                 "reveal": "always",
@@ -62,7 +62,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.pdb' -Destination $dest -Force -Verbose; Write-Host '✅ Debug DLL + PDB deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
+                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.pdb' -Destination $dest -Force -Verbose; if (Test-Path 'src/bin/Debug/net9.0/0Harmony.dll') { Copy-Item -Path 'src/bin/Debug/net9.0/0Harmony.dll' -Destination $dest -Force -Verbose; } if (Test-Path 'src/bin/Debug/net9.0/STS2DiscardMod.pck') { Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.pck' -Destination $dest -Force -Verbose; } else { Write-Warning 'STS2DiscardMod.pck not found. Configure GODOT_CLI_COMMAND before building to export card portrait resources.' }; Write-Host '✅ Debug runtime deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
             ],
             "presentation": {
                 "reveal": "always",

@@ -14,10 +14,10 @@ namespace DiscardMod.Cards;
 /// Discard trigger: deal 6 damage to all enemies (upgraded: 9).
 /// </summary>
 [Pool(typeof(RegentCardPool))]
-public class DarkFlameFragment : CustomCardModel
+public class DarkFlameFragment : DiscardModCard
 {
     public DarkFlameFragment()
-        : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy, true) { }
+        : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy, "dark_flame_fragment", true) { }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
