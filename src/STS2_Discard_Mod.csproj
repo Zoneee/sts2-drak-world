@@ -66,6 +66,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*"/>
+    <PackageReference Include="Alchyr.Sts2.BaseLib" Version="0.1.9"/>
   </ItemGroup>
 
   <!-- Localization files for STS build analyzer (STS001 compliance) -->
@@ -78,14 +79,17 @@
     <None Include="../STS2_Discard_Mod.json"/>
   </ItemGroup>
 
-  <!-- Auto-deploy DLL + manifest to mods folder after build -->
+  <!-- Auto-deploy DLL + manifest + localization to mods folder after build -->
   <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent"
           Condition="'$(ModsPath)' != '' and Exists('$(ModsPath)')">
     <Message Text="Deploying to $(ModsPath)$(MSBuildProjectName)/" Importance="high"/>
     <MakeDir Directories="$(ModsPath)$(MSBuildProjectName)/"/>
+    <MakeDir Directories="$(ModsPath)$(MSBuildProjectName)/localization/eng/"/>
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
     <Copy SourceFiles="$(MSBuildProjectDirectory)/../STS2_Discard_Mod.json"
           DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/localization/eng/cards.json"
+          DestinationFolder="$(ModsPath)$(MSBuildProjectName)/localization/eng/"/>
   </Target>
 
 </Project>

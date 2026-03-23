@@ -1,6 +1,9 @@
+using BaseLib.Abstracts;
+using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.CardPools;
 using System.Threading.Tasks;
 
 namespace DiscardMod.Cards;
@@ -10,7 +13,8 @@ namespace DiscardMod.Cards;
 /// Skill, Rare, 2 energy, target: Self
 /// Discard trigger: draw 2 cards (upgraded: 3).
 /// </summary>
-public class ShatteredEcho : CardModel
+[Pool(typeof(RegentCardPool))]
+public class ShatteredEcho : CustomCardModel
 {
     public ShatteredEcho()
         : base(2, CardType.Skill, CardRarity.Rare, TargetType.Self, true) { }

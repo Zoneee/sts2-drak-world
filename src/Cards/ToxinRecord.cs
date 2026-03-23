@@ -1,6 +1,9 @@
+using BaseLib.Abstracts;
+using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.CardPools;
 using System.Threading.Tasks;
 
 namespace DiscardMod.Cards;
@@ -10,7 +13,8 @@ namespace DiscardMod.Cards;
 /// Skill, Uncommon, 1 energy, target: Self
 /// Discard trigger: apply 2 Poison to all enemies (upgraded: 3).
 /// </summary>
-public class ToxinRecord : CardModel
+[Pool(typeof(RegentCardPool))]
+public class ToxinRecord : CustomCardModel
 {
     public ToxinRecord()
         : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, true) { }

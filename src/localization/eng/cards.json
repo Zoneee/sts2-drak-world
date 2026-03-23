@@ -1,10 +1,10 @@
 {
-  "DARK_FLAME_FRAGMENT.title": "暗焰残页",
-  "DARK_FLAME_FRAGMENT.description": "Discard trigger: Deal 6 damage to all enemies.",
-  "SWIFT_CUT.title": "迅影斩",
-  "SWIFT_CUT.description": "Discard trigger: Deal 3 damage to a random enemy.",
-  "TOXIN_RECORD.title": "毒素记录",
-  "TOXIN_RECORD.description": "Discard trigger: Apply 2 [Poison] to all enemies.",
-  "SHATTERED_ECHO.title": "破碎回响",
-  "SHATTERED_ECHO.description": "Discard trigger: Draw 2 cards."
+  "DISCARDMOD-DARK_FLAME_FRAGMENT.title": "暗焰残页",
+  "DISCARDMOD-DARK_FLAME_FRAGMENT.description": "Discard trigger: Deal 6 damage to all enemies.",
+  "DISCARDMOD-SWIFT_CUT.title": "迅影斩",
+  "DISCARDMOD-SWIFT_CUT.description": "Discard trigger: Deal 3 damage to a random enemy.",
+  "DISCARDMOD-TOXIN_RECORD.title": "毒素记录",
+  "DISCARDMOD-TOXIN_RECORD.description": "Discard trigger: Apply 2 [Poison] to all enemies.",
+  "DISCARDMOD-SHATTERED_ECHO.title": "破碎回响",
+  "DISCARDMOD-SHATTERED_ECHO.description": "Discard trigger: Draw 2 cards."
 }

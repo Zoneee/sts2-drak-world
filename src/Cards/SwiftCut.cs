@@ -1,6 +1,9 @@
+using BaseLib.Abstracts;
+using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.CardPools;
 using System.Threading.Tasks;
 
 namespace DiscardMod.Cards;
@@ -10,7 +13,8 @@ namespace DiscardMod.Cards;
 /// Attack, Common, 0 energy, target: AnyEnemy
 /// Discard trigger: deal 3 damage to a random enemy (upgraded: 5).
 /// </summary>
-public class SwiftCut : CardModel
+[Pool(typeof(RegentCardPool))]
+public class SwiftCut : CustomCardModel
 {
     public SwiftCut()
         : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, true) { }

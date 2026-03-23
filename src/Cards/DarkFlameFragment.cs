@@ -1,6 +1,9 @@
+using BaseLib.Abstracts;
+using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.CardPools;
 using System.Threading.Tasks;
 
 namespace DiscardMod.Cards;
@@ -10,7 +13,8 @@ namespace DiscardMod.Cards;
 /// Skill, Common, 1 energy, target: AnyEnemy
 /// Discard trigger: deal 6 damage to all enemies (upgraded: 9).
 /// </summary>
-public class DarkFlameFragment : CardModel
+[Pool(typeof(RegentCardPool))]
+public class DarkFlameFragment : CustomCardModel
 {
     public DarkFlameFragment()
         : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy, true) { }
