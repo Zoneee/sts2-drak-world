@@ -21,11 +21,9 @@
   </PropertyGroup>
 
   <!-- NuGet Package Dependencies -->
-  <!-- NOTE: BaseLib-StS2 and Harmony will be added during integration with STS2 -->
-  <!-- For now, building as a standalone C# library to verify project structure -->
   <ItemGroup>
-    <!-- Harmony: Runtime patching (fallback for discard detection) - optional for now -->
-    <!-- <PackageReference Include="HarmonyX" Version="2.10.2" /> -->
+    <!-- Harmony: Runtime patching for discard event detection -->
+    <PackageReference Include="HarmonyX" Version="2.10.2" />
   </ItemGroup>
 
   <!-- Optional: Conditional references for development tools -->

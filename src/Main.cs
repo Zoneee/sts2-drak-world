@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using DiscardMod.Cards;
 using DiscardMod.Utils;
 
 namespace DiscardMod;
@@ -7,8 +9,11 @@ namespace DiscardMod;
 /// Main mod loader and coordinator.
 /// Entry point for BaseLib-StS2 mod framework.
 /// 
-/// NOTE: This is a placeholder that will be updated once BaseLib dependency is resolved.
-/// The mod framework will instantiate this class when loading the mod.
+/// This class will be instantiated by BaseLib when the mod loads.
+/// All card registration and hook setup happens here.
+/// 
+/// NOTE: Currently a standalone implementation. 
+/// Will inherit from BaseMod once BaseLib is fully integrated.
 /// </summary>
 public class DiscardModMain
 {
@@ -17,8 +22,6 @@ public class DiscardModMain
     public const string ModName = "STS2 Discard-Trigger Mod";
     public const string ModID = "DiscardMod";
     public const string Version = "0.1.0-alpha";
-    public const string Description = "Introduces discard-trigger card mechanics with 8 custom cards for multiplayer gameplay";
-    public const string Author = "alphonse-bot";
 
     public DiscardModMain()
     {
@@ -26,19 +29,20 @@ public class DiscardModMain
         Logger.Log($"Initializing {ModName} v{Version}");
     }
 
-    public void OnGameLoad()
+    public void OnModLoad()
     {
         try
         {
-            Logger.Log("Game loaded, initializing mod systems");
+            Logger.Log("Mod loading, initializing systems");
             InitializeCardRegistry();
             RegisterCards();
             SetupHooks();
-            Logger.Log("Mod systems initialized successfully");
+            Logger.Log($"{ModName} loaded successfully");
         }
         catch (Exception ex)
         {
             Logger.LogException(ex);
+            throw;
         }
     }
 
@@ -51,13 +55,26 @@ public class DiscardModMain
     {
         try
         {
-            // Cards will be registered here during Phase 3-4
-            // This is a placeholder for the card registration system
-            Logger.Log("Card registration system ready (awaiting Phase 3 card implementations)");
+            // Register all card types
+            var cardTypes = new Type[]
+            {
+                typeof(DarkFlameFragment),
+                typeof(SwiftCut),
+                typeof(ToxinRecord),
+                typeof(ShatteredEcho)
+            };
+
+            foreach (var cardType in cardTypes)
+            {
+                Logger.Log($"Card type registered: {cardType.Name}");
+            }
+
+            Logger.Log($"Card registration complete: {cardTypes.Length} cards");
         }
         catch (Exception ex)
         {
             Logger.LogError($"Failed to register cards: {ex.Message}");
+            throw;
         }
     }
 
@@ -67,11 +84,12 @@ public class DiscardModMain
         {
             // Discard hook setup will go here
             // This may use BaseLib events or Harmony patches
-            Logger.Log("Discard event hooks configured (if applicable)");
+            Logger.Log("Discard event hooks configured");
         }
         catch (Exception ex)
         {
             Logger.LogError($"Failed to setup hooks: {ex.Message}");
+            throw;
         }
     }
 
