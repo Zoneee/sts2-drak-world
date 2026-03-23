@@ -1,5 +1,7 @@
 using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Models.CardPools;
+using DiscardMod.Cards;
 
 namespace DiscardMod;
 
@@ -19,11 +21,10 @@ public static class DiscardModMain
 
     private static void RegisterCards()
     {
-        // TODO: Use STS2 card pool registration API once documented
-        // ModContent.RegisterCard<DarkFlameFragment>();
-        // ModContent.RegisterCard<SwiftCut>();
-        // ModContent.RegisterCard<ToxinRecord>();
-        // ModContent.RegisterCard<ShatteredEcho>();
-        Logger.Info("Card registration placeholder (API TBD)");
+        ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(DarkFlameFragment));
+        ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(SwiftCut));
+        ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(ToxinRecord));
+        ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(ShatteredEcho));
+        Logger.Info("Registered 4 discard-trigger cards to RegentCardPool");
     }
 }

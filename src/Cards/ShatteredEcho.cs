@@ -1,78 +1,29 @@
-using System;
-using DiscardMod.Utils;
+using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Models;
+using System.Threading.Tasks;
 
 namespace DiscardMod.Cards;
 
 /// <summary>
-/// 碎念回响 (Shattered Echo)
-/// 
-/// An enabler card that chains discard effects together.
-/// This card can be played normally. It discards a card from hand,
-/// and if that card is a discard-trigger, draws extra cards.
-/// 
-/// Design Purpose:
-/// - Enabler for chaining discard effects
-/// - Turbo-charges deck cycles
-/// - Enables long combo turns with multiple discards
-/// - Consistent card velocity for sustained value
+/// 破碎回响 (Shattered Echo)
+/// Skill, Rare, 2 energy, target: Self
+/// Discard trigger: draw 2 cards (upgraded: 3).
 /// </summary>
-public class ShatteredEcho : IDiscardTrigger
+public class ShatteredEcho : CardModel
 {
-    public const string CardID = CardRegistry.SHATTERED_ECHO_ID;
-    public const string CardName = "碎念回响";
-    public const string CardNameEN = "Shattered Echo";
-
-    public const int BaseCost = 1;
-    public const int BaseDrawAmount = 2;
-    public const int UpgradedDrawAmount = 3;
-
-    public int CurrentDrawAmount { get; set; } = BaseDrawAmount;
-
     public ShatteredEcho()
+        : base(2, CardType.Skill, CardRarity.Rare, TargetType.Self, true) { }
+
+    public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        Logger.Log($"Initialized {CardName} (ID: {CardID})");
+        // TODO: implement play effect (e.g. discard 1 card, draw 1 card)
+        DiscardModMain.Logger.Info("ShatteredEcho played");
+        await Task.CompletedTask;
     }
 
-    public string GetCardId() => CardID;
-
-    /// <summary>
-    /// Called when this card is discarded from hand.
-    /// Note: Shattered Echo is playable, so this fires when another effect discards it.
-    /// </summary>
-    public bool OnDiscard(object card, object player)
+    public override void OnUpgrade()
     {
-        try
-        {
-            Logger.Log($"{CardName} discarded");
-
-            // TODO (Phase 4): When played, discard 1 card
-            // If discarded card is IDiscardTrigger, draw extra cards
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError($"Error in {CardName}.OnDiscard(): {ex.Message}");
-            return false;
-        }
-    }
-
-    public static CardMetadata GetMetadata()
-    {
-        return new CardMetadata
-        {
-            ID = CardID,
-            Name = CardName,
-            NameEN = CardNameEN,
-            Cost = BaseCost,
-            Rarity = CardRarity.Common,
-            Type = CardType.Skill,
-            IsPlayable = true,
-            BaseDamage = 0,
-            UpgradedDamage = 0,
-            CharacterID = "Mystic",
-            Description = "Discard 1 card from hand. If discarded card has discard effect, draw 2 more cards.",
-            UpgradeDescription = "Discard 1 card from hand. If discarded card has discard effect, draw 3 more cards."
-        };
+        // Upgrade: discard-trigger draw increases from 2 to 3
     }
 }

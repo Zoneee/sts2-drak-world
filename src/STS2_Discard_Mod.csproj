@@ -71,6 +71,11 @@
     <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*"/>
   </ItemGroup>
 
+  <!-- Localization files for STS build analyzer (STS001 compliance) -->
+  <ItemGroup>
+    <AdditionalFiles Include="localization/eng/cards.json"/>
+  </ItemGroup>
+
   <!-- Manifest shown in project but not compiled -->
   <ItemGroup>
     <None Include="../STS2_Discard_Mod.json"/>
