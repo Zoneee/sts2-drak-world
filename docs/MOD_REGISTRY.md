@@ -68,14 +68,14 @@ See [DESIGN.md - Tier 4](DESIGN.md#tier-4-advanced-mechanics-cards-5-8--tbd) for
 
 ## Card Pool Statistics
 
-| Metric | Value |
-|--------|-------|
-| Total Cards | 4 (8 planned) |
-| Common | 4 |
-| Uncommon | 0 |
-| Rare | 0 |
-| Average Cost | 0.75 |
-| No-Play Cards | 2 (Dark Flame, Toxin) |
+| Metric         | Value                         |
+| -------------- | ----------------------------- |
+| Total Cards    | 4 (8 planned)                 |
+| Common         | 4                             |
+| Uncommon       | 0                             |
+| Rare           | 0                             |
+| Average Cost   | 0.75                          |
+| No-Play Cards  | 2 (Dark Flame, Toxin)         |
 | Playable Cards | 2 (Swift Cut, Shattered Echo) |
 
 ---
@@ -120,12 +120,12 @@ See [DESIGN.md - Tier 4](DESIGN.md#tier-4-advanced-mechanics-cards-5-8--tbd) for
 
 ### **v0.1.0-alpha** (Initial Release - TBD)
 
-| Card | Cost | Base Effect | Notes |
-|------|------|-------------|-------|
-| Swift Cut | 0 | Draw 2, Discard 1, Refund 1 E | Base case; no playtesting adjustments |
-| Dark Flame | 1 | +6 all enemies | Initial damage value; may tune up/down |
-| Toxin | 1 | +8 poison random | Initial poison value; likely balanced for Acts 3+ |
-| Shattered Echo | 1 | Discard 1, Draw 2 if trigger | Initial draw value; combo-enabling |
+| Card           | Cost | Base Effect                   | Notes                                             |
+| -------------- | ---- | ----------------------------- | ------------------------------------------------- |
+| Swift Cut      | 0    | Draw 2, Discard 1, Refund 1 E | Base case; no playtesting adjustments             |
+| Dark Flame     | 1    | +6 all enemies                | Initial damage value; may tune up/down            |
+| Toxin          | 1    | +8 poison random              | Initial poison value; likely balanced for Acts 3+ |
+| Shattered Echo | 1    | Discard 1, Draw 2 if trigger  | Initial draw value; combo-enabling                |
 
 **Known Issues**: None for v0.1.0-alpha (first release)  
 **Balance Notes**: Playtesting pending Phase 5
@@ -198,12 +198,12 @@ To use mod:
 
 Placeholder images for each card (to be created in Phase 6 or later if desired).
 
-| Card | Preview | Artist |
-|------|---------|--------|
-| Swift Cut | [Placeholder] | TBD |
-| Dark Flame | [Placeholder] | TBD |
-| Toxin Record | [Placeholder] | TBD |
-| Shattered Echo | [Placeholder] | TBD |
+| Card           | Preview       | Artist |
+| -------------- | ------------- | ------ |
+| Swift Cut      | [Placeholder] | TBD    |
+| Dark Flame     | [Placeholder] | TBD    |
+| Toxin Record   | [Placeholder] | TBD    |
+| Shattered Echo | [Placeholder] | TBD    |
 
 ---
 

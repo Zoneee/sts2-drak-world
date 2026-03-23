@@ -294,13 +294,13 @@ Console logs:
 
 ## Quick Reference: Commands & Paths
 
-| Action | Command |
-|--------|---------|
-| Rebuild mod | `dotnet clean src/ && dotnet build src/ --configuration Release` |
-| View recent logs | `tail -100 ~/.steam/.../log.txt` |
-| Find mod file | `find ~/.steam -name "*DiscardMod*" -o -name "STS2_Discard_Mod.dll"` |
-| Copy to mods | See DEV_GUIDE.md → "Deploy to STS2 (Manual)" |
-| Check mod loaded | `grep -i "\[DiscardMod\]" ~/.steam/.../log.txt` |
+| Action           | Command                                                              |
+| ---------------- | -------------------------------------------------------------------- |
+| Rebuild mod      | `dotnet clean src/ && dotnet build src/ --configuration Release`     |
+| View recent logs | `tail -100 ~/.steam/.../log.txt`                                     |
+| Find mod file    | `find ~/.steam -name "*DiscardMod*" -o -name "STS2_Discard_Mod.dll"` |
+| Copy to mods     | See DEV_GUIDE.md → "Deploy to STS2 (Manual)"                         |
+| Check mod loaded | `grep -i "\[DiscardMod\]" ~/.steam/.../log.txt`                      |
 
 ---
 

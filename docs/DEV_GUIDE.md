@@ -39,13 +39,13 @@ dotnet build src/
 
 ### **What Goes Where**
 
-| Folder | Purpose | Example |
-|--------|---------|---------|
-| `src/` | C# source code + project file | `Main.cs`, `Cards/*.cs` |
-| `docs/` | Documentation (design, architecture, guides) | `DESIGN.md`, `DEBUGGING.md` |
-| `design/` | Original game design notes | `draft.md` |
-| `.github/workflows/` | GitHub Actions CI/CD | `build.yml` |
-| `dist/` | Compiled release artifacts (auto-generated) | `.zip` files for distribution |
+| Folder               | Purpose                                      | Example                       |
+| -------------------- | -------------------------------------------- | ----------------------------- |
+| `src/`               | C# source code + project file                | `Main.cs`, `Cards/*.cs`       |
+| `docs/`              | Documentation (design, architecture, guides) | `DESIGN.md`, `DEBUGGING.md`   |
+| `design/`            | Original game design notes                   | `draft.md`                    |
+| `.github/workflows/` | GitHub Actions CI/CD                         | `build.yml`                   |
+| `dist/`              | Compiled release artifacts (auto-generated)  | `.zip` files for distribution |
 
 ### **Key Files**
 
@@ -248,14 +248,14 @@ git push origin main
 
 ## Useful Commands
 
-| Command | Purpose |
-|---------|---------|
-| `dotnet build src/` | Full build |
-| `dotnet clean src/` | Remove build artifacts |
-| `dotnet publish src/` | Package for distribution |
-| `git log --oneline` | View commit history |
-| `git status` | Check uncommitted changes |
-| `git diff src/` | View code changes |
+| Command               | Purpose                   |
+| --------------------- | ------------------------- |
+| `dotnet build src/`   | Full build                |
+| `dotnet clean src/`   | Remove build artifacts    |
+| `dotnet publish src/` | Package for distribution  |
+| `git log --oneline`   | View commit history       |
+| `git status`          | Check uncommitted changes |
+| `git diff src/`       | View code changes         |
 
 ---
 

@@ -20,13 +20,13 @@ This inverts the normal card economy, allowing players to build synergies around
 
 All discard-trigger cards share these properties:
 
-| Property | Value | Notes |
-|----------|-------|-------|
-| **Playability** | Cannot Play or Play Effect = 0 | Player must use other effects to trigger |
-| **Finder-Ability** | Findable in card pool | Normal relic/pool access |
-| **Discard Detection** | Via BaseLib hooks | Triggers when card leaves hand to discard pile |
-| **Energy Cost** | 0–1 (variable) | Cost is "payment" for draft, not for usage |
-| **Rarity** | Common–Uncommon | Prevents powercreep; encourages synergy building |
+| Property              | Value                          | Notes                                            |
+| --------------------- | ------------------------------ | ------------------------------------------------ |
+| **Playability**       | Cannot Play or Play Effect = 0 | Player must use other effects to trigger         |
+| **Finder-Ability**    | Findable in card pool          | Normal relic/pool access                         |
+| **Discard Detection** | Via BaseLib hooks              | Triggers when card leaves hand to discard pile   |
+| **Energy Cost**       | 0–1 (variable)                 | Cost is "payment" for draft, not for usage       |
+| **Rarity**            | Common–Uncommon                | Prevents powercreep; encourages synergy building |
 
 ### Card Types
 
