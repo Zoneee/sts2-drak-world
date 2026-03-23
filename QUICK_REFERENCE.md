@@ -13,12 +13,12 @@ Ctrl+Shift+B  →  编译 + 部署 ✅
 
 ## ⌨️ 所有快捷键
 
-| 按键 | 功能 | 用途 |
-|------|------|------|
-| **Ctrl+Shift+B** | Build + Deploy (Release) | 🟢 日常开发 |
-| **Ctrl+Shift+D** | 打开任务菜单 | 选择其他任务 |
-| **F5** | 附加调试器 | 设置断点 |
-| **Ctrl+`** | 打开终端 | 查看输出 |
+| 按键             | 功能                     | 用途         |
+| ---------------- | ------------------------ | ------------ |
+| **Ctrl+Shift+B** | Build + Deploy (Release) | 🟢 日常开发   |
+| **Ctrl+Shift+D** | 打开任务菜单             | 选择其他任务 |
+| **F5**           | 附加调试器               | 设置断点     |
+| **Ctrl+`**       | 打开终端                 | 查看输出     |
 
 ## 📋 任务菜单 (Ctrl+Shift+D)
 
@@ -105,12 +105,12 @@ Ctrl+Shift+D → "Clean Build"
 
 ## 🆘 常见问题
 
-| 问题 | 解决方案 |
-|------|--------|
-| 部署失败 | 关闭游戏后重试 |
+| 问题            | 解决方案                                              |
+| --------------- | ----------------------------------------------------- |
+| 部署失败        | 关闭游戏后重试                                        |
 | PowerShell 阻止 | `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` |
-| 找不到 Godot | F5 附加时搜索 "Slay the Spire 2" |
-| 没看到 DLL | 确认路径在 .vscode/tasks.json 中正确 |
+| 找不到 Godot    | F5 附加时搜索 "Slay the Spire 2"                      |
+| 没看到 DLL      | 确认路径在 .vscode/tasks.json 中正确                  |
 
 ## 📖 文档
 

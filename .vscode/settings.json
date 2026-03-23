@@ -6,20 +6,17 @@
         "editor.defaultFormatter": "ms-dotnettools.csharp",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.fixAll": true
+            "source.fixAll": "explicit"
         }
     },
-
     // Omnisharp 配置（C# 语言服务器）
     "omnisharp.enableRoslynAnalyzers": true,
     "omnisharp.enableEditorConfigSupport": true,
     "omnisharp.enableAnalyzersSupportForNewerLanguages": true,
     "omnisharp.analyzeOpenDocumentsOnly": false,
-
     // .NET 配置
     "dotnet.autoGenerateAssets": true,
     "dotnet.defaultSolutionOrFolder": "",
-
     // 编辑器外观
     "editor.codeLens": true,
     "editor.inlayHints.enabled": "on",
@@ -27,7 +24,6 @@
     "editor.renderWhitespace": "trailing",
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
-
     // 文件关联
     "files.exclude": {
         "**/bin": true,
@@ -35,13 +31,10 @@
         "**/.vs": true,
         "**/.vscode": false
     },
-
     // Git 配置
     "git.ignoreLimitWarning": true,
-
     // 导入优化
     "editor.organizeImportsOnSave": true,
-
     // 搜索排除
     "search.exclude": {
         "**/bin": true,

@@ -24,6 +24,11 @@ build/
 *.pdb
 out/
 
+# Game DLLs (proprietary, must be copied manually)
+lib/*.dll
+lib/*.pdb
+!lib/README.md
+
 # Godot
 .godot/
 *.gdextension

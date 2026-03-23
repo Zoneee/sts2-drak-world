@@ -65,13 +65,13 @@ Ctrl+Shift+B
 
 ## 功能清单
 
-| 功能 | 快捷键 | 状态 |
-|------|--------|------|
-| 编译 + 部署 Release | Ctrl+Shift+B | ✅ 工作 |
-| 编译 + 部署 Debug | Ctrl+Shift+D → "Build + Deploy: Debug" | ✅ 工作 |
-| 仅编译 | Ctrl+Shift+B (前3秒) | ✅ 工作 |
-| 仅部署 | Ctrl+Shift+D → "Deploy: Release DLL" | ✅ 工作 |
-| 附加调试器 | F5 | ✅ 工作 |
+| 功能                 | 快捷键                                                       | 状态   |
+| -------------------- | ------------------------------------------------------------ | ------ |
+| 编译 + 部署 Release  | Ctrl+Shift+B                                                 | ✅ 工作 |
+| 编译 + 部署 Debug    | Ctrl+Shift+D → "Build + Deploy: Debug"                       | ✅ 工作 |
+| 仅编译               | Ctrl+Shift+B (前3秒)                                         | ✅ 工作 |
+| 仅部署               | Ctrl+Shift+D → "Deploy: Release DLL"                         | ✅ 工作 |
+| 附加调试器           | F5                                                           | ✅ 工作 |
 | 自动编译部署 (Watch) | `powershell -ExecutionPolicy Bypass -File deploy.ps1 -Watch` | ✅ 可用 |
 
 ## 文件位置

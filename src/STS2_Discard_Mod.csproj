@@ -26,9 +26,23 @@
     <PackageReference Include="HarmonyX" Version="2.10.2" />
   </ItemGroup>
 
-  <!-- Optional: Conditional references for development tools -->
-  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <!-- Useful for local debugging if needed -->
+  <!-- STS2 Game DLL Reference -->
+  <!-- STEP 1: Copy sts2.dll from game folder to lib/sts2.dll (see lib/README.md) -->
+  <!-- STEP 2: Uncomment the block below -->
+  <!-- STEP 3: Delete src/Stubs/ModInitializerStub.cs -->
+  <!-- STEP 4: Uncomment the 'using MegaCrit.*' lines in Main.cs and Logger.cs -->
+  <!--
+  <ItemGroup>
+    <Reference Include="sts2">
+      <HintPath>..\lib\sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
+  -->
+
+  <!-- Define stub constant when sts2.dll is NOT available -->
+  <PropertyGroup Condition="!Exists('$(MSBuildProjectDirectory)/../lib/sts2.dll')">
+    <DefineConstants>$(DefineConstants);STS2_NOT_AVAILABLE</DefineConstants>
+  </PropertyGroup>
 
 </Project>

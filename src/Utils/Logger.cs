@@ -1,32 +1,32 @@
+// Logger wraps MegaCrit.Sts2.Core.Logging.Log
+// Once sts2.dll is referenced, replace Console.WriteLine with:
+//   global::MegaCrit.Sts2.Core.Logging.Log.Info(...);
+//   global::MegaCrit.Sts2.Core.Logging.Log.Warn(...);
+//   global::MegaCrit.Sts2.Core.Logging.Log.Error(...);
+
 using System;
 
 namespace DiscardMod.Utils;
 
 /// <summary>
-/// Centralized logging utility with [DiscardMod] prefix for console output.
-/// All mod logs use this to enable easy filtering in STS2 console.
-/// 
-/// NOTE: This uses System.Console for build-time compatibility.
-/// When integrated with STS2/Godot, will switch to UnityEngine.Debug.
+/// Logging wrapper for STS2 mod.
+/// Uses MegaCrit.Sts2.Core.Logging.Log when available (sts2.dll).
+/// Falls back to Console.WriteLine for compilation without sts2.dll.
 /// </summary>
 public static class Logger
 {
     private const string PREFIX = "[DiscardMod]";
 
-    /// <summary>
-    /// Log informational message.
-    /// </summary>
     public static void Log(string message)
     {
+        // TODO: Replace with Log.Info($"{PREFIX} {message}"); once sts2.dll is referenced
         Console.WriteLine($"{PREFIX} {message}");
     }
 
-    /// <summary>
-    /// Log warning message.
-    /// </summary>
     public static void LogWarning(string message)
     {
-        Console.WriteLine($"{PREFIX} WARNING: {message}");
+        // TODO: Replace with Log.Warn($"{PREFIX} {message}"); once sts2.dll is referenced
+        Console.WriteLine($"{PREFIX} WARN: {message}");
     }
 
     /// <summary>

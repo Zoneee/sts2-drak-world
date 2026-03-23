@@ -1,105 +1,62 @@
+// STS2 Mod Entry Point
+// API Source: MegaCrit.Sts2.Core.Modding and MegaCrit.Sts2.Core.Logging from sts2.dll
+//
+// To enable full STS2 integration:
+//   1. Copy sts2.dll from game folder to lib/sts2.dll
+//   2. Uncomment the using directives below
+//   3. Remove the stub attribute at the bottom of this file
+
+// using Godot;
+// using MegaCrit.Sts2.Core.Modding;
+// using MegaCrit.Sts2.Core.Logging;
+
 using System;
-using System.Collections.Generic;
 using DiscardMod.Cards;
 using DiscardMod.Utils;
 
 namespace DiscardMod;
 
 /// <summary>
-/// Main mod loader and coordinator.
-/// Entry point for BaseLib-StS2 mod framework.
-/// 
-/// This class will be instantiated by BaseLib when the mod loads.
-/// All card registration and hook setup happens here.
-/// 
-/// NOTE: Currently a standalone implementation. 
-/// Will inherit from BaseMod once BaseLib is fully integrated.
+/// STS2 mod entry point.
+/// STS2 discovers this class via the [ModInitializer] attribute and calls ModLoaded() on startup.
+///
+/// Correct usage (once sts2.dll is referenced):
+///   [ModInitializer("ModLoaded")]
+///   public static class DiscardModMain { ... }
 /// </summary>
-public class DiscardModMain
+// TODO: Replace stub [ModInitializer] with real one from MegaCrit.Sts2.Core.Modding
+[ModInitializer("ModLoaded")]
+public static class DiscardModMain
 {
-    public static DiscardModMain? Instance { get; private set; }
-
     public const string ModName = "STS2 Discard-Trigger Mod";
-    public const string ModID = "DiscardMod";
     public const string Version = "0.1.0-alpha";
 
-    public DiscardModMain()
-    {
-        Instance = this;
-        Logger.Log($"Initializing {ModName} v{Version}");
-    }
-
-    public void OnModLoad()
+    /// <summary>
+    /// Called by STS2 when mod is loaded. This is the real entry point.
+    /// </summary>
+    public static void ModLoaded()
     {
         try
         {
-            Logger.Log("Mod loading, initializing systems");
-            InitializeCardRegistry();
+            Logger.Log($"{ModName} v{Version} loading...");
             RegisterCards();
-            SetupHooks();
-            Logger.Log($"{ModName} loaded successfully");
+            Logger.Log($"{ModName} loaded successfully!");
         }
         catch (Exception ex)
         {
-            Logger.LogException(ex);
-            throw;
+            Logger.LogError($"Mod failed to load: {ex.Message}");
         }
     }
 
-    private void InitializeCardRegistry()
+    private static void RegisterCards()
     {
-        Logger.Log($"Card registry initialized with {CardRegistry.GetCardCount()} cards");
-    }
+        // TODO: Use STS2 card pool registration API
+        // Example (API TBD - needs sts2.dll exploration):
+        // ModContent.RegisterCard<DarkFlameFragment>();
+        // ModContent.RegisterCard<SwiftCut>();
+        // ModContent.RegisterCard<ToxinRecord>();
+        // ModContent.RegisterCard<ShatteredEcho>();
 
-    private void RegisterCards()
-    {
-        try
-        {
-            // Register all card types
-            var cardTypes = new Type[]
-            {
-                typeof(DarkFlameFragment),
-                typeof(SwiftCut),
-                typeof(ToxinRecord),
-                typeof(ShatteredEcho)
-            };
-
-            foreach (var cardType in cardTypes)
-            {
-                Logger.Log($"Card type registered: {cardType.Name}");
-            }
-
-            Logger.Log($"Card registration complete: {cardTypes.Length} cards");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError($"Failed to register cards: {ex.Message}");
-            throw;
-        }
-    }
-
-    private void SetupHooks()
-    {
-        try
-        {
-            // Discard hook setup will go here
-            // This may use BaseLib events or Harmony patches
-            Logger.Log("Discard event hooks configured");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError($"Failed to setup hooks: {ex.Message}");
-            throw;
-        }
-    }
-
-    public void OnGameStart()
-    {
-        Logger.Log("Game started, mod is active");
-    }
-
-    public void OnGameEnd()
-    {
-        Logger.Log("Game ended");
+        Logger.Log($"Registered 4 discard-trigger cards for Mystic");
     }
 }

@@ -64,7 +64,7 @@ dotnet build src/ --configuration Release
 3. **Gameplay**: Discard-trigger cards appear in the card pool
 4. **Debug**: Open in-game console (`showlogs` command) to check for events
 
-## Core Mechanic: "Discard-Trigger" 
+## Core Mechanic: "Discard-Trigger"
 
 These cards activate **special effects when discarded**, not when played:
 
@@ -129,16 +129,16 @@ python deploy.ps1 -Configuration Release
 
 ## Documentation
 
-| Document | Purpose |
-|----------|---------|
-| [QUICK_START.md](docs/QUICK_START.md) 🟢 | **Start here!** One-click deploy setup |
-| [VSCODE_WORKFLOW.md](docs/VSCODE_WORKFLOW.md) | Complete VS Code automation guide |
-| [GODOT_DEBUG_GUIDE.md](docs/GODOT_DEBUG_GUIDE.md) | Debugging strategies for Godot/STS2 |
-| [WINDOWS_DEPLOYMENT.md](docs/WINDOWS_DEPLOYMENT.md) | Windows-specific installation guide |
-| [DESIGN.md](docs/DESIGN.md) | Card mechanics and balance framework |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Code structure and mod framework |
-| [DEV_GUIDE.md](docs/DEV_GUIDE.md) | How to create new cards |
-| [DEBUGGING.md](docs/DEBUGGING.md) | Troubleshooting and log analysis |
+| Document                                            | Purpose                                |
+| --------------------------------------------------- | -------------------------------------- |
+| [QUICK_START.md](docs/QUICK_START.md) 🟢             | **Start here!** One-click deploy setup |
+| [VSCODE_WORKFLOW.md](docs/VSCODE_WORKFLOW.md)       | Complete VS Code automation guide      |
+| [GODOT_DEBUG_GUIDE.md](docs/GODOT_DEBUG_GUIDE.md)   | Debugging strategies for Godot/STS2    |
+| [WINDOWS_DEPLOYMENT.md](docs/WINDOWS_DEPLOYMENT.md) | Windows-specific installation guide    |
+| [DESIGN.md](docs/DESIGN.md)                         | Card mechanics and balance framework   |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)             | Code structure and mod framework       |
+| [DEV_GUIDE.md](docs/DEV_GUIDE.md)                   | How to create new cards                |
+| [DEBUGGING.md](docs/DEBUGGING.md)                   | Troubleshooting and log analysis       |
 
 ## Project Status
 

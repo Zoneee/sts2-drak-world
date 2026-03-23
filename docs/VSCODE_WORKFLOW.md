@@ -12,7 +12,7 @@ Ctrl+Shift+B  →  自动运行 "Build: Release"
 
 ### 完整编译 + 部署流程
 
-**Ctrl+Shift+D 打开任务菜单，选择:**
+**Ctrl+Shift+P 打开任务菜单，选择:**
 
 ```
 "Build + Deploy: Release"  (推荐用于快速测试)
@@ -31,31 +31,31 @@ Ctrl+Shift+B  →  自动运行 "Build: Release"
 
 ### 编译任务
 
-| 任务名称 | 快捷键 | 功能 |
-|--------|-------|------|
+| 任务名称           | 快捷键         | 功能                                    |
+| ------------------ | -------------- | --------------------------------------- |
 | **Build: Release** | `Ctrl+Shift+B` | 编译 Release 版本（优化，用于最终部署） |
-| Build: Debug | 无 | 编译 Debug 版本（包含调试符号） |
-| Clean Build | 无 | 清理所有编译输出 |
+| Build: Debug       | 无             | 编译 Debug 版本（包含调试符号）         |
+| Clean Build        | 无             | 清理所有编译输出                        |
 
 ### 部署任务
 
-| 任务名称 | 功能 |
-|--------|------|
-| Deploy: Release DLL | 复制 Release DLL 到游戏目录 |
+| 任务名称                | 功能                                |
+| ----------------------- | ----------------------------------- |
+| Deploy: Release DLL     | 复制 Release DLL 到游戏目录         |
 | Deploy: Debug DLL + PDB | 复制 Debug DLL + 调试符号到游戏目录 |
-| Deploy: modInfo.json | 复制 modInfo.json 配置文件 |
+| Deploy: modInfo.json    | 复制 modInfo.json 配置文件          |
 
 ### 组合任务（推荐）
 
-| 任务名称 | 功能 | 推荐场景 |
-|--------|------|--------|
+| 任务名称                    | 功能                | 推荐场景           |
+| --------------------------- | ------------------- | ------------------ |
 | **Build + Deploy: Release** | 编译 → 部署 Release | 快速测试，最终部署 |
-| **Build + Deploy: Debug** | 编译 → 部署 Debug | 调试会话前 |
+| **Build + Deploy: Debug**   | 编译 → 部署 Debug   | 调试会话前         |
 
 ### 调试任务
 
-| 任务名称 | 功能 |
-|--------|------|
+| 任务名称               | 功能                          |
+| ---------------------- | ----------------------------- |
 | Attach Debugger: Godot | 显示如何附加到 Godot.exe 进程 |
 
 ---
@@ -114,13 +114,13 @@ Ctrl+Shift+B  →  自动运行 "Build: Release"
 
 ## ⌨️ 键盘快捷键速查
 
-| 快捷键 | 操作 |
-|--------|------|
-| `Ctrl+Shift+B` | 运行默认构建 (Release) |
+| 快捷键         | 操作                             |
+| -------------- | -------------------------------- |
+| `Ctrl+Shift+B` | 运行默认构建 (Release)           |
 | `Ctrl+Shift+D` | 打开任务菜单（选择其他构建选项） |
-| `Ctrl+`+`` | 开启/关闭集成终端 |
-| `Ctrl+J` | 切换面板（查看编译输出） |
-| `F5` | 启动调试/附加调试器 |
+| `Ctrl+`+``     | 开启/关闭集成终端                |
+| `Ctrl+J`       | 切换面板（查看编译输出）         |
+| `F5`           | 启动调试/附加调试器              |
 
 ### 自定义快捷键
 
@@ -238,7 +238,7 @@ while ($true) {
     Clear-Host
     Write-Host "🔄 编译中..." -ForegroundColor Cyan
     dotnet build "src/" --configuration $Config
-    
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ 编译成功，部署中..." -ForegroundColor Green
         Copy-Item "src/bin/$Config/net9.0/STS2_Discard_Mod.dll" -Destination "D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/" -Force
@@ -246,7 +246,7 @@ while ($true) {
     } else {
         Write-Host "❌ 编译失败!" -ForegroundColor Red
     }
-    
+
     Write-Host "`n⏳ 等待文件变化... (按 Ctrl+C 停止)" -ForegroundColor Yellow
     Start-Sleep -Seconds 5
 }
