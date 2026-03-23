@@ -12,29 +12,50 @@ A Slay the Spire 2 mod that introduces a "discard-trigger" card system where car
 - **Slay the Spire 2** (installed via Steam)
 - **Git** with SSH keys configured for GitHub
 
-### Build
+### Development Setup (VS Code)
 
 ```bash
 # Clone repository
 git clone git@github.com:Zoneee/sts2-drak-world.git
 cd sts2-drak-world
 
-# Build the mod
-dotnet build
+# Open in VS Code
+code .
+```
 
-# Output: bin/Release/STS2_Discard_Mod.dll
+**One-Click Build + Deploy:**
+
+```
+Press: Ctrl+Shift+B
+
+Automatically compiles and deploys DLL to your STS2 mods folder!
+```
+
+See [docs/QUICK_START.md](docs/QUICK_START.md) for complete workflow.
+
+### Build (Manual)
+
+```bash
+# Build Release version
+dotnet build src/ --configuration Release
+
+# Output: src/bin/Release/net9.0/STS2_Discard_Mod.dll
 ```
 
 ### Install
 
 1. Locate your STS2 mods folder:
-   - **Windows**: `C:\Program Files\SteamLibrary\steamapps\common\Slay the Spire 2\mods\`
+   - **Windows**: `D:\G_games\steam\steamapps\common\Slay the Spire 2\mods\` (customize in `.vscode/tasks.json`)
    - **Linux**: `~/.steam/debian-installation/steamapps/common/Slay the Spire 2/mods/`
    - **macOS**: `~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/mods/`
 
-2. Copy `bin/Release/STS2_Discard_Mod.dll` to the mods folder
+2. Copy files to mods folder:
+   - `src/bin/Release/net9.0/STS2_Discard_Mod.dll`
+   - `modInfo.json` (from project root)
 
-3. Launch STS2 and enable the mod in the main menu
+3. Launch STS2 and create a Mystic character to see discard-trigger cards
+
+**⭐ Tip:** Using VS Code? Just press `Ctrl+Shift+B` to automate this entire process!
 
 ### Multiplayer Testing
 
@@ -57,44 +78,80 @@ These cards activate **special effects when discarded**, not when played:
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for code structure and implementation details.
 
-### Build & Test Locally
+## Development Workflow
+
+### VS Code Auto-Deploy (Recommended)
+
+**One-command everything:**
+```
+Ctrl+Shift+B  →  Compile + Deploy automatically!
+```
+
+**Features:**
+- ✅ Compiles your code
+- ✅ Copies DLL to game directory
+- ✅ Copies modInfo.json
+- ✅ Real-time error display
+- ✅ Integrated terminal output
+
+See [docs/VSCODE_WORKFLOW.md](docs/VSCODE_WORKFLOW.md) for complete guide.
+
+### Debugging in Visual Studio Code
+
+```
+1. Press Ctrl+Shift+B to build and deploy Debug version
+2. Launch STS2 and create a Mystic game
+3. Press F5 → Attach to Process → Select Godot.exe
+4. Set breakpoints in VS Code (click line number)
+5. Trigger card effects in-game, code pauses at breakpoints
+```
+
+See [docs/GODOT_DEBUG_GUIDE.md](docs/GODOT_DEBUG_GUIDE.md) for detailed debugging strategies.
+
+### Manual Build & Test
 
 ```bash
 # Build mod
-dotnet build
+dotnet build src/ --configuration Release
 
-# Run tests (if implemented)
-dotnet test
+# Deploy manually (Windows)
+Copy-Item src/bin/Release/net9.0/STS2_Discard_Mod.dll -Destination "D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/" -Force
 
-# Deploy to local STS2 mods folder
-cp -r bin/Release/* ~/SteamLibrary/.../Slay\ the\ Spire\ 2/mods/
+# Or use Python script for automation
+python deploy.ps1 -Configuration Release
 ```
 
 ### Debug in-Game
 
-- Open STS2 console: **Input.is_action_pressed("show_logs")**
-- Look for `[DiscardMod]` log prefix
+- Look for **`[DiscardMod]`** log prefix in console
 - Check [docs/DEBUGGING.md](docs/DEBUGGING.md) for common issues
+- Enable detailed logging in [src/Utils/Logger.cs](src/Utils/Logger.cs)
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [QUICK_START.md](docs/QUICK_START.md) 🟢 | **Start here!** One-click deploy setup |
+| [VSCODE_WORKFLOW.md](docs/VSCODE_WORKFLOW.md) | Complete VS Code automation guide |
+| [GODOT_DEBUG_GUIDE.md](docs/GODOT_DEBUG_GUIDE.md) | Debugging strategies for Godot/STS2 |
+| [WINDOWS_DEPLOYMENT.md](docs/WINDOWS_DEPLOYMENT.md) | Windows-specific installation guide |
+| [DESIGN.md](docs/DESIGN.md) | Card mechanics and balance framework |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Code structure and mod framework |
+| [DEV_GUIDE.md](docs/DEV_GUIDE.md) | How to create new cards |
+| [DEBUGGING.md](docs/DEBUGGING.md) | Troubleshooting and log analysis |
 
 ## Project Status
 
 **v0.1.0-alpha** (In Development)
-- [ ] Phase 1: Repository setup (Day 1)
-- [ ] Phase 2: Base framework (Days 2-3)
-- [ ] Phase 3: First card prototype (Days 4-5)
-- [ ] Phase 4: All 8 cards (Days 6-10)
-- [ ] Phase 5: Multiplayer testing (Days 11-14)
-- [ ] Phase 6: Release packaging (Days 15-16)
+- [x] Phase 1: Repository setup ✅
+- [x] Phase 2: Base framework ✅
+- [x] Phase 3: Core 4 cards ✅
+- [x] Phase 4: VS Code automation ✅ (NEW!)
+- [ ] Phase 5: Remaining 4 cards
+- [ ] Phase 6: Multiplayer testing
+- [ ] Phase 7: Release packaging
 
 See [docs/CHANGELOG.md](docs/CHANGELOG.md) for detailed version history.
-
-## Resources
-
-- [Game Design Doc](docs/DESIGN.md) — Card mechanics and system design
-- [Architecture Guide](docs/ARCHITECTURE.md) — Code structure and discard hook implementation
-- [Developer Guide](docs/DEV_GUIDE.md) — Setup instructions for contributors
-- [Debugging Guide](docs/DEBUGGING.md) — Troubleshooting and logging
-- [BaseLib-StS2 Docs](https://alchyr.github.io/BaseLib-Wiki/) — Mod framework reference
 
 ## Community
 
