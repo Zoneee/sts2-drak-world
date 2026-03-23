@@ -47,7 +47,7 @@ Ctrl+Shift+B
 手动构建：
 
 ```bash
-dotnet build src/ --configuration Release
+dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 ```
 
 然后把下面两个文件复制到游戏目录：

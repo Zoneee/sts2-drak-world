@@ -28,7 +28,7 @@
 ### 2. 构建项目
 
 ```bash
-dotnet build src/ --configuration Release
+dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 ```
 
 输出文件：
@@ -61,6 +61,7 @@ Ctrl+Shift+B
 - 运行时不要把 `src/localization/eng/cards.json` 直接复制到模组目录；当前加载器会把额外的 `.json` 误判为 manifest
 - live 模组目录至少要包含 `STS2DiscardMod.dll`、`STS2DiscardMod.pck`、`0Harmony.dll` 和 `STS2_Discard_Mod.json`
 - 卡图这类 `res://STS2DiscardMod/...` 资源必须进入 `.pck`；只把 png 原文件复制到 mods 目录，游戏不会挂载它们
+- `Alchyr.Sts2.BaseLib` 是独立依赖 mod。当前仓库的 build/deploy 只会复制本模组产物，不会把 `mods/BaseLib/` 一起复制到游戏目录
 
 ## 文档索引
 

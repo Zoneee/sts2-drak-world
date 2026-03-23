@@ -89,8 +89,17 @@ DiscardModMain.Logger.Error("错误信息");
 4. 重新构建：
 
 ```bash
-dotnet clean src/ && dotnet build src/ --configuration Release
+dotnet clean src/STS2_Discard_Mod.csproj && dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 ```
+
+5. 确认依赖 mod 没缺：
+
+```text
+{game}/mods/BaseLib/BaseLib.dll
+{game}/mods/BaseLib/BaseLib.pck
+```
+
+当前仓库不会把 `BaseLib` 自动部署到游戏目录；它必须作为独立 mod 预先安装。
 
 ### 问题 B：日志报“找不到程序集”
 
@@ -137,7 +146,7 @@ No loader found for resource: res://STS2DiscardMod/images/...
 ### 第一步：构建 Debug 版本
 
 ```bash
-dotnet build src/ --configuration Debug
+dotnet build src/STS2_Discard_Mod.csproj --configuration Debug
 ```
 
 成功后会得到：
@@ -170,7 +179,7 @@ dotnet build src/ --configuration Debug
 重建：
 
 ```bash
-dotnet clean src/ && dotnet build src/ --configuration Release
+dotnet clean src/STS2_Discard_Mod.csproj && dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 ```
 
 查找部署后的 DLL：

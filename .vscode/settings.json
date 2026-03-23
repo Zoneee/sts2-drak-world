@@ -1,4 +1,7 @@
 {
+    // 本机 Godot CLI，用于导出 STS2DiscardMod.pck
+    // 例如: C:/Tools/Godot/Godot_v4.5.1-stable_mono_win64.exe
+    "sts2.godotCliCommand": "/home/alphonse/.local/godot/4.5.1/Godot_v4.5.1-stable_mono_linux_x86_64/Godot_v4.5.1-stable_mono_linux.x86_64",
     // C# 开发配置
     "editor.defaultFormatter": "ms-dotnettools.csharp",
     "editor.formatOnSave": true,

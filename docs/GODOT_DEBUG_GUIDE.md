@@ -13,7 +13,7 @@
 ### 1. 先构建 Debug 版本
 
 ```bash
-dotnet build src/ --configuration Debug
+dotnet build src/STS2_Discard_Mod.csproj --configuration Debug
 ```
 
 ### 2. 确认 Debug 产物已部署

@@ -95,8 +95,8 @@ function Build-Project {
     Push-Location $projectRoot
 
     try {
-        Write-Info "执行: dotnet build src/ --configuration $Configuration"
-        $buildOutput = dotnet build src/ --configuration $Configuration 2>&1
+        Write-Info "执行: dotnet build src/STS2_Discard_Mod.csproj --configuration $Configuration"
+        $buildOutput = dotnet build src/STS2_Discard_Mod.csproj --configuration $Configuration 2>&1
 
         if ($LASTEXITCODE -ne 0) {
             Write-Error-Custom "编译失败！"
@@ -257,7 +257,7 @@ try {
     if (-not $NoClean) {
         # 可选: 清理旧编译
         # Write-Header "清理旧编译"
-        # dotnet clean src/ | Out-Null
+        # dotnet clean src/STS2_Discard_Mod.csproj | Out-Null
     }
 
     if (Build-Project) {

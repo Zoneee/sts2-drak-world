@@ -1,3 +1,5 @@
+.venv/
+
 # C#/.NET
 [Bb]in/
 [Oo]bj/

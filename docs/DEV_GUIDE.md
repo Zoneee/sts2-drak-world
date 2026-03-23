@@ -34,7 +34,7 @@ cp ~/.local/share/Steam/steamapps/common/Slay\ the\ Spire\ 2/data_sts2_linuxbsd_
 ```bash
 git clone git@github.com:Zoneee/sts2-drak-world.git
 cd sts2-drak-world
-dotnet build src/
+dotnet build src/STS2_Discard_Mod.csproj
 ```
 
 ## 2. 项目结构
@@ -58,9 +58,9 @@ src/
 ### 本地构建
 
 ```bash
-dotnet build src/ --configuration Debug
-dotnet build src/ --configuration Release
-dotnet clean src/ && dotnet build src/ --configuration Release
+dotnet build src/STS2_Discard_Mod.csproj --configuration Debug
+dotnet build src/STS2_Discard_Mod.csproj --configuration Release
+dotnet clean src/STS2_Discard_Mod.csproj && dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 ```
 
 Release 输出路径：
@@ -88,10 +88,12 @@ src/bin/Release/net9.0/STS2DiscardMod.pck
 
 ```bash
 export GODOT_CLI_COMMAND='/path/to/godot4'
-dotnet build src/ --configuration Release
+dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 ```
 
 在 WSL 下也可以把它指向可直接执行的 Windows Godot 编辑器，例如 `/mnt/c/.../Godot_v4.5.1-stable_mono_win64.exe`。
+
+如果你使用 VS Code，本仓库默认从工作区设置 `sts2.godotCliCommand` 读取同一个值；`Build: Debug` 和 `Build: Release` 会把它传给 `GodotCliCommand`。
 
 ### 手动部署
 
@@ -105,6 +107,8 @@ STS2_Discard_Mod.json
 ```
 
 不要把 `src/localization/eng/cards.json` 直接复制到 live 模组目录。当前加载器会把额外 `.json` 当成 manifest 递归读取，导致加载错误。
+
+另外要注意：`Alchyr.Sts2.BaseLib` 虽然是 NuGet 构建依赖，但它的 live 模组内容 `BaseLib.dll` 和 `BaseLib.pck` 不会由本仓库自动复制。游戏目录里必须已经存在一个独立的 `mods/BaseLib/` 安装。
 
 Windows 特定路径示例见 [WINDOWS_DEPLOYMENT.md](WINDOWS_DEPLOYMENT.md)。
 
@@ -164,7 +168,7 @@ ModHelper.AddModelToPool(typeof(RegentCardPool), typeof(MyCard));
 1. 在 `src/Cards/` 新建卡牌类
 2. 在 `src/localization/eng/cards.json` 添加本地化键
 3. 在 `Main.cs` 中调用 `ModHelper.AddModelToPool(...)`
-4. 执行 `dotnet build src/`
+4. 执行 `dotnet build src/STS2_Discard_Mod.csproj`
 
 ### 卡牌模板
 

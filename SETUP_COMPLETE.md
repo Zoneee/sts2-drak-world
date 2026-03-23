@@ -29,7 +29,7 @@ ls lib/sts2.dll
 ### 3. 验证构建
 
 ```bash
-dotnet build src/ --configuration Release
+dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 ```
 
 ### 4. 验证 live 模组目录

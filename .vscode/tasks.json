@@ -7,9 +7,10 @@
             "command": "dotnet",
             "args": [
                 "build",
-                "src/",
+                "src/STS2_Discard_Mod.csproj",
                 "--configuration",
-                "Release"
+                "Release",
+                "-p:GodotCliCommand=${config:sts2.godotCliCommand}"
             ],
             "problemMatcher": "$msCompile",
             "presentation": {
@@ -28,9 +29,10 @@
             "command": "dotnet",
             "args": [
                 "build",
-                "src/",
+                "src/STS2_Discard_Mod.csproj",
                 "--configuration",
-                "Debug"
+                "Debug",
+                "-p:GodotCliCommand=${config:sts2.godotCliCommand}"
             ],
             "problemMatcher": "$msCompile",
             "presentation": {
@@ -130,7 +132,7 @@
             "command": "dotnet",
             "args": [
                 "clean",
-                "src/"
+                "src/STS2_Discard_Mod.csproj"
             ],
             "presentation": {
                 "reveal": "always",
