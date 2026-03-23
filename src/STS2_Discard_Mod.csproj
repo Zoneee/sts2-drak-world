@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    
+    <!-- Assembly metadata -->
+    <AssemblyName>STS2_Discard_Mod</AssemblyName>
+    <RootNamespace>DiscardMod</RootNamespace>
+    <Version>0.1.0</Version>
+    
+    <!-- Build output -->
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <PublishDir>dist\</PublishDir>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    
+    <!-- Disable auto-generated assembly info to avoid conflicts -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <!-- NuGet Package Dependencies -->
+  <!-- NOTE: BaseLib-StS2 and Harmony will be added during integration with STS2 -->
+  <!-- For now, building as a standalone C# library to verify project structure -->
+  <ItemGroup>
+    <!-- Harmony: Runtime patching (fallback for discard detection) - optional for now -->
+    <!-- <PackageReference Include="HarmonyX" Version="2.10.2" /> -->
+  </ItemGroup>
+
+  <!-- Optional: Conditional references for development tools -->
+  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <!-- Useful for local debugging if needed -->
+  </ItemGroup>
+
+</Project>
