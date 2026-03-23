@@ -116,13 +116,13 @@ public class MyCard : CardModel
 
 **CardModel constructor parameters**:
 
-| Parameter | Type | Notes |
-| --- | --- | --- |
-| `cost` | `int` | Energy cost (0–5) |
-| `CardType` | `CardType` | `Attack`, `Skill`, `Power`, `Status`, `Curse` |
-| `CardRarity` | `CardRarity` | `Starter`, `Common`, `Uncommon`, `Rare`, `Special`, `Curse` |
-| `TargetType` | `TargetType` | `AnyEnemy`, `AllEnemies`, `Self`, `None` |
-| `showInLibrary` | `bool` | Show in card library (true for normal cards) |
+| Parameter       | Type         | Notes                                                       |
+| --------------- | ------------ | ----------------------------------------------------------- |
+| `cost`          | `int`        | Energy cost (0–5)                                           |
+| `CardType`      | `CardType`   | `Attack`, `Skill`, `Power`, `Status`, `Curse`               |
+| `CardRarity`    | `CardRarity` | `Starter`, `Common`, `Uncommon`, `Rare`, `Special`, `Curse` |
+| `TargetType`    | `TargetType` | `AnyEnemy`, `AllEnemies`, `Self`, `None`                    |
+| `showInLibrary` | `bool`       | Show in card library (true for normal cards)                |
 
 **Localization**: Card titles and descriptions live in `src/localization/eng/cards.json`. The key format is `CLASSNAME.title` / `CLASSNAME.description` (uppercase class name).
 
