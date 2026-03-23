@@ -1,0 +1,65 @@
+# C#/.NET
+[Bb]in/
+[Oo]bj/
+*.csproj.user
+*.suo
+*.user
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+*.nupkg
+*.snupkg
+*.dll
+*.exe
+*.pdb
+out/
+
+# Godot
+.godot/
+*.gdextension
+*.gdplugin
+mono_crash*.json
+user.godot
+
+# STS2 Mod Cache
+mods/
+*.mod
+cache/
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+.directory
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.#*
+
+# IDE
+*.iml
+/.idea/
+/*.sublime-project
+/*.sublime-workspace
+
+# NuGet
+.nuget/
+*.nupkg
+*.snupkg
+packages/
+
+# VisualStudio
+.visualstudio/
+
+# Dependencies
+node_modules/
+lib/
+include/

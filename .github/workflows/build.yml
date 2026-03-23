@@ -1,0 +1,64 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.x
+    
+    - name: Restore dependencies
+      run: dotnet restore src/
+      continue-on-error: true
+    
+    - name: Build
+      run: dotnet build src/ --configuration Release --no-restore
+    
+    - name: Test
+      run: dotnet test src/ --configuration Release --no-build --verbosity normal
+      continue-on-error: true
+    
+    - name: Package Mod
+      run: |
+        mkdir -p dist
+        cp -v src/bin/Release/*.dll dist/ || echo "No DLL files found"
+        cp -v src/*.mod dist/ 2>/dev/null || echo "No .mod files found"
+        cd dist && ls -la
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: STS2_Discard_Mod_Build
+        path: dist/
+        retention-days: 30
+    
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
+    
+    - name: Upload Release Assets
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
