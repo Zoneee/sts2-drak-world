@@ -26,27 +26,24 @@
     <Sts2DataDir Condition="'$(Sts2DataDir)' == '' and Exists('$(LocalLibPath)/sts2.dll')">$(LocalLibPath)</Sts2DataDir>
   </PropertyGroup>
 
-  <!-- Windows — auto-detect Steam; falls back to user's known path -->
-  <PropertyGroup Condition="'$(IsWindows)' == 'true' and '$(Sts2DataDir)' == ''">
+  <!-- ModsPath: set independently from Sts2DataDir so lib/ override doesn't block deploy -->
+  <!-- Windows -->
+  <PropertyGroup Condition="'$(IsWindows)' == 'true' and '$(ModsPath)' == ''">
     <AutoSteamPath>$(registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)\steamapps</AutoSteamPath>
-    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == '' and Exists('$(AutoSteamPath)/common/Slay the Spire 2')">$(AutoSteamPath)</SteamLibraryPath>
-    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">D:/G_games/steam/steamapps</SteamLibraryPath>
-    <Sts2DataDir>$(SteamLibraryPath)/common/Slay the Spire 2/data_sts2_windows_x86_64</Sts2DataDir>
-    <ModsPath Condition="'$(ModsPath)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2/mods/</ModsPath>
+    <_WinSteam Condition="Exists('$(AutoSteamPath)/common/Slay the Spire 2')">$(AutoSteamPath)</_WinSteam>
+    <_WinSteam Condition="'$(_WinSteam)' == ''">D:/G_games/steam/steamapps</_WinSteam>
+    <ModsPath>$(_WinSteam)/common/Slay the Spire 2/mods/</ModsPath>
   </PropertyGroup>
-
-  <!-- Linux — default Steam path -->
-  <PropertyGroup Condition="'$(IsLinux)' == 'true' and '$(Sts2DataDir)' == ''">
-    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">$(HOME)/.local/share/Steam/steamapps</SteamLibraryPath>
-    <Sts2DataDir>$(SteamLibraryPath)/common/Slay the Spire 2/data_sts2_linuxbsd_x86_64</Sts2DataDir>
-    <ModsPath Condition="'$(ModsPath)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2/mods/</ModsPath>
+  <!-- Linux / WSL -->
+  <PropertyGroup Condition="'$(IsLinux)' == 'true' and '$(ModsPath)' == ''">
+    <!-- WSL: Windows D: drive mount -->
+    <ModsPath Condition="Exists('/mnt/d/G_games/steam/steamapps/common/Slay the Spire 2')">/mnt/d/G_games/steam/steamapps/common/Slay the Spire 2/mods/</ModsPath>
+    <!-- Native Linux Steam fallback -->
+    <ModsPath Condition="'$(ModsPath)' == ''">$(HOME)/.local/share/Steam/steamapps/common/Slay the Spire 2/mods/</ModsPath>
   </PropertyGroup>
-
   <!-- macOS -->
-  <PropertyGroup Condition="'$(IsOSX)' == 'true' and '$(Sts2DataDir)' == ''">
-    <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">$(HOME)/Library/Application Support/Steam/steamapps</SteamLibraryPath>
-    <Sts2DataDir>$(SteamLibraryPath)/common/Slay the Spire 2/SlayTheSpire2.app/Contents/Resources/data_sts2_macos_x86_64</Sts2DataDir>
-    <ModsPath Condition="'$(ModsPath)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2/SlayTheSpire2.app/Contents/MacOS/mods/</ModsPath>
+  <PropertyGroup Condition="'$(IsOSX)' == 'true' and '$(ModsPath)' == ''">
+    <ModsPath>$(HOME)/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/MacOS/mods/</ModsPath>
   </PropertyGroup>
 
   <!-- Game DLL references (from lib/ or game data folder) -->
