@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Godot (STS2)",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "justMyCode": false,
+            "sourceLanguages": [
+                "csharp"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Build Debug + Deploy + Debug",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build + Deploy: Debug",
+            "program": "dotnet",
+            "args": [
+                "build",
+                "src/",
+                "--configuration",
+                "Debug"
+            ],
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}

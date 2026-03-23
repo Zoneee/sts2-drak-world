@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.debugger-for-chrome",
+        "eamodio.gitlens",
+        "ms-vscode.makefile-tools",
+        "ms-vscode.powershell",
+        "redhat.vscode-yaml",
+        "GitHub.copilot",
+        "mhutchie.git-graph",
+        "ms-azuretools.vscode-docker"
+    ]
+}

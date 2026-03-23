@@ -127,26 +127,26 @@ copy "src\bin\Release\net9.0\STS2_Discard_Mod.dll" "D:\G_games\steam\steamapps\c
 
 ## 🐛 故障排除
 
-| 症状 | 可能原因 | 解决方案 |
-|------|--------|--------|
-| 卡牌未出现 | DLL 未部署或已卸载 | 重新复制 DLL，重启游戏 |
-| 游戏崩溃 | DLL 版本不兼容 | 确认 .net 9.0 版本正确 |
-| 日志中没有 [DiscardMod] | modInfo.json 缺失 | 复制 modInfo.json 到 mods/ 目录 |
-| 卡牌只显示符号 | 字符编码问题 | 重新编译，确保 UTF-8 编码 |
-| "mod 已禁用" 提示 | BaseLib 缺失 | 确认 baselib mod 已安装 |
+| 症状                    | 可能原因           | 解决方案                        |
+| ----------------------- | ------------------ | ------------------------------- |
+| 卡牌未出现              | DLL 未部署或已卸载 | 重新复制 DLL，重启游戏          |
+| 游戏崩溃                | DLL 版本不兼容     | 确认 .net 9.0 版本正确          |
+| 日志中没有 [DiscardMod] | modInfo.json 缺失  | 复制 modInfo.json 到 mods/ 目录 |
+| 卡牌只显示符号          | 字符编码问题       | 重新编译，确保 UTF-8 编码       |
+| "mod 已禁用" 提示       | BaseLib 缺失       | 确认 baselib mod 已安装         |
 
 ---
 
 ## 📍 常用路径速查
 
-| 用途 | 路径 |
-|------|------|
-| 游戏目录 | `D:\G_games\steam\steamapps\common\Slay the Spire 2` |
-| Mods 目录 | `D:\G_games\steam\steamapps\common\Slay the Spire 2\mods` |
-| 项目源代码 | `C:\Projects\STS2-Dark-World` (或你的路径) |
-| 编译输出 | `src\bin\Release\net9.0\STS2_Discard_Mod.dll` |
-| 项目配置 | `modInfo.json` (项目根目录) |
-| 游戏日志 | `Documents\Slay the Spire 2\logs\` |
+| 用途       | 路径                                                      |
+| ---------- | --------------------------------------------------------- |
+| 游戏目录   | `D:\G_games\steam\steamapps\common\Slay the Spire 2`      |
+| Mods 目录  | `D:\G_games\steam\steamapps\common\Slay the Spire 2\mods` |
+| 项目源代码 | `C:\Projects\STS2-Dark-World` (或你的路径)                |
+| 编译输出   | `src\bin\Release\net9.0\STS2_Discard_Mod.dll`             |
+| 项目配置   | `modInfo.json` (项目根目录)                               |
+| 游戏日志   | `Documents\Slay the Spire 2\logs\`                        |
 
 ---
 

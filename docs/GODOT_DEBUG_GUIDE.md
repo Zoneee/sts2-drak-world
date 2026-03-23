@@ -229,13 +229,13 @@ Get-Content C:\Users\<用户名>\Desktop\sts2_discard_mod.log -Wait
 
 ## 🐛 常见问题排查
 
-| 问题 | 原因 | 解决方案 |
-|------|------|--------|
-| 没有看到 [DiscardMod] 日志 | modInfo.json 缺失 | 确保 modInfo.json 在 mods/ 目录中 |
-| 卡牌没有出现 | CharacterID 不匹配 | 验证所有卡牌都有 `CharacterID = "Mystic"` |
-| 附加调试器失败 | Godot.exe 进程名错误 | 查找 "Slay the Spire 2" 相关进程 |
-| 断点不被触发 | 无符号或代码不匹配 | 重新编译 Debug 版本并复制 PDB |
-| DLL 加载失败 | 依赖项缺失 | 确认 BaseLib-StS2 已安装 |
+| 问题                       | 原因                 | 解决方案                                  |
+| -------------------------- | -------------------- | ----------------------------------------- |
+| 没有看到 [DiscardMod] 日志 | modInfo.json 缺失    | 确保 modInfo.json 在 mods/ 目录中         |
+| 卡牌没有出现               | CharacterID 不匹配   | 验证所有卡牌都有 `CharacterID = "Mystic"` |
+| 附加调试器失败             | Godot.exe 进程名错误 | 查找 "Slay the Spire 2" 相关进程          |
+| 断点不被触发               | 无符号或代码不匹配   | 重新编译 Debug 版本并复制 PDB             |
+| DLL 加载失败               | 依赖项缺失           | 确认 BaseLib-StS2 已安装                  |
 
 ---
 

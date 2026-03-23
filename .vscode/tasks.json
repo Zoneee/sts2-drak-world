@@ -1,0 +1,154 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build: Release",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "src/",
+                "--configuration",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": false
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build: Debug",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "src/",
+                "--configuration",
+                "Debug"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": false
+            }
+        },
+        {
+            "label": "Deploy: Release DLL",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Copy-Item -Path 'src/bin/Release/net9.0/STS2_Discard_Mod.dll' -Destination 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/' -Force -Verbose; Write-Host '✅ Release DLL deployed!' -ForegroundColor Green"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Deploy: Debug DLL + PDB",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Copy-Item -Path 'src/bin/Debug/net9.0/STS2_Discard_Mod.dll' -Destination 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/' -Force -Verbose; Copy-Item -Path 'src/bin/Debug/net9.0/STS2_Discard_Mod.pdb' -Destination 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/' -Force -Verbose; Write-Host '✅ Debug DLL + PDB deployed!' -ForegroundColor Green"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Deploy: modInfo.json",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Copy-Item -Path 'modInfo.json' -Destination 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/' -Force -Verbose; Write-Host '✅ modInfo.json deployed!' -ForegroundColor Green"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Build + Deploy: Release",
+            "dependsOn": [
+                "Build: Release",
+                "Deploy: Release DLL",
+                "Deploy: modInfo.json"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "echo": true
+            }
+        },
+        {
+            "label": "Build + Deploy: Debug",
+            "dependsOn": [
+                "Build: Debug",
+                "Deploy: Debug DLL + PDB",
+                "Deploy: modInfo.json"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "echo": true
+            }
+        },
+        {
+            "label": "Clean Build",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "clean",
+                "src/"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Attach Debugger: Godot",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Write-Host '💡 Launching VS Code debugger...\\r\\nSteps:\\r\\n1. Click Debug → Attach to Process\\r\\n2. Search for: Godot.exe\\r\\n3. Click Attach\\r\\n\\r\\n⏳ This will give you breakpoint debugging support!' -ForegroundColor Cyan"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}
