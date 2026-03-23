@@ -21,7 +21,7 @@ public class ShatteredEcho : IDiscardTrigger
     public const string CardID = CardRegistry.SHATTERED_ECHO_ID;
     public const string CardName = "碎念回响";
     public const string CardNameEN = "Shattered Echo";
-    
+
     public const int BaseCost = 1;
     public const int BaseDrawAmount = 2;
     public const int UpgradedDrawAmount = 3;
@@ -44,10 +44,10 @@ public class ShatteredEcho : IDiscardTrigger
         try
         {
             Logger.Log($"{CardName} discarded");
-            
+
             // TODO (Phase 4): When played, discard 1 card
             // If discarded card is IDiscardTrigger, draw extra cards
-            
+
             return true;
         }
         catch (Exception ex)

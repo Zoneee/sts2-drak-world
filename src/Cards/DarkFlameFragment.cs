@@ -20,7 +20,7 @@ public class DarkFlameFragment : IDiscardTrigger
     public const string CardID = CardRegistry.DARK_FLAME_ID;
     public const string CardName = "暗焰残页";
     public const string CardNameEN = "Dark Flame Fragment";
-    
+
     // Card stats (base values; upgrades modify these)
     public const int BaseCost = 1;
     public const int BaseDamage = 6;
@@ -50,18 +50,18 @@ public class DarkFlameFragment : IDiscardTrigger
         try
         {
             Logger.Log($"{CardName} discarded: Dealing {CurrentDamage} damage to all enemies");
-            
+
             // TODO (Phase 3): Implement damage action
             // This requires BaseLib integration to access:
             // - AbstractDungeon.actionManager
             // - AbstractPlayer hostile references
             // - DamageInfo / DamageAction construction
-            
+
             // When integrated with STS2:
             // var action = new DamageAction(enemy, 
             //     new DamageInfo(player, CurrentDamage, DamageType.NORMAL));
             // AbstractDungeon.actionManager.addToBottom(action);
-            
+
             return true;
         }
         catch (Exception ex)

@@ -21,7 +21,7 @@ public class SwiftCut : IDiscardTrigger
     public const string CardID = CardRegistry.SWIFT_CUT_ID;
     public const string CardName = "迅切";
     public const string CardNameEN = "Swift Cut";
-    
+
     public const int BaseCost = 0;
     public const int BaseDrawAmount = 2;
     public const int UpgradedDrawAmount = 3;
@@ -45,10 +45,10 @@ public class SwiftCut : IDiscardTrigger
         try
         {
             Logger.Log($"{CardName} discarded: Checking for energy refund");
-            
+
             // TODO (Phase 4): Check if discarded card is IDiscardTrigger
             // If yes, refund 1 energy
-            
+
             return true;
         }
         catch (Exception ex)

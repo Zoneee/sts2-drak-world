@@ -20,7 +20,7 @@ public class ToxinRecord : IDiscardTrigger
     public const string CardID = CardRegistry.TOXIN_RECORD_ID;
     public const string CardName = "毒记";
     public const string CardNameEN = "Toxin Record";
-    
+
     public const int BaseCost = 1;
     public const int BasePoisonLayers = 8;
     public const int UpgradedPoisonLayers = 12;
@@ -43,10 +43,10 @@ public class ToxinRecord : IDiscardTrigger
         try
         {
             Logger.Log($"{CardName} discarded: Applying {CurrentPoisonLayers} poison to random enemy");
-            
+
             // TODO (Phase 4): Implement poison application
             // Get random enemy and apply poison status
-            
+
             return true;
         }
         catch (Exception ex)
