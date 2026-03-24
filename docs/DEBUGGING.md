@@ -136,7 +136,31 @@ No loader found for resource: res://STS2DiscardMod/images/...
 - `DiscardModCard.AfterCardDiscarded()`
 - 目标卡牌的 `OnPlay()`
 
-## 5. 快速自检命令
+## 5. 快速测试模式：只出本模组新卡
+
+当前仓库已经加入一个调试专用的卡池过滤：
+
+- `Debug` 构建下，`RegentCardPool` 会在 `ModelDb.Init()` 后被裁剪为仅保留本模组的 10 张卡
+- `Release` 构建下，该过滤默认关闭
+
+这意味着在 `Debug` 构建里，基于 `RegentCardPool` 的大部分拿牌来源会优先只出现我们新增的卡，适合快速反复验证：
+
+- 战后奖励
+- 其他依赖角色卡池随机生成的拿牌来源
+- 部分商店或事件来源
+
+注意边界：
+
+- 初始卡组不会因此自动替换
+- 如果某个来源不是走 `RegentCardPool`，它不会被这条调试过滤影响
+- 若后续需要连初始卡组也替换，再单独补一个开局注入测试牌组的补丁更合适
+
+相关实现位置：
+
+- `src/Patches/DebugCardPoolSettings.cs`
+- `src/Patches/ModelDbDiagnosticsPatch.cs`
+
+## 6. 快速自检命令
 
 重建：
 
@@ -151,7 +175,7 @@ dotnet clean src/STS2_Discard_Mod.csproj -p:Sts2DataDir=/absolute/path/to/lib &&
 ls -la {game}/mods/STS2_Discard_Mod/
 ```
 
-## 6. 提交问题时最好附带什么
+## 7. 提交问题时最好附带什么
 
 - 操作系统与游戏版本
 - 最新相关日志原文
