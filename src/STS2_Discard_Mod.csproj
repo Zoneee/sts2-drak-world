@@ -108,6 +108,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Data/cards.catalog.json" />
     <None Include="../STS2_Discard_Mod.json"/>
+    <LocalizationAsset Include="localization/**/*.json" />
     <ModAsset Include="STS2DiscardMod/**"/>
     <ImportedModAsset Include=".godot/imported/*.ctex" />
     <ImportedModAsset Include=".godot/imported/*.md5" />
@@ -169,10 +170,15 @@
           Condition="Exists('$(GodotPackPath)')"/>
         <MakeDir Directories="@(ModAsset -> '$(ModsPath)$(MSBuildProjectName)/STS2DiscardMod/%(RecursiveDir)')"/>
         <MakeDir Directories="$(ModsPath)$(MSBuildProjectName)/.godot/imported"/>
+          <MakeDir Directories="@(LocalizationAsset -> '$(ModsPath)$(MSBuildProjectName)/localization/%(RecursiveDir)')"/>
     <Copy SourceFiles="@(ModAsset)"
           DestinationFiles="@(ModAsset -> '$(ModsPath)$(MSBuildProjectName)/STS2DiscardMod/%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true"
           Condition="'%(ModAsset.Extension)' != ''"/>
+          <Copy SourceFiles="@(LocalizationAsset)"
+            DestinationFiles="@(LocalizationAsset -> '$(ModsPath)$(MSBuildProjectName)/localization/%(RecursiveDir)%(Filename)%(Extension)')"
+            SkipUnchangedFiles="true"
+            Condition="'%(LocalizationAsset.Extension)' != ''"/>
     <Copy SourceFiles="@(ImportedModAsset)"
           DestinationFiles="@(ImportedModAsset -> '$(ModsPath)$(MSBuildProjectName)/.godot/imported/%(Filename)%(Extension)')"
           SkipUnchangedFiles="true"

@@ -1,0 +1,28 @@
+name: 文档检查
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-doc-links:
+    name: 检查文档链接
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 检查文档链接
+        run: |
+          if [ -f tools/scripts/check-doc-links.sh ]; then
+            bash tools/scripts/check-doc-links.sh
+          fi
+
+  check-doc-freshness:
+    name: 检查文档新鲜度
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 检查文档新鲜度
+        run: |
+          if [ -f tools/scripts/check-doc-freshness.sh ]; then
+            bash tools/scripts/check-doc-freshness.sh
+          fi

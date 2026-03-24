@@ -7,6 +7,7 @@ public static class CardCatalog
 {
     private const string CatalogResourceName = "DiscardMod.Data.cards.catalog.json";
     private const string DefaultLocale = "eng";
+    private const string CardsTablePrefix = "cards.";
 
     private static readonly Lazy<CardCatalogDocument> Catalog = new(LoadCatalog);
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>> LocalizationTables = new(BuildLocalizationTables);
@@ -20,6 +21,24 @@ public static class CardCatalog
         }
 
         return LocalizationTables.Value[DefaultLocale];
+    }
+
+    public static bool TryGetLocalizedText(string languageDescriptor, string key, out string text)
+    {
+        foreach (var table in EnumerateFallbackTables(languageDescriptor))
+        {
+            foreach (var candidateKey in EnumerateCandidateKeys(key))
+            {
+                if (table.ContainsKey(candidateKey))
+                {
+                    text = table[candidateKey];
+                    return true;
+                }
+            }
+        }
+
+        text = string.Empty;
+        return false;
     }
 
     public static string ResolveLocale(string languageDescriptor)
@@ -59,12 +78,17 @@ public static class CardCatalog
             {
                 if (!tables.TryGetValue(locale, out var table))
                 {
-                    table = new Dictionary<string, string>(StringComparer.Ordinal);
+                    table = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                     tables[locale] = table;
                 }
 
-                table[$"{card.Id}.title"] = entry.Title;
-                table[$"{card.Id}.description"] = entry.Description;
+                var titleKey = $"{card.Id}.title";
+                var descriptionKey = $"{card.Id}.description";
+
+                table[titleKey] = entry.Title;
+                table[$"{CardsTablePrefix}{titleKey}"] = entry.Title;
+                table[descriptionKey] = entry.Description;
+                table[$"{CardsTablePrefix}{descriptionKey}"] = entry.Description;
             }
         }
 
@@ -72,6 +96,45 @@ public static class CardCatalog
             pair => pair.Key,
             pair => (IReadOnlyDictionary<string, string>)pair.Value,
             StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static IEnumerable<IReadOnlyDictionary<string, string>> EnumerateFallbackTables(string languageDescriptor)
+    {
+        var locale = ResolveLocale(languageDescriptor);
+        if (LocalizationTables.Value.TryGetValue(locale, out var localizedTable))
+        {
+            yield return localizedTable;
+        }
+
+        if (!string.Equals(locale, DefaultLocale, StringComparison.OrdinalIgnoreCase) &&
+            LocalizationTables.Value.TryGetValue(DefaultLocale, out var defaultTable))
+        {
+            yield return defaultTable;
+        }
+    }
+
+    private static IEnumerable<string> EnumerateCandidateKeys(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            yield break;
+        }
+
+        var normalizedKey = key.Trim();
+        yield return normalizedKey;
+
+        if (normalizedKey.StartsWith(CardsTablePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            var trimmedKey = normalizedKey[CardsTablePrefix.Length..];
+            if (!string.IsNullOrWhiteSpace(trimmedKey))
+            {
+                yield return trimmedKey;
+            }
+
+            yield break;
+        }
+
+        yield return $"{CardsTablePrefix}{normalizedKey}";
     }
 
     private static CardCatalogDocument LoadCatalog()

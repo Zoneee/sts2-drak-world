@@ -9,8 +9,8 @@
 - `.vscode/settings.json`
 - `.vscode/extensions.json`
 - `deploy.ps1`
-- `docs/VSCODE_WORKFLOW.md`
-- `docs/QUICK_START.md`
+- `docs/runbooks/vscode-workflow.md`
+- `docs/runbooks/quick-start.md`
 
 ## 推荐验证顺序
 
@@ -34,11 +34,14 @@ dotnet build src/STS2_Discard_Mod.csproj --configuration Release
 
 ### 4. 验证 live 模组目录
 
-应最终只看到：
+应至少看到：
 
 ```text
 mods/STS2_Discard_Mod/
 ├── STS2DiscardMod.dll
+├── STS2DiscardMod.pck
+├── 0Harmony.dll
+├── BUILD_FLAVOR.txt
 └── STS2_Discard_Mod.json
 ```
 
@@ -48,4 +51,4 @@ mods/STS2_Discard_Mod/
 - DLL 名称和当前 manifest 不一致
 - live 模组目录里残留 `localization/eng/cards.json`
 
-如果出现这些情况，当前文档应以 [docs/DEV_GUIDE.md](docs/DEV_GUIDE.md) 和 [docs/DEBUGGING.md](docs/DEBUGGING.md) 为准。
+如果出现这些情况，当前文档应以 `docs/runbooks/local-dev.md`、`docs/runbooks/debug-failures.md` 和 `docs/runbooks/deployment.md` 为准。

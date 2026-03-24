@@ -1,0 +1,18 @@
+name: 质量评分
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # 每周一上午 9 点
+  workflow_dispatch:
+
+jobs:
+  score:
+    name: 计算质量评分
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 计算质量评分
+        run: |
+          if [ -f tools/scripts/score-quality.sh ]; then
+            bash tools/scripts/score-quality.sh
+          fi

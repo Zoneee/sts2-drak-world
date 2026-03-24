@@ -1,0 +1,30 @@
+name: 架构结构检查
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-architecture:
+    name: 检查架构规则
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 检查架构约束
+        run: |
+          if [ -f tools/scripts/check-architecture.sh ]; then
+            bash tools/scripts/check-architecture.sh
+          fi
+
+  check-pr-size:
+    name: 检查 PR 规模
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 检查 PR 行数
+        run: |
+          if [ -f tools/scripts/check-pr-size.sh ]; then
+            bash tools/scripts/check-pr-size.sh
+          fi

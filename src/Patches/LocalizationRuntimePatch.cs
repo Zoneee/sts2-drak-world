@@ -18,8 +18,7 @@ public static class LocalizationRuntimePatch
             return true;
         }
 
-        var cardText = ResolveCardText(__instance);
-        if (!cardText.TryGetValue(key, out var text))
+        if (!CardCatalog.TryGetLocalizedText(ResolveLanguageMarker(__instance), key, out var text))
         {
             return true;
         }
@@ -27,12 +26,6 @@ public static class LocalizationRuntimePatch
         __result = text;
         return false;
     }
-
-    private static IReadOnlyDictionary<string, string> ResolveCardText(LocTable locTable)
-    {
-        return CardCatalog.GetLocalizationTable(ResolveLanguageMarker(locTable));
-    }
-
     private static string ResolveLanguageMarker(LocTable locTable)
     {
         if (TryReadLanguageDescriptor(locTable, out var instanceDescriptor))
