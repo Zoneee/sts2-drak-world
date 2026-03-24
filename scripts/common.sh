@@ -92,6 +92,10 @@ deploy_runtime() {
 
     mkdir -p "$mod_dir"
 
+    if [[ -d "$mod_dir/localization" ]]; then
+        rm -rf "$mod_dir/localization"
+    fi
+
     copy_if_exists "$output_dir/STS2DiscardMod.dll" "$mod_dir"
     copy_if_exists "$output_dir/STS2DiscardMod.pdb" "$mod_dir"
     copy_if_exists "$output_dir/0Harmony.dll" "$mod_dir"
@@ -102,11 +106,6 @@ deploy_runtime() {
     if [[ -d "$PROJECT_ROOT/src/STS2DiscardMod" ]]; then
         mkdir -p "$mod_dir/STS2DiscardMod"
         cp -a "$PROJECT_ROOT/src/STS2DiscardMod/." "$mod_dir/STS2DiscardMod/"
-    fi
-
-    if [[ -d "$PROJECT_ROOT/src/localization" ]]; then
-        mkdir -p "$mod_dir/localization"
-        cp -a "$PROJECT_ROOT/src/localization/." "$mod_dir/localization/"
     fi
 
     if [[ -d "$PROJECT_ROOT/src/.godot/imported" ]]; then

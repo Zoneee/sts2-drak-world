@@ -35,6 +35,7 @@
 
 ### 命令行构建后自动部署
 项目文件会在构建后尝试把 DLL、manifest、`.pck`、Harmony 依赖和 Godot 导入资源复制到 `ModsPath` 指向的 live 模组目录。
+部署前还会清理 live 目录中遗留的 `localization/`，避免旧版本误复制进去的 `cards.json` 持续被游戏当作 manifest 扫描。
 
 Linux / WSL 默认优先探测：
 - `/mnt/d/G_games/steam/steamapps/common/Slay the Spire 2/mods/`
@@ -91,3 +92,4 @@ macOS 默认路径：
 
 ### 额外 JSON 导致加载异常
 不要把 `src/localization/eng/cards.json` 或其他本地化 JSON 复制到 live 模组目录。
+如果 live 目录里已经残留了旧的 `localization/`，关闭游戏后重新执行一次部署，新的部署脚本会先清理该目录。

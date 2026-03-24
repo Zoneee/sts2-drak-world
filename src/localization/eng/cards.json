@@ -17,6 +17,6 @@
   "DISCARDMOD-SHATTERED_ECHO.title": "Shattered Echo",
   "DISCARDMOD-SWIFT_CUT.description": "Deal 5 damage. Discard: Deal 3 damage to a random enemy.",
   "DISCARDMOD-SWIFT_CUT.title": "Swift Cut",
-  "DISCARDMOD-TOXIN_RECORD.description": "Apply 4 Poison. Discard: Apply 2 Poison to all enemies.",
+  "DISCARDMOD-TOXIN_RECORD.description": "Apply 4 poison stacks. Discard: apply 2 poison stacks to all enemies.",
   "DISCARDMOD-TOXIN_RECORD.title": "Toxin Record"
 }

@@ -34,7 +34,7 @@
             "localization": {
                 "eng": {
                     "title": "Toxin Record",
-                    "description": "Apply 4 Poison. Discard: Apply 2 Poison to all enemies."
+                    "description": "Apply 4 poison stacks. Discard: apply 2 poison stacks to all enemies."
                 },
                 "zhs": {
                     "title": "毒素记录",

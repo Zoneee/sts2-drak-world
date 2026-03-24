@@ -28,9 +28,9 @@ public static class DiscardDiagnosticsPatch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(CardCmd.DiscardAndDraw), typeof(PlayerChoiceContext), typeof(IEnumerable<CardModel>), typeof(int))]
-    private static void LogDiscardAndDraw(PlayerChoiceContext choiceContext, IEnumerable<CardModel> cards, int cardsToDraw)
+    private static void LogDiscardAndDraw(PlayerChoiceContext choiceContext, IEnumerable<CardModel> cardsToDiscard, int cardsToDraw)
     {
-        var array = cards?.ToArray() ?? [];
+        var array = cardsToDiscard?.ToArray() ?? [];
         DiscardModMain.Logger.Info($"[DiscardCmd] discard-and-draw requested | discardCount={array.Length}; draw={cardsToDraw}; cards={string.Join(", ", array.Select(DescribeCard))}");
     }
 
