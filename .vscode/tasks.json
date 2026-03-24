@@ -4,13 +4,9 @@
         {
             "label": "Build: Release",
             "type": "shell",
-            "command": "dotnet",
+            "command": "bash",
             "args": [
-                "build",
-                "src/STS2_Discard_Mod.csproj",
-                "--configuration",
-                "Release",
-                "-p:GodotCliCommand=${config:sts2.godotCliCommand}"
+                "./scripts/build-release.sh"
             ],
             "problemMatcher": "$msCompile",
             "presentation": {
@@ -26,13 +22,9 @@
         {
             "label": "Build: Debug",
             "type": "shell",
-            "command": "dotnet",
+            "command": "bash",
             "args": [
-                "build",
-                "src/STS2_Discard_Mod.csproj",
-                "--configuration",
-                "Debug",
-                "-p:GodotCliCommand=${config:sts2.godotCliCommand}"
+                "./scripts/build-debug.sh"
             ],
             "problemMatcher": "$msCompile",
             "presentation": {
@@ -42,12 +34,11 @@
             }
         },
         {
-            "label": "Deploy: Release DLL",
+            "label": "Deploy: Release Runtime",
             "type": "shell",
-            "command": "powershell",
+            "command": "bash",
             "args": [
-                "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Release/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; if (Test-Path 'src/bin/Release/net9.0/0Harmony.dll') { Copy-Item -Path 'src/bin/Release/net9.0/0Harmony.dll' -Destination $dest -Force -Verbose; } if (Test-Path 'src/bin/Release/net9.0/STS2DiscardMod.pck') { Copy-Item -Path 'src/bin/Release/net9.0/STS2DiscardMod.pck' -Destination $dest -Force -Verbose; } else { Write-Warning 'STS2DiscardMod.pck not found. Configure GODOT_CLI_COMMAND before building to export card portrait resources.' }; Write-Host '✅ Release runtime deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
+                "./scripts/deploy-release.sh"
             ],
             "presentation": {
                 "reveal": "always",
@@ -59,29 +50,11 @@
             }
         },
         {
-            "label": "Deploy: Debug DLL + PDB",
+            "label": "Deploy: Debug Runtime",
             "type": "shell",
-            "command": "powershell",
+            "command": "bash",
             "args": [
-                "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.dll' -Destination $dest -Force -Verbose; Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.pdb' -Destination $dest -Force -Verbose; if (Test-Path 'src/bin/Debug/net9.0/0Harmony.dll') { Copy-Item -Path 'src/bin/Debug/net9.0/0Harmony.dll' -Destination $dest -Force -Verbose; } if (Test-Path 'src/bin/Debug/net9.0/STS2DiscardMod.pck') { Copy-Item -Path 'src/bin/Debug/net9.0/STS2DiscardMod.pck' -Destination $dest -Force -Verbose; } else { Write-Warning 'STS2DiscardMod.pck not found. Configure GODOT_CLI_COMMAND before building to export card portrait resources.' }; Write-Host '✅ Debug runtime deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
-            ],
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared",
-                "clear": false
-            },
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
-        },
-        {
-            "label": "Deploy: STS2_Discard_Mod.json",
-            "type": "shell",
-            "command": "powershell",
-            "args": [
-                "-Command",
-                "$dest = 'D:/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item -Path 'STS2_Discard_Mod.json' -Destination $dest -Force -Verbose; Write-Host '✅ STS2_Discard_Mod.json deployed to mods/STS2_Discard_Mod/' -ForegroundColor Green"
+                "./scripts/deploy-debug.sh"
             ],
             "presentation": {
                 "reveal": "always",
@@ -94,12 +67,12 @@
         },
         {
             "label": "Build + Deploy: Release",
-            "dependsOn": [
-                "Build: Release",
-                "Deploy: Release DLL",
-                "Deploy: STS2_Discard_Mod.json"
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "./scripts/build-deploy-release.sh"
             ],
-            "problemMatcher": [],
+            "problemMatcher": "$msCompile",
             "group": {
                 "kind": "build"
             },
@@ -111,12 +84,12 @@
         },
         {
             "label": "Build + Deploy: Debug",
-            "dependsOn": [
-                "Build: Debug",
-                "Deploy: Debug DLL + PDB",
-                "Deploy: STS2_Discard_Mod.json"
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "./scripts/build-deploy-debug.sh"
             ],
-            "problemMatcher": [],
+            "problemMatcher": "$msCompile",
             "group": {
                 "kind": "build"
             },
@@ -150,6 +123,20 @@
             "presentation": {
                 "reveal": "always",
                 "panel": "shared"
+            }
+        },
+        {
+            "label": "Build + Deploy + Attach Prep: Debug",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "./scripts/build-deploy-debug.sh"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": false
             }
         }
     ]

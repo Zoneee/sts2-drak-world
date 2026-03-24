@@ -149,6 +149,11 @@ No loader found for resource: res://STS2DiscardMod/images/...
 - 其他依赖角色卡池随机生成的拿牌来源
 - 部分商店或事件来源
 
+目前这条过滤已经覆盖：
+
+- 普通 `CardReward` 这类直接基于角色卡池的奖励
+- `CrystalSphereCardReward` 这类内部仍走角色卡池的特殊奖励
+
 注意边界：
 
 - 初始卡组不会因此自动替换
@@ -160,7 +165,65 @@ No loader found for resource: res://STS2DiscardMod/images/...
 - `src/Patches/DebugCardPoolSettings.cs`
 - `src/Patches/ModelDbDiagnosticsPatch.cs`
 
-## 6. 快速自检命令
+## 6. Debug 开局测试牌组
+
+当前仓库在 `Debug` 构建下还会直接替换 Regent 的初始牌组：
+
+- 新开局时，原始初始卡组会被清空
+- 改为注入一套仅由本模组卡组成的测试牌组
+- `Release` 构建下默认关闭
+
+当前测试牌组包含：
+
+- `SwiftCut`
+- `DarkFlameFragment`
+- `RecallSurge`
+- `ShatteredEcho`
+- `EmberVolley`
+- `FadingFormula`
+- `AshenAegis`
+- `ToxinRecord`
+- `CripplingManuscript`
+- `FinalDraft`
+
+实现位置：
+
+- `src/Patches/DebugStartingDeckPatch.cs`
+
+## 7. Debug 商店过滤
+
+当前仓库在 `Debug` 构建下还会把普通商店里原本的 colorless 卡槽替换成模组卡：
+
+- 角色牌槽本来就会受 `RegentCardPool` 过滤影响
+- 额外补上的这一层，主要是覆盖商店里的 colorless 槽位
+- 这样普通商店会更接近“全是模组卡”的测试环境
+
+实现位置：
+
+- `src/Patches/DebugMerchantInventoryPatch.cs`
+
+当前边界：
+
+- 主要覆盖普通商店库存
+- `SpecialCardReward` 这类固定发某一张指定卡的奖励，不是随机池抽取，因此不会被统一重写
+
+## 8. 如何确认游戏目录里是 Debug 还是 Release
+
+现在构建后会额外生成并部署：
+
+- `mods/STS2_Discard_Mod/BUILD_FLAVOR.txt`
+
+你可以直接打开这个文件确认：
+
+- `Configuration=Debug` 或 `Configuration=Release`
+- `BuiltUtc=...`
+- `DebugCardPoolFilter=true/false`
+- `DebugStarterDeckReplacement=true/false`
+- `DebugMerchantColorlessReplacement=true/false`
+
+这比单纯看有没有 `.pdb` 更可靠，因为它能同时告诉你当前调试特性是否真的开启。
+
+## 9. 快速自检命令
 
 重建：
 
@@ -175,7 +238,7 @@ dotnet clean src/STS2_Discard_Mod.csproj -p:Sts2DataDir=/absolute/path/to/lib &&
 ls -la {game}/mods/STS2_Discard_Mod/
 ```
 
-## 7. 提交问题时最好附带什么
+## 10. 提交问题时最好附带什么
 
 - 操作系统与游戏版本
 - 最新相关日志原文

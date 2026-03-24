@@ -2,21 +2,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to Godot (STS2)",
+            // In a WSL window this picker only sees Linux processes.
+            // To attach to Godot.exe on Windows, open the workspace from a Windows VS Code window.
+            "name": "Attach to Godot (STS2, same host only)",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}",
-            "justMyCode": false,
-            "sourceLanguages": [
-                "csharp"
-            ],
-            "console": "integratedTerminal"
+            "justMyCode": false
         },
         {
-            "name": "Build Debug + Deploy + Debug",
+            "name": "Build + Deploy + Attach to Godot (STS2, same host only)",
+            "type": "coreclr",
+            "request": "attach",
+            "preLaunchTask": "Build + Deploy + Attach Prep: Debug",
+            "processId": "${command:pickProcess}",
+            "justMyCode": false
+        },
+        {
+            "name": "Build Debug Runtime Only",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "Build + Deploy: Debug",
+            "preLaunchTask": "Build: Debug",
             "program": "dotnet",
             "args": [
                 "build",

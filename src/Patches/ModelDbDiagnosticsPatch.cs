@@ -55,12 +55,7 @@ public static class ModelDbDiagnosticsPatch
 
         var regentPool = ModelDb.CardPool<RegentCardPool>();
         var originalCount = regentPool.AllCardIds.Count();
-        var customCards = DiscardModCard.AllCardTypes
-            .Select(type => ModelDb.GetById<CardModel>(ModelDb.GetId(type)))
-            .Where(card => card != null)
-            .DistinctBy(card => card!.Id)
-            .Cast<CardModel>()
-            .ToArray();
+        var customCards = DebugDiscardModCardHelper.ResolveCanonicalCards();
 
         if (customCards.Length == 0)
         {

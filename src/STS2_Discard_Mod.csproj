@@ -16,8 +16,22 @@
   <PropertyGroup>
     <GodotPackName>$(AssemblyName).pck</GodotPackName>
     <GodotPackPath>$(OutputPath)$(GodotPackName)</GodotPackPath>
+    <BuildFlavorFileName>BUILD_FLAVOR.txt</BuildFlavorFileName>
+    <BuildFlavorFilePath>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/$(BuildFlavorFileName)</BuildFlavorFilePath>
     <GodotExportPreset Condition="'$(GodotExportPreset)' == ''">STS2 Mod Pack</GodotExportPreset>
     <GodotCliCommand Condition="'$(GodotCliCommand)' == '' and '$(GODOT_CLI_COMMAND)' != ''">$(GODOT_CLI_COMMAND)</GodotCliCommand>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DebugCardPoolFilterEnabled>true</DebugCardPoolFilterEnabled>
+    <DebugStarterDeckReplacementEnabled>true</DebugStarterDeckReplacementEnabled>
+    <DebugMerchantColorlessReplacementEnabled>true</DebugMerchantColorlessReplacementEnabled>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+    <DebugCardPoolFilterEnabled>false</DebugCardPoolFilterEnabled>
+    <DebugStarterDeckReplacementEnabled>false</DebugStarterDeckReplacementEnabled>
+    <DebugMerchantColorlessReplacementEnabled>false</DebugMerchantColorlessReplacementEnabled>
   </PropertyGroup>
 
   <!-- OS Detection -->
@@ -100,6 +114,23 @@
     <Warning Text="Skipping Godot PCK export because GodotCliCommand/GODOT_CLI_COMMAND is not set. Card portraits under STS2DiscardMod/images will not load until $(GodotPackName) is exported and deployed." />
   </Target>
 
+  <Target Name="WriteBuildFlavorMarker" AfterTargets="Build">
+    <ItemGroup>
+      <BuildFlavorLines Include="Mod=$(AssemblyName)" />
+      <BuildFlavorLines Include="Configuration=$(Configuration)" />
+      <BuildFlavorLines Include="Version=$(Version)" />
+      <BuildFlavorLines Include="BuiltUtc=$([System.DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'))" />
+      <BuildFlavorLines Include="DebugCardPoolFilter=$(DebugCardPoolFilterEnabled)" />
+      <BuildFlavorLines Include="DebugStarterDeckReplacement=$(DebugStarterDeckReplacementEnabled)" />
+      <BuildFlavorLines Include="DebugMerchantColorlessReplacement=$(DebugMerchantColorlessReplacementEnabled)" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(BuildFlavorFilePath)"
+                      Lines="@(BuildFlavorLines)"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="false" />
+  </Target>
+
   <Target Name="ExportGodotPack" AfterTargets="Build"
           Condition="'$(GodotCliCommand)' != ''">
     <Message Text="Exporting $(GodotPackName) with $(GodotCliCommand)" Importance="high"/>
@@ -120,6 +151,10 @@
         Condition="Exists('$(PkgLib_Harmony)/lib/net8.0/0Harmony.dll')"/>
     <Copy SourceFiles="$(MSBuildProjectDirectory)/../STS2_Discard_Mod.json"
           DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"/>
+        <Copy SourceFiles="$(BuildFlavorFilePath)"
+          DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(BuildFlavorFilePath)')"/>
         <Copy SourceFiles="$(GodotPackPath)"
           DestinationFolder="$(ModsPath)$(MSBuildProjectName)/"
           SkipUnchangedFiles="true"
