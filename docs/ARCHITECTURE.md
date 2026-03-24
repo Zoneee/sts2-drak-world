@@ -1,6 +1,6 @@
 # 项目架构说明
 
-这份文档描述仓库的目录结构、核心模块职责，以及当前实现依赖的关键约定。
+这份文档描述当前仓库的目录结构、核心模块职责，以及实现弃牌体系时采用的关键约定。
 
 ## 1. 仓库结构
 
@@ -9,129 +9,91 @@ STS2-Dark-World/
 ├── src/
 │   ├── Main.cs
 │   ├── STS2_Discard_Mod.csproj
-│   ├── project.godot
 │   ├── Cards/
+│   ├── Patches/
+│   ├── STS2DiscardMod/images/
 │   └── localization/eng/cards.json
 ├── docs/
-├── lib/sts2.dll
+├── lib/
 ├── STS2_Discard_Mod.json
-└── .github/workflows/build.yml
+└── deploy.ps1
 ```
-
-### 关键目录职责
-
-- `src/`：全部源码与本地化输入
-- `src/Cards/`：每张卡一个类
-- `src/localization/eng/cards.json`：供分析器读取的本地化数据
-- `lib/sts2.dll`：本地游戏依赖，不提交到 git
-- `STS2_Discard_Mod.json`：模组 manifest
-- `docs/`：项目文档
 
 ## 2. 核心模块
 
 ### `Main.cs`
 
-模组入口负责三件事：
+入口负责：
 
-1. 定义 `ModId`
-2. 初始化日志
-3. 把卡牌注册到 `RegentCardPool`
+- 建立 `STS2DiscardMod` 日志实例
+- 反射发现全部 `DiscardModCard` 子类并输出日志
+- 通过 `Harmony.PatchAll()` 启用全部补丁
 
-核心结构如下：
+### `Cards/DiscardModCard.cs`
 
-```csharp
-[ModInitializer(nameof(Initialize))]
-public static class DiscardModMain
-{
-    public const string ModId = "STS2DiscardMod";
-    public static Logger Logger { get; } = new(ModId, LogType.Generic);
+这是当前卡组的统一基类，负责：
 
-    public static void Initialize()
-    {
-        Logger.Info("loading...");
-        RegisterCards();
-        Logger.Info("loaded!");
-    }
-}
-```
+- 统一卡图路径
+- 自动发现所有弃牌体系卡牌类型
+- 统一的打出/弃牌触发日志
+- 统一的辅助动作：抽牌、弃牌、随机敌人攻击、群体攻击、群体上状态、固定格挡
+- 默认把 `AfterCardDiscarded()` 分发到 `OnSelfDiscarded()`
 
 ### `Cards/*.cs`
 
-每张卡都是 `CardModel` 的子类。
+每张牌类负责：
 
-当前仓库里卡牌类只负责：
+- 费用、类型、稀有度、目标定义
+- `OnPlay()`
+- `OnUpgrade()`
+- 需要时实现 `OnSelfDiscarded()`
+- 少量数值字段（例如弃牌伤害、弃牌格挡、弃牌上毒层数）
 
-- 定义费用、类型、稀有度、目标
-- 提供 `OnPlay()` 占位实现
-- 预留 `OnUpgrade()`
+### `Patches/*.cs`
 
-### `cards.json`
+- `LocalizationRuntimePatch`：卡牌文本兜底
+- `CardLibraryVisibilityPatch`：保证自定义卡在卡库里可见
+- `ModelDbDiagnosticsPatch`：检查是否成功注册到 `ModelDb` / `RegentCardPool`
+- `DiscardDiagnosticsPatch`：记录弃牌命令链路
 
-当前仓库使用扁平键本地化格式：
+## 3. 注册方式
 
-```json
+当前仓库使用声明式注册：
+
+```csharp
+[Pool(typeof(RegentCardPool))]
+public class MyCard : DiscardModCard
 {
-  "SWIFT_CUT.title": "迅影斩",
-  "SWIFT_CUT.description": "描述"
 }
 ```
 
-这份文件是构建输入，不是运行时必须部署的 live 文件。
+这样能减少手工维护注册表时的漏改风险。
 
-## 3. 构建与部署链路
+## 4. 构建与部署链路
 
-### 构建产物
-
-```text
-src/bin/{Configuration}/net9.0/STS2DiscardMod.dll
-```
-
-### 自动部署目标
-
-构建成功后，MSBuild 会把下面两个文件部署到游戏目录：
+构建成功后，会输出并尝试部署：
 
 ```text
 {game}/mods/STS2_Discard_Mod/
 ├── STS2DiscardMod.dll
+├── STS2DiscardMod.pck
+├── 0Harmony.dll
 └── STS2_Discard_Mod.json
 ```
 
-当前约定里，live 模组目录不要出现额外的 `cards.json`。
-
-### 命名约束
-
-以下三者必须保持一致：
-
-- `DiscardModMain.ModId = "STS2DiscardMod"`
-- 构建输出：`STS2DiscardMod.dll`
-- `STS2_Discard_Mod.json` 中的 `id = "STS2DiscardMod"`
-
-只要其中一项不一致，就会出现“声明加载 DLL 但找不到程序集”的问题。
-
-## 4. 关键依赖
-
-- `MegaCrit.Sts2.Core.Modding`：`ModInitializer`、`ModHelper`
-- `MegaCrit.Sts2.Core.Logging`：`Logger`
-- `MegaCrit.Sts2.Core.Models.CardPools`：`RegentCardPool`
-- `MegaCrit.Sts2.Core.Models`：`CardModel`
+如果没有设置 `GODOT_CLI_COMMAND`，代码仍可构建，但 `.pck` 不会导出，卡图资源不会挂载到 `res://`。
 
 ## 5. 当前实现边界
 
 当前仓库已经完成：
 
-- 模组初始化
-- 4 张卡注册
-- 本地化键输入
+- 10 张牌的注册与实现
+- 初始化/建模/弃牌链路日志
+- 本地化输入与运行时文本兜底
 - 自动构建与自动部署
 
-当前仍未完成：
+当前仍需继续验证的内容：
 
-- 弃牌事件监听
-- 弃牌触发效果
-- 大部分 `OnPlay()` 真实逻辑
-
-## 6. 相关文档
-
-- 完整开发说明：见 [DEV_GUIDE.md](DEV_GUIDE.md)
-- 调试与故障排查：见 [DEBUGGING.md](DEBUGGING.md)
-- 设计目标：见 [DESIGN.md](DESIGN.md)
+- 游戏内数值平衡
+- “任何弃牌都触发”是否需要再细分规则
+- 头像资源导出在不同开发机上的稳定性

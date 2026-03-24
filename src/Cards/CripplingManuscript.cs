@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 namespace DiscardMod.Cards;
 
 [Pool(typeof(RegentCardPool))]
-public class ToxinRecord : DiscardModCard
+public class CripplingManuscript : DiscardModCard
 {
-    private decimal playPoison = 4m;
-    private decimal discardPoison = 2m;
+    private decimal playWeak = 2m;
+    private decimal playVulnerable = 2m;
+    private decimal discardWeak = 1m;
 
-    public ToxinRecord()
+    public CripplingManuscript()
         : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy, "toxin_record", true)
     {
     }
@@ -22,18 +23,20 @@ public class ToxinRecord : DiscardModCard
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         var target = GetRequiredTarget(cardPlay);
-        LogPlay(cardPlay, $"playPoison={playPoison}; discardPoison={discardPoison}");
-        await CommonActions.Apply<PoisonPower>(target, this, playPoison);
+        LogPlay(cardPlay, $"weak={playWeak}; vulnerable={playVulnerable}; discardWeakAll={discardWeak}");
+        await CommonActions.Apply<WeakPower>(target, this, playWeak);
+        await CommonActions.Apply<VulnerablePower>(target, this, playVulnerable);
     }
 
     protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)
     {
-        await ApplyToAllEnemies<PoisonPower>(discardPoison);
+        await ApplyToAllEnemies<WeakPower>(discardWeak);
     }
 
     public override void OnUpgrade()
     {
-        playPoison += 2m;
-        discardPoison += 1m;
+        playWeak += 1m;
+        playVulnerable += 1m;
+        discardWeak += 1m;
     }
 }

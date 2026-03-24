@@ -1,12 +1,10 @@
 # 调试与故障排查
 
-这份文档是当前仓库唯一的完整调试说明，包含日志定位、常见错误和 VS Code 附加调试器流程。
+这份文档只描述当前仓库仍然有效的排查路径。
 
-## 1. 先看哪里有日志
+## 1. 日志看哪里
 
 ### BepInEx 日志
-
-模组加载与运行时输出主要看：
 
 ```text
 {game}/BepInEx/LogOutput.log
@@ -18,11 +16,9 @@
 - Windows：`D:\G_games\steam\steamapps\common\Slay the Spire 2\BepInEx\LogOutput.log`
 - macOS：`~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/MacOS/BepInEx/LogOutput.log`
 
-### 游戏日志过滤
+### 过滤本模组日志
 
-模组日志前缀是 `STS2DiscardMod`。
-
-Linux 或 macOS：
+Linux / macOS：
 
 ```bash
 tail -f BepInEx/LogOutput.log | grep 'STS2DiscardMod'
@@ -34,22 +30,42 @@ Windows PowerShell：
 Get-Content BepInEx\LogOutput.log -Wait | Select-String 'STS2DiscardMod'
 ```
 
-## 2. 代码里怎么打日志
+## 2. 当前有哪些关键日志
 
-```csharp
-DiscardModMain.Logger.Info("普通信息");
-DiscardModMain.Logger.Debug("调试细节");
-DiscardModMain.Logger.Warning("异常状态");
-DiscardModMain.Logger.Error("错误信息");
-```
+### 初始化阶段
 
-最适合先确认三件事：
+- `STS2 Discard-Trigger Mod loading... discovered ...`
+- `ModelDb loaded discard-system card ...`
 
-1. 模组有没有进入 `Initialize()`
-2. `RegisterCards()` 有没有执行
-3. 某张卡的 `OnPlay()` 有没有被调用
+这两类日志用于判断：
 
-## 3. 最常见的问题
+- Harmony 是否已应用
+- 反射是否发现全部 10 张牌
+- 卡牌是否真正进入 `ModelDb` 和 `RegentCardPool`
+
+### 弃牌阶段
+
+- `[DiscardCmd] single discard requested`
+- `[DiscardCmd] batch discard requested`
+- `[DiscardCmd] discard-and-draw requested`
+
+这类日志用于判断：
+
+- 卡牌效果是否真的发起了弃牌动作
+- 弃掉的是哪几张牌
+
+### 单卡阶段
+
+- `[CardName] play`
+- `[CardName] discard-trigger:start`
+- `[CardName] discard-trigger:end`
+
+这类日志用于判断：
+
+- `OnPlay()` 是否被调用
+- `AfterCardDiscarded()` 是否命中这张牌本身
+
+## 3. 常见问题
 
 ### 问题 A：模组没有加载
 
@@ -57,121 +73,67 @@ DiscardModMain.Logger.Error("错误信息");
 
 依次检查：
 
-1. live 目录是否正确
+1. manifest 的 `id` 是否是 `STS2DiscardMod`
+2. live 目录里是否存在 `STS2DiscardMod.dll`
+3. `BaseLib` 是否已经单独安装到游戏目录
+4. DLL 名、manifest `id`、`DiscardModMain.ModId` 是否一致
 
-```text
-{game}/mods/STS2_Discard_Mod/
-├── STS2DiscardMod.dll
-├── STS2DiscardMod.pck
-├── 0Harmony.dll
-└── STS2_Discard_Mod.json
-```
+### 问题 B：卡牌没出现在卡库里
 
-2. `STS2_Discard_Mod.json` 中是否至少包含：
+优先看：
 
-```json
-{
-  "id": "STS2DiscardMod",
-  "has_dll": true,
-  "has_pck": true,
-  "affects_gameplay": true
-}
-```
+1. 初始化日志里是否发现了 10 张牌
+2. `ModelDb loaded discard-system card ... regentPool=True`
+3. `src/localization/eng/cards.json` 是否补齐对应键
 
-3. 是否误把 `cards.json` 部署到了 live 模组目录
+当前仓库使用 `[Pool(typeof(RegentCardPool))]` 自动注册，不再依赖 `Main.cs` 里的手工 `AddModelToPool(...)`。
 
-```text
-{game}/mods/STS2_Discard_Mod/localization/eng/cards.json
-```
+### 问题 C：卡牌能看到，但卡图丢失
 
-如果存在，删掉再重启游戏。
-
-4. 重新构建：
-
-```bash
-dotnet clean src/STS2_Discard_Mod.csproj && dotnet build src/STS2_Discard_Mod.csproj --configuration Release
-```
-
-5. 确认依赖 mod 没缺：
-
-```text
-{game}/mods/BaseLib/BaseLib.dll
-{game}/mods/BaseLib/BaseLib.pck
-```
-
-当前仓库不会把 `BaseLib` 自动部署到游戏目录；它必须作为独立 mod 预先安装。
-
-### 问题 B：日志报“找不到程序集”
-
-这通常说明 manifest 的 `id` 与最终 DLL 名不一致。
-
-当前仓库的正确组合是：
-
-- `id`: `STS2DiscardMod`
-- DLL: `STS2DiscardMod.dll`
-
-### 问题 C：卡牌没出现在卡池里
-
-依次检查：
-
-1. `Main.cs` 中是否调用了 4 次 `ModHelper.AddModelToPool(...)`
-2. 日志里是否出现 `Registered 4 discard-trigger cards to RegentCardPool`
-3. `src/localization/eng/cards.json` 是否补齐了对应键
-
-如果日志里已经出现 `Registered 4 discard-trigger cards to RegentCardPool`，但随后仍然报：
+如果日志或界面里出现：
 
 ```text
 No loader found for resource: res://STS2DiscardMod/images/...
 ```
 
-那不是“没注册进卡池”，而是 `STS2DiscardMod.pck` 没有生成或没部署，导致卡牌进了卡库但头像资源没有挂载到 `res://`。
+通常不是注册问题，而是 `.pck` 没有导出或没有部署。
 
-### 问题 D：卡牌能打出但没有效果
+排查：
 
-当前阶段这是预期行为。仓库里大多数 `OnPlay()` 还是占位实现。
+1. 是否设置了 `GODOT_CLI_COMMAND`
+2. live 目录里是否有 `STS2DiscardMod.pck`
+3. 是否重启了游戏重新挂载资源
+
+### 问题 D：卡牌能打出，但没有效果
+
+现在先按日志顺序看：
+
+1. 有没有 `[CardName] play`
+2. 有没有 `[DiscardCmd] ...`
+3. 有没有 `[CardName] discard-trigger:start`
+
+如果有 `play` 但没有 `DiscardCmd`，说明是出牌逻辑没真正调用弃牌命令。
+
+如果有 `DiscardCmd` 但没有 `discard-trigger:start`，说明被弃掉的不是那张目标卡。
 
 ### 问题 E：构建报 `STS001`
 
-说明本地化键缺失。当前仓库用扁平键格式：
+说明本地化键缺失。当前格式是：
 
 ```json
 {
-  "YOUR_CARD.title": "标题",
-  "YOUR_CARD.description": "描述"
+  "DISCARDMOD-YOUR_CARD.title": "标题",
+  "DISCARDMOD-YOUR_CARD.description": "描述"
 }
 ```
 
 ## 4. VS Code 附加调试器
 
-### 第一步：构建 Debug 版本
-
-```bash
-dotnet build src/STS2_Discard_Mod.csproj --configuration Debug
-```
-
-成功后会得到：
-
-```text
-{game}/mods/STS2_Discard_Mod/
-├── STS2DiscardMod.dll
-├── STS2DiscardMod.pdb
-└── STS2_Discard_Mod.json
-```
-
-### 第二步：附加进程
-
-1. 启动游戏
-2. 在 VS Code 打开“运行和调试”
-3. 选择“Attach to Process”
-4. 选择 STS2 或 Godot 进程
-5. 在 `src/Main.cs` 或 `src/Cards/*.cs` 下断点
-
-### 第三步：验证断点命中
-
 最稳妥的断点位置：
 
 - `DiscardModMain.Initialize()`
-- `DiscardModMain.RegisterCards()`
+- `ModelDbDiagnosticsPatch.LogCustomCardPresence()`
+- `DiscardModCard.AfterCardDiscarded()`
 - 目标卡牌的 `OnPlay()`
 
 ## 5. 快速自检命令
@@ -179,13 +141,8 @@ dotnet build src/STS2_Discard_Mod.csproj --configuration Debug
 重建：
 
 ```bash
-dotnet clean src/STS2_Discard_Mod.csproj && dotnet build src/STS2_Discard_Mod.csproj --configuration Release
-```
-
-查找部署后的 DLL：
-
-```bash
-find ~/.local/share/Steam -name "STS2DiscardMod.dll"
+dotnet clean src/STS2_Discard_Mod.csproj -p:Sts2DataDir=/absolute/path/to/lib && \
+  dotnet build src/STS2_Discard_Mod.csproj -p:Sts2DataDir=/absolute/path/to/lib
 ```
 
 检查 live 模组目录：
@@ -194,11 +151,10 @@ find ~/.local/share/Steam -name "STS2DiscardMod.dll"
 ls -la {game}/mods/STS2_Discard_Mod/
 ```
 
-## 6. 提交问题时应附带的信息
+## 6. 提交问题时最好附带什么
 
-如果需要继续排查，请至少提供：
-
-1. 操作系统与游戏版本
-2. 最新日志中的错误原文
-3. `mods/STS2_Discard_Mod/` 当前目录结构
-4. 你执行过的构建命令
+- 操作系统与游戏版本
+- 最新相关日志原文
+- `mods/STS2_Discard_Mod/` 目录结构
+- 你执行过的构建命令
+- 是否设置了 `Sts2DataDir` / `GODOT_CLI_COMMAND`

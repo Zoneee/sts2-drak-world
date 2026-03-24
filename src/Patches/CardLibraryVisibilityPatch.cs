@@ -12,19 +12,11 @@ public static class CardLibraryVisibilityPatch
     [HarmonyPostfix]
     private static void ForceCustomRegentCardsVisible(CardModel card, ref ModelVisibility __result)
     {
-        if (!IsDiscardModCard(card))
+        if (card is not DiscardModCard)
         {
             return;
         }
 
         __result = ModelVisibility.Visible;
-    }
-
-    private static bool IsDiscardModCard(CardModel card)
-    {
-        return card is DarkFlameFragment
-            or SwiftCut
-            or ToxinRecord
-            or ShatteredEcho;
     }
 }

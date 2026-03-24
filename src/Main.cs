@@ -1,6 +1,8 @@
-using MegaCrit.Sts2.Core.Modding;
+using DiscardMod.Cards;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Modding;
 using HarmonyLib;
+using System.Linq;
 
 namespace DiscardMod;
 
@@ -13,7 +15,8 @@ public static class DiscardModMain
 
     public static void Initialize()
     {
-        Logger.Info("STS2 Discard-Trigger Mod loading...");
+        var cardTypes = DiscardModCard.AllCardTypes;
+        Logger.Info($"STS2 Discard-Trigger Mod loading... discovered {cardTypes.Count} cards: {string.Join(", ", cardTypes.Select(type => type.Name))}");
         new Harmony(ModId).PatchAll(typeof(DiscardModMain).Assembly);
         Logger.Info("STS2 Discard-Trigger Mod loaded!");
     }

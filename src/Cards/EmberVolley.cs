@@ -11,31 +11,32 @@ using System.Threading.Tasks;
 namespace DiscardMod.Cards;
 
 [Pool(typeof(RegentCardPool))]
-public class SwiftCut : DiscardModCard
+public class EmberVolley : DiscardModCard
 {
-    private decimal discardDamage = 3m;
+    private decimal discardDamage = 4m;
 
-    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(5m, ValueProp.Move)];
+    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(7m, ValueProp.Move)];
 
-    public SwiftCut()
-        : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "swift_cut", true)
+    public EmberVolley()
+        : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "swift_cut", true)
     {
     }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardDamage={discardDamage}");
+        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardDamage={discardDamage}; discardDraw=1");
         await CommonActions.CardAttack(this, cardPlay).Execute(choiceContext);
     }
 
     protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)
     {
         await AttackRandomEnemy(choiceContext, discardDamage);
+        await DrawCards(choiceContext, 1);
     }
 
     public override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(2m);
+        DynamicVars.Damage.UpgradeValueBy(3m);
         discardDamage += 2m;
     }
 }

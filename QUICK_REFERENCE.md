@@ -2,48 +2,49 @@
 
 ## 最常用命令
 
-```text
-Ctrl+Shift+B
+构建：
+
+```bash
+dotnet build src/STS2_Discard_Mod.csproj -p:Sts2DataDir=/absolute/path/to/lib
 ```
 
-默认行为：构建 Release。
+带 Godot 导出：
+
+```bash
+GODOT_CLI_COMMAND=/path/to/godot4 dotnet build src/STS2_Discard_Mod.csproj -p:Sts2DataDir=/absolute/path/to/lib
+```
 
 ## 当前正确的 live 目录结构
 
 ```text
 {游戏目录}/mods/STS2_Discard_Mod/
 ├── STS2DiscardMod.dll
+├── STS2DiscardMod.pck
+├── 0Harmony.dll
 └── STS2_Discard_Mod.json
 ```
 
 不要额外复制 `cards.json`。
 
-## 常用任务
+## 日志关键前缀
 
-- `Build: Release`
-- `Build: Debug`
-- `Build + Deploy: Release`
-- `Build + Deploy: Debug`
-- `Clean Build`
+- 模组入口：`STS2DiscardMod`
+- 单卡打出：`[CardName] play`
+- 单卡弃牌触发：`[CardName] discard-trigger:start`
+- 弃牌命令：`[DiscardCmd]`
+- ModelDb 检查：`ModelDb loaded discard-system card`
 
 ## 调试最短流程
 
-1. 运行 `Build + Deploy: Debug`
+1. `Build: Debug` 或命令行构建
 2. 启动游戏
-3. 附加到 STS2 或 Godot 进程
-4. 在 `src/Main.cs` 或卡牌类下断点
+3. 观察 `BepInEx/LogOutput.log`
+4. 搜索 `STS2DiscardMod`
+5. 如果卡可见但没效果，优先看有没有 `play` / `discard-trigger` / `[DiscardCmd]`
 
-## 如果构建后游戏没更新
+## 出问题先查什么
 
-先检查三件事：
-
-1. 游戏是否还在占用旧 DLL
-2. live 模组目录里是否有多余 JSON
-3. 当前目录里是否真的存在 `STS2DiscardMod.dll`
-
-## 对应文档
-
-- 快速上手：`docs/QUICK_START.md`
-- 完整开发：`docs/DEV_GUIDE.md`
-- 调试排障：`docs/DEBUGGING.md`
-- VS Code 任务：`docs/VSCODE_WORKFLOW.md`
+1. `STS2DiscardMod.dll`、`STS2DiscardMod.pck`、`0Harmony.dll`、manifest 是否都在
+2. `BaseLib` 是否已经单独安装到游戏目录
+3. 是否忘了传 `Sts2DataDir` 或复制 `lib/sts2.dll`
+4. 是否忘了设置 `GODOT_CLI_COMMAND` 导致卡图没打包

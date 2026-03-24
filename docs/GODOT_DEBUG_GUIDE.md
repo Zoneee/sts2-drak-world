@@ -37,7 +37,7 @@ dotnet build src/STS2_Discard_Mod.csproj --configuration Debug
 推荐从这几个位置开始：
 
 - `DiscardModMain.Initialize()`
-- `DiscardModMain.RegisterCards()`
+- `ModelDbDiagnosticsPatch.LogCustomCardPresence()`
 - 任意卡牌的 `OnPlay()`
 
 ## 常见现象

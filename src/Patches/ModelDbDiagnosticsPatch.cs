@@ -12,10 +12,10 @@ public static class ModelDbDiagnosticsPatch
     [HarmonyPostfix]
     private static void LogCustomCardPresence()
     {
-        LogCardPresence(typeof(DarkFlameFragment));
-        LogCardPresence(typeof(SwiftCut));
-        LogCardPresence(typeof(ToxinRecord));
-        LogCardPresence(typeof(ShatteredEcho));
+        foreach (var cardType in DiscardModCard.AllCardTypes)
+        {
+            LogCardPresence(cardType);
+        }
     }
 
     private static void LogCardPresence(Type cardType)
@@ -26,7 +26,7 @@ public static class ModelDbDiagnosticsPatch
 
         if (cardModel == null)
         {
-            DiscardModMain.Logger.Info($"ModelDb missing custom card {cardType.Name} ({cardId}) after init");
+            DiscardModMain.Logger.Warn($"ModelDb missing discard-system card {cardType.Name} ({cardId}) after init");
             return;
         }
 
@@ -34,6 +34,6 @@ public static class ModelDbDiagnosticsPatch
         var inGlobalCards = ModelDb.AllCards.Any(card => card.Id == cardId);
 
         DiscardModMain.Logger.Info(
-            $"ModelDb loaded custom card {cardType.Name} as {cardId}; library={cardModel.ShouldShowInCardLibrary}; regentPool={inRegentPool}; allCards={inGlobalCards}");
+            $"ModelDb loaded discard-system card {cardType.Name} as {cardId}; library={cardModel.ShouldShowInCardLibrary}; regentPool={inRegentPool}; allCards={inGlobalCards}");
     }
 }

@@ -2,32 +2,37 @@ using BaseLib.Abstracts;
 using BaseLib.Utils;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
-using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.CardPools;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DiscardMod.Cards;
 
-/// <summary>
-/// 破碎回响 (Shattered Echo)
-/// Skill, Rare, 2 energy, target: Self
-/// Discard trigger: draw 2 cards (upgraded: 3).
-/// </summary>
 [Pool(typeof(RegentCardPool))]
 public class ShatteredEcho : DiscardModCard
 {
+    public override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2)];
+
     public ShatteredEcho()
-        : base(2, CardType.Skill, CardRarity.Rare, TargetType.Self, "shattered_echo", true) { }
+        : base(2, CardType.Skill, CardRarity.Rare, TargetType.Self, "shattered_echo", true)
+    {
+    }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        // TODO: implement play effect (e.g. discard 1 card, draw 1 card)
-        DiscardModMain.Logger.Info("ShatteredEcho played");
-        await Task.CompletedTask;
+        LogPlay(cardPlay, $"draw={DynamicVars.Cards.IntValue}; discard=1; discardDraw={DynamicVars.Cards.IntValue}");
+        await DrawCards(choiceContext, DynamicVars.Cards.IntValue);
+        await DiscardFromHand(choiceContext, 1);
+    }
+
+    protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)
+    {
+        await DrawCards(choiceContext, DynamicVars.Cards.IntValue);
     }
 
     public override void OnUpgrade()
     {
-        // Upgrade: discard-trigger draw increases from 2 to 3
+        DynamicVars.Cards.UpgradeValueBy(1m);
     }
 }

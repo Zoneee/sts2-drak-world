@@ -4,38 +4,39 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.CardPools;
+using MegaCrit.Sts2.Core.ValueProps;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DiscardMod.Cards;
 
 [Pool(typeof(RegentCardPool))]
-public class DarkFlameFragment : DiscardModCard
+public class FinalDraft : DiscardModCard
 {
-    private decimal discardDamage = 6m;
+    private decimal discardDamage = 8m;
 
-    public override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(1)];
+    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(12m, ValueProp.Move)];
 
-    public DarkFlameFragment()
-        : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, "dark_flame_fragment", true)
+    public FinalDraft()
+        : base(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, "dark_flame_fragment", true)
     {
     }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        LogPlay(cardPlay, $"draw={DynamicVars.Cards.IntValue}; discard=1; discardDamage={discardDamage}");
-        await DrawCards(choiceContext, DynamicVars.Cards.IntValue);
-        await DiscardFromHand(choiceContext, 1);
+        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardAoeDamage={discardDamage}; discardDraw=1");
+        await CommonActions.CardAttack(this, cardPlay).Execute(choiceContext);
     }
 
     protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)
     {
         await AttackAllEnemies(choiceContext, discardDamage);
+        await DrawCards(choiceContext, 1);
     }
 
     public override void OnUpgrade()
     {
-        DynamicVars.Cards.UpgradeValueBy(1m);
-        discardDamage += 3m;
+        DynamicVars.Damage.UpgradeValueBy(4m);
+        discardDamage += 4m;
     }
 }

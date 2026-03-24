@@ -1,57 +1,43 @@
 # 版本历史
 
-本文件记录已经落地到仓库中的变更，不记录纯设计想法。
+本文件只记录已经落地到仓库中的变更。
 
 ## [Unreleased]
 
-### 开发中
+### 卡牌
 
-- 4 张卡牌的 `OnPlay()` 真实效果
-- 弃牌触发事件监听
-- 游戏内实际验证与平衡调整
+- 补全原有 4 张牌的 `OnPlay()` 与弃牌触发实现
+- 新增 6 张弃牌体系卡牌：`AshenAegis`、`CripplingManuscript`、`EmberVolley`、`RecallSurge`、`FadingFormula`、`FinalDraft`
+- 当前卡组总数提升到 10 张，并全部接入 `RegentCardPool`
+
+### 日志与排障
+
+- 在 `DiscardModCard` 中加入统一的打出/弃牌触发日志
+- 新增 `DiscardDiagnosticsPatch`，记录 `CardCmd.Discard` 与 `CardCmd.DiscardAndDraw`
+- 扩展 `ModelDbDiagnosticsPatch`，改为自动遍历全部弃牌体系卡牌
+- `Main.cs` 初始化时输出自动发现到的卡牌列表
+
+### 文档
+
+- 刷新 `README.md`、`QUICK_REFERENCE.md`、`DEV_GUIDE.md`、`DEBUGGING.md`
+- 更新 `MOD_REGISTRY.md` 为 10 张牌的真实状态
+- 清理过期的“只有 4 张牌 / 效果未实现 / 手工注册”描述
+- 补充本轮成功经验总结
+
+### 已知限制
+
+- 当前规则仍然是“任何弃牌都会触发这张牌的弃牌效果”
+- 仍建议继续做完整游戏内验证和数值平衡
+- 未设置 `GODOT_CLI_COMMAND` 时，卡图资源不会被导出到 `.pck`
 
 ## [0.1.0-alpha]
 
 ### 已完成
 
-#### 框架
-
 - 建立 `DiscardModMain` 模组入口
 - 配置 `STS2DiscardMod` 日志前缀
 - 建立 `STS2_Discard_Mod.json` manifest
-- 项目可以在 `net9.0` 下成功构建
-
-#### 卡牌
-
-- 新增 4 张卡牌类
-- 已将 4 张卡注册到 `RegentCardPool`
-- 已补齐对应本地化键
-
-#### 构建与部署
-
 - 配置 `CopyToModsFolderOnBuild` 自动部署
-- 统一 live 目录结构为 `mods/STS2_Discard_Mod/`
 - 统一 DLL 名为 `STS2DiscardMod.dll`
-- 修复 manifest 与 DLL 命名不一致导致的加载失败问题
 - 停止把 `cards.json` 部署到 live 模组目录，避免被误判为 manifest
-
-#### 文档
-
-- 重写 `README.md`
-- 收敛快速上手、开发、调试、Windows 部署、Godot 调试说明
-- 将主要文档统一为中文
-
-### 当前已知限制
-
-- 卡牌目前主要是注册成功，效果未完成
-- 弃牌触发机制尚未实现
-- 游戏内完整验证尚未完成
-
-## 后续版本方向
-
-### [0.2.0] 计划
-
-- 完成 4 张卡的实际效果
-- 接入弃牌事件监听
-- 完成至少一轮游戏内验证
-- 根据结果调整数值与设计
+- 收敛主要中文文档
