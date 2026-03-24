@@ -31,13 +31,34 @@ lib/*.dll
 lib/*.pdb
 !lib/README.md
 
-# Godot build cache (per-project)
+# Godot — generated/cache files (should not be committed)
+# Godot editor cache and import cache
 .godot/
 src/.godot/
+*.import
+
+# Godot C# / Mono build artifacts
+*.uid
+mono_crash*.json
+.mono/
+
+# Godot editor metadata
 *.gdextension
 *.gdplugin
-mono_crash*.json
-user.godot
+
+# Godot export presets sensitive data (keep export_presets.cfg if it has no credentials)
+# export_presets.cfg  # uncomment if it contains encryption keys or passwords
+
+# Godot Android/iOS build intermediates
+android/
+ios/
+*.apk
+*.aab
+*.ipa
+
+# Godot web export
+*.wasm
+*.pck
 
 # NuGet local packages folder (from nuget.config)
 packages/
