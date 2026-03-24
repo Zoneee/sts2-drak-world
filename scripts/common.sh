@@ -104,6 +104,11 @@ deploy_runtime() {
         cp -a "$PROJECT_ROOT/src/STS2DiscardMod/." "$mod_dir/STS2DiscardMod/"
     fi
 
+    if [[ -d "$PROJECT_ROOT/src/.godot/imported" ]]; then
+        mkdir -p "$mod_dir/.godot/imported"
+        cp -a "$PROJECT_ROOT/src/.godot/imported/." "$mod_dir/.godot/imported/"
+    fi
+
     printf '==> deployed %s to %s\n' "$configuration" "$mod_dir"
 }
 

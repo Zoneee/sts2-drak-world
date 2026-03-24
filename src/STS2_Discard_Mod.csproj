@@ -106,9 +106,16 @@
 
   <!-- Manifest shown in project but not compiled -->
   <ItemGroup>
+    <EmbeddedResource Include="Data/cards.catalog.json" />
     <None Include="../STS2_Discard_Mod.json"/>
     <ModAsset Include="STS2DiscardMod/**"/>
+    <ImportedModAsset Include=".godot/imported/*.ctex" />
+    <ImportedModAsset Include=".godot/imported/*.md5" />
   </ItemGroup>
+
+  <Target Name="GenerateLocalizationFiles" BeforeTargets="BeforeBuild">
+    <Exec Command='dotnet run --project &quot;$(MSBuildProjectDirectory)/../tools/CardLocalizationGenerator/CardLocalizationGenerator.csproj&quot; -- &quot;$(MSBuildProjectDirectory)/Data/cards.catalog.json&quot; &quot;$(MSBuildProjectDirectory)/localization&quot;' />
+  </Target>
 
   <Target Name="WarnIfGodotPackCannotBeBuilt" AfterTargets="Build"
           Condition="'$(GodotCliCommand)' == ''">
@@ -161,10 +168,15 @@
           SkipUnchangedFiles="true"
           Condition="Exists('$(GodotPackPath)')"/>
         <MakeDir Directories="@(ModAsset -> '$(ModsPath)$(MSBuildProjectName)/STS2DiscardMod/%(RecursiveDir)')"/>
+        <MakeDir Directories="$(ModsPath)$(MSBuildProjectName)/.godot/imported"/>
     <Copy SourceFiles="@(ModAsset)"
           DestinationFiles="@(ModAsset -> '$(ModsPath)$(MSBuildProjectName)/STS2DiscardMod/%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true"
           Condition="'%(ModAsset.Extension)' != ''"/>
+    <Copy SourceFiles="@(ImportedModAsset)"
+          DestinationFiles="@(ImportedModAsset -> '$(ModsPath)$(MSBuildProjectName)/.godot/imported/%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="'%(ImportedModAsset.Extension)' != ''"/>
   </Target>
 
 </Project>

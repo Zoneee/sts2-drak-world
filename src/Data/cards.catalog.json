@@ -1,0 +1,144 @@
+{
+    "cards": [
+        {
+            "id": "DISCARDMOD-DARK_FLAME_FRAGMENT",
+            "assetName": "dark_flame_fragment",
+            "localization": {
+                "eng": {
+                    "title": "Dark Flame Fragment",
+                    "description": "Draw 1 card, then discard 1 card. Discard: Deal 6 damage to all enemies."
+                },
+                "zhs": {
+                    "title": "暗焰残页",
+                    "description": "抽 1 张牌，然后弃 1 张牌。弃牌触发：对所有敌人造成 6 点伤害。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-SWIFT_CUT",
+            "assetName": "swift_cut",
+            "localization": {
+                "eng": {
+                    "title": "Swift Cut",
+                    "description": "Deal 5 damage. Discard: Deal 3 damage to a random enemy."
+                },
+                "zhs": {
+                    "title": "迅影斩",
+                    "description": "造成 5 点伤害。弃牌触发：对随机敌人造成 3 点伤害。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-TOXIN_RECORD",
+            "assetName": "toxin_record",
+            "localization": {
+                "eng": {
+                    "title": "Toxin Record",
+                    "description": "Apply 4 Poison. Discard: Apply 2 Poison to all enemies."
+                },
+                "zhs": {
+                    "title": "毒素记录",
+                    "description": "施加 4 层中毒。弃牌触发：对所有敌人施加 2 层中毒。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-SHATTERED_ECHO",
+            "assetName": "shattered_echo",
+            "localization": {
+                "eng": {
+                    "title": "Shattered Echo",
+                    "description": "Draw 2 cards, then discard 1 card. Discard: Draw 2 cards."
+                },
+                "zhs": {
+                    "title": "破碎回响",
+                    "description": "抽 2 张牌，然后弃 1 张牌。弃牌触发：抽 2 张牌。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-ASHEN_AEGIS",
+            "assetName": "ashen_aegis",
+            "localization": {
+                "eng": {
+                    "title": "Ashen Aegis",
+                    "description": "Gain 8 Block. Discard: Gain 5 Block."
+                },
+                "zhs": {
+                    "title": "灰烬庇护",
+                    "description": "获得 8 点格挡。弃牌触发：获得 5 点格挡。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-CRIPPLING_MANUSCRIPT",
+            "assetName": "crippling_manuscript",
+            "localization": {
+                "eng": {
+                    "title": "Crippling Manuscript",
+                    "description": "Apply 2 Weak and 2 Vulnerable. Discard: Apply 1 Weak to all enemies."
+                },
+                "zhs": {
+                    "title": "崩坏手稿",
+                    "description": "施加 2 层虚弱和 2 层易伤。弃牌触发：对所有敌人施加 1 层虚弱。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-EMBER_VOLLEY",
+            "assetName": "ember_volley",
+            "localization": {
+                "eng": {
+                    "title": "Ember Volley",
+                    "description": "Deal 7 damage. Discard: Deal 4 damage to a random enemy and draw 1 card."
+                },
+                "zhs": {
+                    "title": "余烬连射",
+                    "description": "造成 7 点伤害。弃牌触发：对随机敌人造成 4 点伤害并抽 1 张牌。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-RECALL_SURGE",
+            "assetName": "recall_surge",
+            "localization": {
+                "eng": {
+                    "title": "Recall Surge",
+                    "description": "Draw 2 cards, then discard 1 card. Discard: Gain 4 Block."
+                },
+                "zhs": {
+                    "title": "回收思路",
+                    "description": "抽 2 张牌，然后弃 1 张牌。弃牌触发：获得 4 点格挡。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-FADING_FORMULA",
+            "assetName": "fading_formula",
+            "localization": {
+                "eng": {
+                    "title": "Fading Formula",
+                    "description": "Draw 1 card. If this remains in your hand at end of turn, discard it. Discard: Gain 6 Block."
+                },
+                "zhs": {
+                    "title": "褪色公式",
+                    "description": "抽 1 张牌。回合结束时若仍在手牌中，将其弃掉。弃牌触发：获得 6 点格挡。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-FINAL_DRAFT",
+            "assetName": "final_draft",
+            "localization": {
+                "eng": {
+                    "title": "Final Draft",
+                    "description": "Deal 12 damage. Discard: Deal 8 damage to all enemies and draw 1 card."
+                },
+                "zhs": {
+                    "title": "终稿余烬",
+                    "description": "造成 12 点伤害。弃牌触发：对所有敌人造成 8 点伤害并抽 1 张牌。"
+                }
+            }
+        }
+    ]
+}
