@@ -18,7 +18,7 @@ public class EmberVolley : DiscardModCard
     public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(7m, ValueProp.Move)];
 
     public EmberVolley()
-        : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "swift_cut", true)
+        : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "ember_volley", true)
     {
     }
 

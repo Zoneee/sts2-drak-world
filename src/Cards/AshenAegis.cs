@@ -18,7 +18,7 @@ public class AshenAegis : DiscardModCard
     public override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar(8m, ValueProp.Move)];
 
     public AshenAegis()
-        : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, "dark_flame_fragment", true)
+        : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, "ashen_aegis", true)
     {
     }
 

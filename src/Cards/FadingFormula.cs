@@ -20,7 +20,7 @@ public class FadingFormula : DiscardModCard
     public override bool HasTurnEndInHandEffect => true;
 
     public FadingFormula()
-        : base(0, CardType.Skill, CardRarity.Common, TargetType.Self, "shattered_echo", true)
+        : base(0, CardType.Skill, CardRarity.Common, TargetType.Self, "fading_formula", true)
     {
     }
 

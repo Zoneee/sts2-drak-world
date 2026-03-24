@@ -18,7 +18,7 @@ public class FinalDraft : DiscardModCard
     public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(12m, ValueProp.Move)];
 
     public FinalDraft()
-        : base(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, "dark_flame_fragment", true)
+        : base(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, "final_draft", true)
     {
     }
 

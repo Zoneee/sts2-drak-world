@@ -1,5 +1,7 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Localization;
+using System.Globalization;
+using System.Reflection;
 
 namespace DiscardMod.Patches;
 
@@ -8,7 +10,31 @@ namespace DiscardMod.Patches;
 [HarmonyPriority(Priority.First)]
 public static class LocalizationRuntimePatch
 {
-    private static readonly Dictionary<string, string> CardText = new(StringComparer.Ordinal)
+    private static readonly IReadOnlyDictionary<string, string> EnglishCardText = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["DISCARDMOD-DARK_FLAME_FRAGMENT.title"] = "Dark Flame Fragment",
+        ["DISCARDMOD-DARK_FLAME_FRAGMENT.description"] = "Draw 1 card, then discard 1 card. Discard: Deal 6 damage to all enemies.",
+        ["DISCARDMOD-SWIFT_CUT.title"] = "Swift Cut",
+        ["DISCARDMOD-SWIFT_CUT.description"] = "Deal 5 damage. Discard: Deal 3 damage to a random enemy.",
+        ["DISCARDMOD-TOXIN_RECORD.title"] = "Toxin Record",
+        ["DISCARDMOD-TOXIN_RECORD.description"] = "Apply 4 Poison. Discard: Apply 2 Poison to all enemies.",
+        ["DISCARDMOD-SHATTERED_ECHO.title"] = "Shattered Echo",
+        ["DISCARDMOD-SHATTERED_ECHO.description"] = "Draw 2 cards, then discard 1 card. Discard: Draw 2 cards.",
+        ["DISCARDMOD-ASHEN_AEGIS.title"] = "Ashen Aegis",
+        ["DISCARDMOD-ASHEN_AEGIS.description"] = "Gain 8 Block. Discard: Gain 5 Block.",
+        ["DISCARDMOD-CRIPPLING_MANUSCRIPT.title"] = "Crippling Manuscript",
+        ["DISCARDMOD-CRIPPLING_MANUSCRIPT.description"] = "Apply 2 Weak and 2 Vulnerable. Discard: Apply 1 Weak to all enemies.",
+        ["DISCARDMOD-EMBER_VOLLEY.title"] = "Ember Volley",
+        ["DISCARDMOD-EMBER_VOLLEY.description"] = "Deal 7 damage. Discard: Deal 4 damage to a random enemy and draw 1 card.",
+        ["DISCARDMOD-RECALL_SURGE.title"] = "Recall Surge",
+        ["DISCARDMOD-RECALL_SURGE.description"] = "Draw 2 cards, then discard 1 card. Discard: Gain 4 Block.",
+        ["DISCARDMOD-FADING_FORMULA.title"] = "Fading Formula",
+        ["DISCARDMOD-FADING_FORMULA.description"] = "Draw 1 card. If this remains in your hand at end of turn, discard it. Discard: Gain 6 Block.",
+        ["DISCARDMOD-FINAL_DRAFT.title"] = "Final Draft",
+        ["DISCARDMOD-FINAL_DRAFT.description"] = "Deal 12 damage. Discard: Deal 8 damage to all enemies and draw 1 card."
+    };
+
+    private static readonly IReadOnlyDictionary<string, string> ChineseCardText = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         ["DISCARDMOD-DARK_FLAME_FRAGMENT.title"] = "暗焰残页",
         ["DISCARDMOD-DARK_FLAME_FRAGMENT.description"] = "抽 1 张牌，然后弃 1 张牌。弃牌触发：对所有敌人造成 6 点伤害。",
@@ -32,19 +58,150 @@ public static class LocalizationRuntimePatch
         ["DISCARDMOD-FINAL_DRAFT.description"] = "造成 12 点伤害。弃牌触发：对所有敌人造成 8 点伤害并抽 1 张牌。"
     };
 
-    public static bool Prefix(string key, string ____name, ref string __result)
+    private static readonly string[] ChineseLanguageMarkers =
+    [
+        "zh",
+        "zho",
+        "chi",
+        "chs",
+        "cht",
+        "cn",
+        "schinese",
+        "tchinese",
+        "chinese",
+        "simplified",
+        "traditional",
+        "中文"
+    ];
+
+    public static bool Prefix(string key, string ____name, LocTable __instance, ref string __result)
     {
         if (!string.Equals(____name, "cards", StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        if (!CardText.TryGetValue(key, out var text))
+        var cardText = ResolveCardText(__instance);
+        if (!cardText.TryGetValue(key, out var text))
         {
             return true;
         }
 
         __result = text;
         return false;
+    }
+
+    private static IReadOnlyDictionary<string, string> ResolveCardText(LocTable locTable)
+    {
+        return IsChineseLanguage(ResolveLanguageMarker(locTable)) ? ChineseCardText : EnglishCardText;
+    }
+
+    private static bool IsChineseLanguage(string languageMarker)
+    {
+        return ChineseLanguageMarkers.Any(marker => languageMarker.Contains(marker, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string ResolveLanguageMarker(LocTable locTable)
+    {
+        if (TryReadLanguageDescriptor(locTable, out var instanceDescriptor))
+        {
+            return instanceDescriptor;
+        }
+
+        foreach (var type in typeof(LocTable).Assembly.GetTypes())
+        {
+            if (!TryReadLanguageDescriptor(type, out var staticDescriptor))
+            {
+                continue;
+            }
+
+            return staticDescriptor;
+        }
+
+        return string.Join('|',
+            CultureInfo.CurrentCulture.Name,
+            CultureInfo.CurrentUICulture.Name,
+            CultureInfo.CurrentUICulture.ThreeLetterISOLanguageName);
+    }
+
+    private static bool TryReadLanguageDescriptor(object source, out string descriptor)
+    {
+        if (TryReadLanguageDescriptor(source.GetType(), source, out descriptor))
+        {
+            return true;
+        }
+
+        descriptor = string.Empty;
+        return false;
+    }
+
+    private static bool TryReadLanguageDescriptor(Type type, out string descriptor)
+    {
+        return TryReadLanguageDescriptor(type, null, out descriptor);
+    }
+
+    private static bool TryReadLanguageDescriptor(Type type, object? instance, out string descriptor)
+    {
+        const BindingFlags instanceFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        const BindingFlags staticFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+
+        var candidates = new List<string>();
+        foreach (var memberName in new[] { "CurrentLanguage", "Language", "LanguageCode", "Locale", "CurrentLocale", "LocalizationTable" })
+        {
+            var flags = instance == null ? staticFlags : instanceFlags;
+
+            var property = type.GetProperty(memberName, flags);
+            if (property != null)
+            {
+                AppendDescriptor(candidates, property.GetValue(instance));
+            }
+
+            var field = type.GetField(memberName, flags);
+            if (field != null)
+            {
+                AppendDescriptor(candidates, field.GetValue(instance));
+            }
+
+            var method = type.GetMethod(memberName, flags, []);
+            if (method != null)
+            {
+                AppendDescriptor(candidates, method.Invoke(instance, null));
+            }
+
+            var getter = type.GetMethod($"get_{memberName}", flags, []);
+            if (getter != null)
+            {
+                AppendDescriptor(candidates, getter.Invoke(instance, null));
+            }
+        }
+
+        descriptor = string.Join('|', candidates.Where(value => !string.IsNullOrWhiteSpace(value)).Distinct(StringComparer.OrdinalIgnoreCase));
+        return descriptor.Length > 0;
+    }
+
+    private static void AppendDescriptor(ICollection<string> candidates, object? value)
+    {
+        if (value == null)
+        {
+            return;
+        }
+
+        candidates.Add(value.ToString() ?? string.Empty);
+
+        var valueType = value.GetType();
+        foreach (var propertyName in new[] { "LanguageCode", "Language", "Name", "Value", "ThreeLetterISOLanguageName" })
+        {
+            var property = valueType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (property == null)
+            {
+                continue;
+            }
+
+            var propertyValue = property.GetValue(value)?.ToString();
+            if (!string.IsNullOrWhiteSpace(propertyValue))
+            {
+                candidates.Add(propertyValue);
+            }
+        }
     }
 }

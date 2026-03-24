@@ -16,7 +16,7 @@ public class CripplingManuscript : DiscardModCard
     private decimal discardWeak = 1m;
 
     public CripplingManuscript()
-        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy, "toxin_record", true)
+        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy, "crippling_manuscript", true)
     {
     }
 

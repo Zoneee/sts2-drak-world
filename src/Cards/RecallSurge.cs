@@ -17,7 +17,7 @@ public class RecallSurge : DiscardModCard
     public override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2)];
 
     public RecallSurge()
-        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, "shattered_echo", true)
+        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, "recall_surge", true)
     {
     }
 
