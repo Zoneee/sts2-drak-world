@@ -2,7 +2,9 @@ using HarmonyLib;
 using DiscardMod.Utils;
 using MegaCrit.Sts2.Core.Localization;
 using System.Globalization;
+using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
 
 namespace DiscardMod.Patches;
 
@@ -11,6 +13,18 @@ namespace DiscardMod.Patches;
 [HarmonyPriority(Priority.First)]
 public static class LocalizationRuntimePatch
 {
+    private const int StatsLogThreshold = 256;
+
+    private static string? cachedLanguageMarker;
+    private static int statsLogged;
+    private static long cardsTableLookups;
+    private static long fastRejectedLookups;
+    private static long modKeyLookups;
+    private static long localizedHits;
+    private static long localizedMisses;
+    private static long languageResolutions;
+    private static long languageResolutionTicks;
+
     public static bool Prefix(string key, string ____name, LocTable __instance, ref string __result)
     {
         if (!string.Equals(____name, "cards", StringComparison.OrdinalIgnoreCase))
@@ -18,14 +32,49 @@ public static class LocalizationRuntimePatch
             return true;
         }
 
-        if (!CardCatalog.TryGetLocalizedText(ResolveLanguageMarker(__instance), key, out var text))
+        Interlocked.Increment(ref cardsTableLookups);
+
+        if (!CardCatalog.IsDiscardModKey(key))
         {
+            Interlocked.Increment(ref fastRejectedLookups);
+            MaybeLogStats();
             return true;
         }
 
+        Interlocked.Increment(ref modKeyLookups);
+
+        if (!CardCatalog.TryGetLocalizedText(GetLanguageMarker(__instance), key, out var text))
+        {
+            Interlocked.Increment(ref localizedMisses);
+            MaybeLogStats();
+            return true;
+        }
+
+        Interlocked.Increment(ref localizedHits);
         __result = text;
+        MaybeLogStats();
         return false;
     }
+
+    private static string GetLanguageMarker(LocTable locTable)
+    {
+        var cached = Volatile.Read(ref cachedLanguageMarker);
+        if (!string.IsNullOrWhiteSpace(cached))
+        {
+            return cached;
+        }
+
+        var startedAt = Stopwatch.GetTimestamp();
+        var resolved = ResolveLanguageMarker(locTable);
+        var elapsedTicks = Stopwatch.GetTimestamp() - startedAt;
+
+        Interlocked.Increment(ref languageResolutions);
+        Interlocked.Add(ref languageResolutionTicks, elapsedTicks);
+        Interlocked.CompareExchange(ref cachedLanguageMarker, resolved, null);
+
+        return Volatile.Read(ref cachedLanguageMarker) ?? resolved;
+    }
+
     private static string ResolveLanguageMarker(LocTable locTable)
     {
         if (TryReadLanguageDescriptor(locTable, out var instanceDescriptor))
@@ -47,6 +96,29 @@ public static class LocalizationRuntimePatch
             CultureInfo.CurrentCulture.Name,
             CultureInfo.CurrentUICulture.Name,
             CultureInfo.CurrentUICulture.ThreeLetterISOLanguageName);
+    }
+
+    private static void MaybeLogStats()
+    {
+        if (Volatile.Read(ref statsLogged) != 0)
+        {
+            return;
+        }
+
+        var totalLookups = Interlocked.Read(ref cardsTableLookups);
+        if (totalLookups < StatsLogThreshold)
+        {
+            return;
+        }
+
+        if (Interlocked.Exchange(ref statsLogged, 1) != 0)
+        {
+            return;
+        }
+
+        var resolutionMs = TimeSpan.FromSeconds(Interlocked.Read(ref languageResolutionTicks) / (double)Stopwatch.Frequency).TotalMilliseconds;
+        DiscardModMain.Logger.Info(
+            $"[LocalizationRuntimePatch] cardsLookups={totalLookups}; fastRejected={Interlocked.Read(ref fastRejectedLookups)}; modKeys={Interlocked.Read(ref modKeyLookups)}; localizedHits={Interlocked.Read(ref localizedHits)}; localizedMisses={Interlocked.Read(ref localizedMisses)}; languageResolutions={Interlocked.Read(ref languageResolutions)}; languageResolutionMs={resolutionMs:F2}");
     }
 
     private static bool TryReadLanguageDescriptor(object source, out string descriptor)

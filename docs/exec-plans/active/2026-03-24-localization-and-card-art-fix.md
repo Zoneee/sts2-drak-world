@@ -1,7 +1,7 @@
 # 本地化与卡图修复计划
 
 ## 状态
-执行中
+已完成
 
 ## 背景
 2026-03-24 晚间多次游戏日志显示，本模组同时存在本地化显示异常、卡牌描述缺失或混搭、以及卡图资源加载失败。日志还暴露出两个前置阻断项：运行时会把 `localization/**/*.json` 误当作 manifest 递归扫描，以及 `DiscardDiagnosticsPatch` 对 `CardCmd.DiscardAndDraw` 的 Harmony 参数名不匹配，导致初始化阶段抛错。
@@ -68,7 +68,7 @@
 - 已验证静态诊断：相关文件编辑后无编辑器错误。
 - 已验证构建：`Build + Deploy: Debug` 在构建阶段成功产出 `STS2DiscardMod.dll` 与 `STS2DiscardMod.pck`。
 - 已验证临时目录部署：对 `/tmp/sts2-discard-verify` 运行同一套 `deploy_runtime Debug` 后，目录中包含 `STS2DiscardMod.pck`、`.godot/imported`、`STS2DiscardMod/images/...`，且不包含 `localization/`。
-- 当前阻塞：部署到 `/mnt/d/G_games/steam/steamapps/common/Slay the Spire 2/mods/STS2_Discard_Mod` 时，`STS2DiscardMod.dll` 被占用，复制阶段报 `Input/output error`，因此尚未获得新的运行时日志证据。
+- 已确认后续出现的图鉴异常属于新的独立回归，已拆分到 `2026-03-25-card-library-debug-filter-regression.md` 跟踪，不再并入本计划。
 
 ## 风险
 - 在获得新的游戏日志前，运行时本地化混搭与卡图问题只能部分依赖构建/目录证据推断，不能宣称完全关闭。
@@ -86,5 +86,4 @@
 - 2026-03-24：构建成功，但 live 部署因目标 DLL 被占用而中断，等待关闭游戏后重试以收集最终运行时证据。
 
 ## 后续事项
-- 关闭游戏后重新执行一次 `Build + Deploy: Debug` 或 `Deploy: Debug Runtime`，收集新的日志证据。
-- 若新日志仍有中英混搭或卡图加载失败，再针对 `LocalizationRuntimePatch` 的语言识别和 `.pck`/`.godot/imported` 实际挂载状态做第二轮最小修复。
+- 若后续再出现显示问题，优先判断是否属于独立回归，并在新的执行计划中跟踪，避免污染本计划范围。

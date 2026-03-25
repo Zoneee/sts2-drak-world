@@ -11,7 +11,6 @@ using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,11 +35,18 @@ public abstract class DiscardModCard : CustomCardModel
 
     public static IReadOnlyList<Type> AllCardTypes => CardTypes.Value;
 
-    public override string PortraitPath => Path.Join(DiscardModMain.ModId, "images", "card_portraits", $"{assetName}.png");
+    public override string PortraitPath => BuildGodotResourcePath(assetName);
 
     public override string BetaPortraitPath => PortraitPath;
 
-    public override string CustomPortraitPath => Path.Join(DiscardModMain.ModId, "images", "card_portraits", "big", $"{assetName}.png");
+    public override string CustomPortraitPath => BuildGodotResourcePath(assetName, "big");
+
+    private static string BuildGodotResourcePath(string assetName, string? variant = null)
+    {
+        return string.IsNullOrEmpty(variant)
+            ? $"{DiscardModMain.ModId}/images/card_portraits/{assetName}.png"
+            : $"{DiscardModMain.ModId}/images/card_portraits/{variant}/{assetName}.png";
+    }
 
     public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)
     {

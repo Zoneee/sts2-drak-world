@@ -2,7 +2,6 @@ using DiscardMod.Cards;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.CardPools;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace DiscardMod.Patches;
@@ -10,12 +9,6 @@ namespace DiscardMod.Patches;
 [HarmonyPatch(typeof(ModelDb), nameof(ModelDb.Init))]
 public static class ModelDbDiagnosticsPatch
 {
-    private static readonly AccessTools.FieldRef<CardPoolModel, CardModel[]?> AllCardsField =
-        AccessTools.FieldRefAccess<CardPoolModel, CardModel[]?>("_allCards");
-
-    private static readonly AccessTools.FieldRef<CardPoolModel, HashSet<ModelId>?> AllCardIdsField =
-        AccessTools.FieldRefAccess<CardPoolModel, HashSet<ModelId>?>("_allCardIds");
-
     [HarmonyPostfix]
     private static void LogCustomCardPresence()
     {
@@ -23,8 +16,6 @@ public static class ModelDbDiagnosticsPatch
         {
             LogCardPresence(cardType);
         }
-
-        RestrictRegentPoolForDebugTesting();
     }
 
     private static void LogCardPresence(Type cardType)
@@ -44,29 +35,5 @@ public static class ModelDbDiagnosticsPatch
 
         DiscardModMain.Logger.Info(
             $"ModelDb loaded discard-system card {cardType.Name} as {cardId}; library={cardModel.ShouldShowInCardLibrary}; regentPool={inRegentPool}; allCards={inGlobalCards}");
-    }
-
-    private static void RestrictRegentPoolForDebugTesting()
-    {
-        if (!DebugCardPoolSettings.RestrictRegentPoolToDiscardModCards)
-        {
-            return;
-        }
-
-        var regentPool = ModelDb.CardPool<RegentCardPool>();
-        var originalCount = regentPool.AllCardIds.Count();
-        var customCards = DebugDiscardModCardHelper.ResolveCanonicalCards();
-
-        if (customCards.Length == 0)
-        {
-            DiscardModMain.Logger.Warn("Debug card-pool filter requested, but no discard mod cards were resolved from ModelDb.");
-            return;
-        }
-
-        AllCardsField(regentPool) = customCards;
-        AllCardIdsField(regentPool) = customCards.Select(card => card.Id).ToHashSet();
-
-        DiscardModMain.Logger.Warn(
-            $"DEBUG ONLY: RegentCardPool restricted to discard mod cards for rapid testing. kept={customCards.Length}; removed={originalCount - customCards.Length}");
     }
 }

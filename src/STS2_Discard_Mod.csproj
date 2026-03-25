@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DebugCardPoolFilterEnabled>true</DebugCardPoolFilterEnabled>
+    <DebugCardPoolFilterEnabled>false</DebugCardPoolFilterEnabled>
     <DebugStarterDeckReplacementEnabled>true</DebugStarterDeckReplacementEnabled>
     <DebugMerchantColorlessReplacementEnabled>true</DebugMerchantColorlessReplacementEnabled>
   </PropertyGroup>

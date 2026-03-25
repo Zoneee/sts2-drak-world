@@ -8,9 +8,16 @@ public static class CardCatalog
     private const string CatalogResourceName = "DiscardMod.Data.cards.catalog.json";
     private const string DefaultLocale = "eng";
     private const string CardsTablePrefix = "cards.";
+    private const string CardIdPrefix = "CARD.";
+    private const string DiscardModCardPrefix = "DISCARDMOD-";
 
     private static readonly Lazy<CardCatalogDocument> Catalog = new(LoadCatalog);
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>> LocalizationTables = new(BuildLocalizationTables);
+
+    public static bool IsDiscardModKey(string? key)
+    {
+        return TryNormalizeCardLocalizationKey(key, out _);
+    }
 
     public static IReadOnlyDictionary<string, string> GetLocalizationTable(string languageDescriptor)
     {
@@ -23,23 +30,33 @@ public static class CardCatalog
         return LocalizationTables.Value[DefaultLocale];
     }
 
+#pragma warning disable CS8601
     public static bool TryGetLocalizedText(string languageDescriptor, string key, out string text)
     {
+        text = string.Empty;
+
         foreach (var table in EnumerateFallbackTables(languageDescriptor))
         {
             foreach (var candidateKey in EnumerateCandidateKeys(key))
             {
-                if (table.ContainsKey(candidateKey))
+                if (!table.TryGetValue(candidateKey, out var localizedText))
                 {
-                    text = table[candidateKey];
-                    return true;
+                    continue;
                 }
+
+                if (localizedText == null)
+                {
+                    continue;
+                }
+
+                text = localizedText;
+                return true;
             }
         }
 
-        text = string.Empty;
         return false;
     }
+#pragma warning restore CS8601
 
     public static string ResolveLocale(string languageDescriptor)
     {
@@ -84,11 +101,17 @@ public static class CardCatalog
 
                 var titleKey = $"{card.Id}.title";
                 var descriptionKey = $"{card.Id}.description";
+                var runtimeTitleKey = $"{CardIdPrefix}{titleKey}";
+                var runtimeDescriptionKey = $"{CardIdPrefix}{descriptionKey}";
 
                 table[titleKey] = entry.Title;
                 table[$"{CardsTablePrefix}{titleKey}"] = entry.Title;
+                table[runtimeTitleKey] = entry.Title;
+                table[$"{CardsTablePrefix}{runtimeTitleKey}"] = entry.Title;
                 table[descriptionKey] = entry.Description;
                 table[$"{CardsTablePrefix}{descriptionKey}"] = entry.Description;
+                table[runtimeDescriptionKey] = entry.Description;
+                table[$"{CardsTablePrefix}{runtimeDescriptionKey}"] = entry.Description;
             }
         }
 
@@ -123,7 +146,29 @@ public static class CardCatalog
         var normalizedKey = key.Trim();
         yield return normalizedKey;
 
-        if (normalizedKey.StartsWith(CardsTablePrefix, StringComparison.OrdinalIgnoreCase))
+        if (TryNormalizeCardLocalizationKey(normalizedKey, out var canonicalKey))
+        {
+            yield return canonicalKey;
+
+            var runtimeKey = $"{CardIdPrefix}{canonicalKey}";
+            if (!string.Equals(runtimeKey, normalizedKey, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return runtimeKey;
+            }
+
+            var tableKey = $"{CardsTablePrefix}{canonicalKey}";
+            if (!string.Equals(tableKey, normalizedKey, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return tableKey;
+            }
+
+            var runtimeTableKey = $"{CardsTablePrefix}{runtimeKey}";
+            if (!string.Equals(runtimeTableKey, normalizedKey, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return runtimeTableKey;
+            }
+        }
+        else if (normalizedKey.StartsWith(CardsTablePrefix, StringComparison.OrdinalIgnoreCase))
         {
             var trimmedKey = normalizedKey[CardsTablePrefix.Length..];
             if (!string.IsNullOrWhiteSpace(trimmedKey))
@@ -134,7 +179,33 @@ public static class CardCatalog
             yield break;
         }
 
-        yield return $"{CardsTablePrefix}{normalizedKey}";
+        var cardsTableKey = $"{CardsTablePrefix}{normalizedKey}";
+        if (!string.Equals(cardsTableKey, normalizedKey, StringComparison.OrdinalIgnoreCase))
+        {
+            yield return cardsTableKey;
+        }
+    }
+
+    private static bool TryNormalizeCardLocalizationKey(string? key, out string normalizedKey)
+    {
+        normalizedKey = string.Empty;
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return false;
+        }
+
+        normalizedKey = key.Trim();
+        if (normalizedKey.StartsWith(CardsTablePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            normalizedKey = normalizedKey[CardsTablePrefix.Length..];
+        }
+
+        if (normalizedKey.StartsWith(CardIdPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            normalizedKey = normalizedKey[CardIdPrefix.Length..];
+        }
+
+        return normalizedKey.StartsWith(DiscardModCardPrefix, StringComparison.OrdinalIgnoreCase);
     }
 
     private static CardCatalogDocument LoadCatalog()

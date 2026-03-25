@@ -110,13 +110,76 @@ Get-Content BepInEx\LogOutput.log -Wait | Select-String 'STS2DiscardMod'
 
 ## Debug 构建专用能力
 ### Debug 卡池过滤
-`Debug` 构建下，`RegentCardPool` 会在 `ModelDb.Init()` 后被裁剪为仅保留本模组卡，便于快速验证拿牌来源。
+该能力已默认关闭。
+
+原因：此前通过在 `ModelDb.Init()` 后直接改写 `RegentCardPool` 内部缓存来实现过滤，这会破坏卡牌库排序与过滤依赖的卡池不变量，并在打开图鉴时触发 `MockCardPool` / `You monster!` 异常。
+
+当前建议的 Debug 快速验证路径：
+- 使用 Debug 初始牌组替换，快速在开局拿到模组卡。
+- 使用 Debug 商店过滤，在普通商店里更快遇到模组卡。
+
+### Debug 图鉴强制可见
+该能力已默认关闭。
+
+原因：对 `NCardLibraryGrid.GetCardVisibility()` 的后置补丁会越过游戏原生的图鉴可见性判定。当前在进入百科大全的卡牌总览页面时，这条 override 仍是高风险链路；在获得新的运行时证据前，不再允许默认启用。
+
+若后续仍需要在未解锁 Regent 的档位里验证图鉴展示，必须先找到不会破坏图鉴筛选/排序状态的安全挂点，并补充新的日志证据后再恢复。
+
+### 卡图资源路径
+自定义卡的 `PortraitPath` / `BetaPortraitPath` / `CustomPortraitPath` 必须使用 Godot 资源路径格式，也就是固定使用 `/` 分隔。
+
+不要用 `Path.Join(...)` 或其他会在 Windows 上产出 `\` 分隔符的 API 来拼接这些路径。百科大全中的卡牌总览会批量读取卡图资源，这类路径格式错误可能在 `Debug` 和 `Release` 下都表现为进入页面后卡住，但日志里没有明确异常栈。
+
+### 卡图导入参数
+当前自定义卡图应统一使用更适合运行时批量加载的导入参数：
+- `compress/mode=2`
+- `compress/high_quality=true`
+- `mipmaps/generate=true`
+
+原因：百科大全卡牌总览和局内抽牌都会同步读取模组卡图。此前所有 small/big 卡图都使用未压缩纹理且关闭 mipmaps，容易在首次批量访问时把纹理解压、上传和缩放成本堆在主线程上，表现为明显卡顿甚至看起来像“卡死”。
+
+### 卡图生成脚本与 catalog 必须一一对应
+自定义卡图的生成来源以 `scripts/generate_card_art.py` 为准。该脚本现在必须覆盖 `src/Data/cards.catalog.json` 中全部 10 个 `assetName`。
+
+检查要点：
+- 运行脚本时应输出全部 10 张牌名，而不是只生成部分文件。
+- 若 `cards.catalog.json` 中新增/修改了 `assetName`，而脚本规格未同步，脚本应直接失败，而不是继续保留旧图片。
+- 不要继续混用不同日期、不同来源批次的卡图文件；这会让“卡图错配”变成无法重现的脏状态问题。
+
+当前已知历史教训：源目录曾同时存在两批来源不同的卡图，前 4 张和后 6 张来自不同时间点，导致即使路径映射正确，也会继续怀疑运行时“拿错图”。
+
+### 卡牌总览仍卡顿，但可见的是非 Mod 卡
+若用户明确反馈“即使看的不是储君卡池或 Mod 卡，也会明显卡顿”，不要继续只沿卡图资源路径排查。
+
+优先检查：
+- `LocalizationRuntimePatch` 是否仍在对所有 `cards` 表查询做工作。
+- 日志里是否出现一次性聚合统计：`[LocalizationRuntimePatch] cardsLookups=...; fastRejected=...; modKeys=...`。
+- `fastRejected` 是否远高于 `modKeys`，以及 `languageResolutions` 是否接近 1，而不是随查询数增长。
+
+当前实现约束：
+- 运行时本地化只应对 `DISCARDMOD-` key 生效。
+- 运行时本地化需要同时兼容 `CARD.DISCARDMOD-*` 这类完整模型 ID 形态，否则在 `zh_CN` 下也可能回退成英文。
+- 非模组卡的 `cards` 查询必须在语言解析前被快速拒绝。
+- 语言标记应在首次解析后缓存复用，不允许在卡牌总览批量渲染时反复扫描 `LocTable` 反射成员。
+
+如果这些信号都正常，但卡牌总览仍明显卡顿，再回到“是否枚举了全部卡并触发 PortraitPath / CustomPortraitPath”的方向继续定位。
 
 ### Debug 初始牌组替换
 `Debug` 构建下，会直接替换 Regent 的初始牌组，使新开局更快进入模组验证路径。
 
 ### Debug 商店过滤
 `Debug` 构建下，会额外替换普通商店里的 colorless 卡槽，使普通商店更接近“全是模组卡”的测试环境。
+
+### Debug 快速验证能力的边界
+当前默认保留且已验证安全的 Debug 快速验证能力只有两条：
+- 起始牌组替换
+- 商店 colorless 卡槽替换
+
+不要重新启用以下旧方案：
+- `ModelDb.Init()` 后修改 `RegentCardPool` 内部缓存
+- `NCardLibraryGrid.GetCardVisibility()` 强制把模组卡设为可见
+
+如果后续希望恢复更强的“只出模组卡”调试能力，必须先找到奖励生成、卡牌提供或进度层的安全挂点；当前最新日志仍显示 `Progress parse: Unknown card ID: CARD.DISCARDMOD-*`，说明还没有可验证的安全“已发现卡牌”恢复路径。
 
 ### 如何确认当前部署的是哪种构建
 打开 `mods/STS2_Discard_Mod/BUILD_FLAVOR.txt`，检查：

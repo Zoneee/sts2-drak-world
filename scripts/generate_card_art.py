@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 import math
 import random
@@ -9,6 +10,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
+CATALOG_PATH = ROOT / "src" / "Data" / "cards.catalog.json"
 SMALL_OUTPUT = ROOT / "src" / "STS2DiscardMod" / "images" / "card_portraits"
 BIG_OUTPUT = SMALL_OUTPUT / "big"
 SMALL_SIZE = (250, 190)
@@ -27,6 +29,42 @@ class CardArtSpec:
 
 
 SPECS = [
+    CardArtSpec(
+        name="dark_flame_fragment",
+        background=(38, 10, 12),
+        glow=(255, 132, 76),
+        accent=(255, 220, 160),
+        border=(255, 154, 82),
+        particles=(255, 184, 92),
+        motif="fragment",
+    ),
+    CardArtSpec(
+        name="swift_cut",
+        background=(8, 47, 61),
+        glow=(162, 243, 255),
+        accent=(234, 249, 255),
+        border=(151, 240, 255),
+        particles=(197, 247, 255),
+        motif="cut",
+    ),
+    CardArtSpec(
+        name="toxin_record",
+        background=(18, 52, 17),
+        glow=(143, 255, 99),
+        accent=(230, 244, 212),
+        border=(164, 255, 111),
+        particles=(182, 255, 120),
+        motif="toxin",
+    ),
+    CardArtSpec(
+        name="shattered_echo",
+        background=(35, 38, 72),
+        glow=(207, 214, 255),
+        accent=(239, 243, 255),
+        border=(208, 214, 255),
+        particles=(221, 227, 255),
+        motif="echo",
+    ),
     CardArtSpec(
         name="ashen_aegis",
         background=(23, 22, 31),
@@ -210,6 +248,31 @@ def draw_shield(layer: Image.Image, spec: CardArtSpec) -> None:
     draw.line((width * 0.58, height * 0.3, width * 0.42, height * 0.68), fill=spec.background + (130,), width=max(2, width // 90))
 
 
+def draw_fragment(layer: Image.Image, spec: CardArtSpec) -> None:
+    width, height = layer.size
+    draw = ImageDraw.Draw(layer)
+    shard = [
+        (width * 0.5, height * 0.14),
+        (width * 0.68, height * 0.38),
+        (width * 0.56, height * 0.86),
+        (width * 0.34, height * 0.62),
+    ]
+    draw.polygon(shard, fill=spec.accent + (235,))
+    inner = [
+        (width * 0.5, height * 0.22),
+        (width * 0.6, height * 0.38),
+        (width * 0.53, height * 0.72),
+        (width * 0.4, height * 0.56),
+    ]
+    draw.polygon(inner, fill=spec.glow + (205,))
+    for offset in (0.0, 0.12, 0.24):
+        draw.line(
+            (width * (0.18 + offset), height * 0.72, width * (0.3 + offset), height * 0.34),
+            fill=spec.glow + (140,),
+            width=max(2, width // 95),
+        )
+
+
 def draw_manuscript(layer: Image.Image, spec: CardArtSpec) -> None:
     width, height = layer.size
     draw = ImageDraw.Draw(layer)
@@ -223,6 +286,76 @@ def draw_manuscript(layer: Image.Image, spec: CardArtSpec) -> None:
     draw.line((width * 0.62, height * 0.26, width * 0.62, height * 0.7), fill=spec.glow + (115,), width=max(2, width // 90))
     for offset in (0.0, 0.08, 0.16):
         draw.arc(scale_box((0.18 + offset, 0.08 + offset * 0.6, 0.82 - offset, 0.92 - offset * 0.6), width, height), start=210, end=325, fill=spec.glow + (155,), width=max(2, width // 95))
+
+
+def draw_cut(layer: Image.Image, spec: CardArtSpec) -> None:
+    width, height = layer.size
+    draw = ImageDraw.Draw(layer)
+    blade = [
+        (width * 0.18, height * 0.76),
+        (width * 0.78, height * 0.2),
+        (width * 0.86, height * 0.28),
+        (width * 0.26, height * 0.84),
+    ]
+    draw.polygon(blade, fill=spec.accent + (235,))
+    edge = [
+        (width * 0.24, height * 0.72),
+        (width * 0.78, height * 0.22),
+        (width * 0.72, height * 0.34),
+        (width * 0.3, height * 0.76),
+    ]
+    draw.polygon(edge, fill=spec.glow + (210,))
+    for idx in range(4):
+        y = 0.2 + idx * 0.12
+        draw.line(
+            (width * (0.56 + idx * 0.06), height * y, width * (0.88 + idx * 0.03), height * (y - 0.12)),
+            fill=spec.particles + (120,),
+            width=max(1, width // 120),
+        )
+
+
+def draw_toxin(layer: Image.Image, spec: CardArtSpec) -> None:
+    width, height = layer.size
+    draw = ImageDraw.Draw(layer)
+    page = scale_box((0.2, 0.18, 0.8, 0.86), width, height)
+    draw.rounded_rectangle(page, radius=max(12, width // 18), fill=spec.accent + (220,))
+    bottle = scale_box((0.38, 0.16, 0.62, 0.52), width, height)
+    draw.rounded_rectangle(bottle, radius=max(8, width // 25), fill=tuple(max(0, value - 55) for value in spec.accent) + (230,))
+    draw.rectangle(scale_box((0.43, 0.08, 0.57, 0.18), width, height), fill=tuple(max(0, value - 70) for value in spec.accent) + (230,))
+    liquid = scale_box((0.4, 0.28, 0.6, 0.48), width, height)
+    draw.rounded_rectangle(liquid, radius=max(5, width // 40), fill=spec.glow + (210,))
+    for bubble in ((0.46, 0.36), (0.5, 0.42), (0.55, 0.34), (0.53, 0.4)):
+        radius = max(2, width // 70)
+        cx = width * bubble[0]
+        cy = height * bubble[1]
+        draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=spec.particles + (170,))
+    for row in range(3):
+        y = 0.62 + row * 0.1
+        draw.line((width * 0.33, height * y, width * 0.67, height * y), fill=tuple(max(0, value - 95) for value in spec.accent) + (150,), width=max(2, width // 95))
+
+
+def draw_echo(layer: Image.Image, spec: CardArtSpec) -> None:
+    width, height = layer.size
+    draw = ImageDraw.Draw(layer)
+    page = [
+        (width * 0.3, height * 0.24),
+        (width * 0.76, height * 0.18),
+        (width * 0.68, height * 0.82),
+        (width * 0.22, height * 0.72),
+    ]
+    draw.polygon(page, fill=spec.accent + (220,))
+    cracks = [
+        ((0.34, 0.24), (0.52, 0.44), (0.44, 0.62)),
+        ((0.58, 0.2), (0.5, 0.42), (0.63, 0.6)),
+        ((0.42, 0.46), (0.3, 0.66)),
+    ]
+    for crack in cracks:
+        points = []
+        for x, y in crack:
+            points.extend((width * x, height * y))
+        draw.line(points, fill=spec.background + (180,), width=max(2, width // 90))
+    for offset in (0.0, 0.08, 0.16):
+        draw.arc(scale_box((0.12 + offset, 0.12 + offset * 0.4, 0.86 - offset, 0.92 - offset * 0.3), width, height), start=250, end=330, fill=spec.glow + (150,), width=max(2, width // 100))
 
 
 def draw_volley(layer: Image.Image, spec: CardArtSpec) -> None:
@@ -319,9 +452,38 @@ def draw_draft(layer: Image.Image, spec: CardArtSpec) -> None:
     draw.polygon(flame, fill=spec.glow + (180,))
 
 
+def load_catalog_asset_names() -> list[str]:
+    with CATALOG_PATH.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+
+    return [card["assetName"] for card in data["cards"]]
+
+
+def validate_specs() -> None:
+    catalog_assets = load_catalog_asset_names()
+    spec_names = [spec.name for spec in SPECS]
+
+    missing = sorted(set(catalog_assets) - set(spec_names))
+    extras = sorted(set(spec_names) - set(catalog_assets))
+    duplicates = sorted({name for name in spec_names if spec_names.count(name) > 1})
+
+    if missing or extras or duplicates:
+        raise ValueError(
+            "Card art specs are out of sync with cards.catalog.json: "
+            f"missing={missing}; extras={extras}; duplicates={duplicates}")
+
+
 def build_motif(spec: CardArtSpec, size: tuple[int, int]) -> Image.Image:
     motif = Image.new("RGBA", size, (0, 0, 0, 0))
-    if spec.motif == "shield":
+    if spec.motif == "fragment":
+        draw_fragment(motif, spec)
+    elif spec.motif == "cut":
+        draw_cut(motif, spec)
+    elif spec.motif == "toxin":
+        draw_toxin(motif, spec)
+    elif spec.motif == "echo":
+        draw_echo(motif, spec)
+    elif spec.motif == "shield":
         draw_shield(motif, spec)
     elif spec.motif == "manuscript":
         draw_manuscript(motif, spec)
@@ -358,6 +520,8 @@ def save_art(spec: CardArtSpec, size: tuple[int, int], output_dir: Path) -> None
 
 
 def main() -> None:
+    validate_specs()
+
     for spec in SPECS:
         save_art(spec, SMALL_SIZE, SMALL_OUTPUT)
         save_art(spec, BIG_SIZE, BIG_OUTPUT)

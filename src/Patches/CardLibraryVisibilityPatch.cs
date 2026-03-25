@@ -12,6 +12,11 @@ public static class CardLibraryVisibilityPatch
     [HarmonyPostfix]
     private static void ForceCustomRegentCardsVisible(CardModel card, ref ModelVisibility __result)
     {
+        if (!DebugCardPoolSettings.ForceCustomCardsVisibleInCardLibrary)
+        {
+            return;
+        }
+
         if (card is not DiscardModCard)
         {
             return;

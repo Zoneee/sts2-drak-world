@@ -21,3 +21,7 @@
 
 ## 规则
 若未来的贡献者或 Agent 需要了解这些信息，就必须将其写下来。
+
+## 执行计划的存档
+- 已完成的执行计划必须从 `docs/exec-plans/active/` 移动到 `docs/exec-plans/completed/`。
+- 归档后的计划保留供后续贡献者和 Agent 回溯决策、证据与后续事项。
