@@ -1,7 +1,7 @@
 # 图鉴 Debug 卡池过滤回归修复计划
 
 ## 状态
-执行中
+已完成
 
 ## 背景
 2026-03-25 最新运行日志显示，前一轮本地化、manifest 扫描、Harmony 参数名和卡图相关的前置阻断项已消失。新的主问题变为 Debug 模式下打开图鉴 / Card Library 时触发 `MockCardPool` 与 `You monster!` 异常。
@@ -16,6 +16,8 @@
 - 2026-03-25 深夜补充定位：用户确认局内单张抽牌时也会因卡图逐步加载而明显掉帧，随后再逐渐恢复响应，这进一步指向同步卡图资源加载，而不是仅限图鉴筛选页面的问题。
 - 2026-03-25 深夜进一步定位：用户确认即使查看的不是储君卡池或 Mod 卡，卡牌总览仍会出现明显长时间卡顿；当前仍活跃的 `LocalizationRuntimePatch` 会拦截所有 `cards` 表文本查询，并在热路径上反射解析语言标记，因此需要先收紧到 `DISCARDMOD-` key 并缓存语言解析结果。
 - 2026-03-25 深夜最新进展：用户已确认“加载速度正常”；当前剩余问题收敛为卡图错配、模组卡中文显示待复测，以及是否需要在不回退旧全局卡池方案的前提下增强 Debug 快速验证能力。
+- 2026-03-26 最新定位：fresh `godot.log` 显示 `localizedHits=250` 但界面仍为英文，同时 `recall_surge` / `ember_volley` 在 `res://STS2DiscardMod/images/...` 上报 `No loader found for resource`。进一步比对构建产物后确认，live `STS2DiscardMod.pck` 在最近一次 Debug 构建中只是被重新复制，内容时间戳仍停留在 2026-03-23，说明运行时一直在读取旧资源包。
+- 2026-03-26 补充定位：新日志已显示 `resolvedLocale=zhs`，说明运行时语言判定已正确切到中文；但原版卡仍显示英文 key。结合 Godot 导出日志确认，问题是 PCK 曾把 `res://localization/eng/cards.json` 与 `res://localization/zhs/cards.json` 打进根资源路径，覆盖了游戏原版 cards 表。
 
 ## 范围
 - 修复 Debug 构建下图鉴 / Card Library 因不安全卡池裁剪导致的可见性与崩溃问题。
@@ -40,6 +42,7 @@
 - `src/Patches/DebugStartingDeckPatch.cs`
 - `src/Patches/DebugMerchantInventoryPatch.cs`
 - `src/STS2_Discard_Mod.csproj`
+- `scripts/common.sh`
 - `docs/runbooks/debug-failures.md`
 
 ## 约束
@@ -63,8 +66,11 @@
 - `LocalizationRuntimePatch` 只对 `DISCARDMOD-` 卡牌 key 尝试运行时本地化，不再为所有 `cards` 表查询执行语言解析与 catalog 查找。
 - 运行时语言标记在首次解析后会被缓存复用，不再按文本查询次数重复扫描 `LocTable` 反射元数据。
 - 运行时本地化必须同时兼容 `DISCARDMOD-*` 与 `CARD.DISCARDMOD-*` 两种 key 形态，避免游戏传入完整模型 ID 时重新回退到英文。
+- 运行时语言解析必须综合 `CurrentUICulture`、`CurrentCulture` 与 `LocTable` 可见的运行时语言字段，不能把“先读到的英文描述”永久缓存为最终 locale。
 - 卡图生成脚本必须覆盖 `cards.catalog.json` 中全部 10 张牌；若脚本规格与 catalog 不一致，应在生成阶段直接失败，而不是继续产出混合来源的卡图文件。
 - Debug 起始牌组替换与商店替换仍然保留并可用于快速验证模组卡。
+- Debug / Release 构建脚本必须显式导出新的 `STS2DiscardMod.pck`，并在 Godot 导出未刷新 PCK 时直接失败，避免继续部署陈旧资源包。
+- Godot 导出产物不得包含 `res://localization/*/cards.json`、`bin/` 或 `obj/` 目录，避免覆盖游戏原版 cards 表并减少无关资源进入 PCK。
 - 运行手册与执行计划对 Debug 行为的描述与当前实现一致。
 
 ## 验证计划
@@ -76,7 +82,10 @@
 - 打开百科大全 / Card Library 后，检查日志中的 `[LocalizationRuntimePatch]` 聚合统计，确认大多数 `cards` 查询在语言解析前被快速拒绝，且语言解析次数不再随查询数线性增长。
 - 在 `zh_CN` 下检查至少一张模组卡，确认标题和描述能够命中中文文本。
 - 在 `zh_CN` 下确认模组卡标题/描述即使运行时 key 形态为 `CARD.DISCARDMOD-*` 也能命中中文，而不是只在裸 `DISCARDMOD-*` key 下生效。
+- 检查 `[LocalizationRuntimePatch]` 聚合日志里的 `resolvedLocale=` 与 `languageMarker=`，确认最终命中的 locale 为 `zhs`。
 - 运行 `scripts/generate_card_art.py`，确认 10 张卡图都被重新生成，且脚本不会因 catalog/spec 漏配而静默跳过旧文件。
+- 运行 `scripts/build-deploy-debug.sh` 后检查 `src/bin/Debug/net9.0/STS2DiscardMod.pck` 与 live `STS2DiscardMod.pck` 的修改时间和体积，确认不是旧 PCK 被重新复制。
+- 检查 Godot 导出日志，确认新的 PCK 不再包含 `res://localization/eng/cards.json`、`res://localization/zhs/cards.json`、`res://bin/...` 或 `res://obj/...`。
 - 重新打开图鉴 / Card Library，确认页面不再卡死，且日志不再出现与 `MockCardPool` / `You monster!` 相关的调用链。
 
 ## 验证结果
@@ -101,17 +110,18 @@
 - 已确认 `godot2026-03-25T20.08.50.log` 不能作为本轮修复后的验证证据：该文件内容内部时间戳仍为 `2026/3/25 19:39:57`，并继续打印旧行为日志 `DEBUG ONLY: RegentCardPool restricted...`，与当前源码和 live `BUILD_FLAVOR.txt` 的 `DebugCardPoolFilter=false` 不一致。
 - 已确认 `godot2026-03-25T20.52.37.log` / `godot.log` 仅覆盖主菜单启动与正常退出，不包含进入百科大全卡牌总览后的失败证据。
 - 已确认 `godot2026-03-25T21.06.07.log` / `godot.log` 仍在 `Common` 资源加载后结束，且 `Debug` / `Release` 均可复现卡死，因此当前根因判断已从 Debug 专用补丁收敛到通用卡牌资源/图鉴访问链路。
-- 待补运行时证据：重新打开图鉴 / Card Library 后的新日志，或在卡死后强制结束进程留下的新尾部日志。
+- 已确认根因之一：`scripts/build-deploy-debug.sh` 触发的 `dotnet build` 在最近几轮并未刷新 `src/bin/Debug/net9.0/STS2DiscardMod.pck`；2026-03-26 修复前该文件时间戳仍为 `2026-03-23 20:31:44 +0800`，但 live 部署时间已是 2026-03-26，说明旧 PCK 被静默复制到运行目录。
+- 已完成系统性修复：`scripts/common.sh` 现在会在构建后显式执行 Godot `--export-pack`，若没有生成新 PCK 则直接失败；同时脚本会把 `dotnet build` 内的 MSBuild 导出目标关闭，避免同一路径出现隐式/显式双重导出分叉。
+- 已验证构建：2026-03-26 `build-deploy-debug.sh` 成功导出并部署新的 Debug PCK，`src/bin/Debug/net9.0/STS2DiscardMod.pck` 与 live PCK 时间戳分别为 `2026-03-26 13:00:58 +0800` / `2026-03-26 13:00:59 +0800`，体积均为 `7,620,804` 字节；Godot 导出日志明确包含 `recall_surge` / `ember_volley` 的 small/big `.import` 与 `.ctex` 条目。
+- 已验证构建：2026-03-26 `build-release.sh` 也成功走通同一套显式 Godot 导出链路，`BUILD_FLAVOR.txt` 显示 `BuiltUtc=2026-03-26T05:01:14Z`。
+- 已完成代码修复：`LocalizationRuntimePatch` 不再缓存“第一个读到的语言字段”，而是合并 `CurrentUICulture`、`CurrentCulture` 与 `LocTable` 运行时字段后再决定 locale，并把 `resolvedLocale` / `languageMarker` 一次性写入聚合日志，便于复测中文显示问题。
+- 已确认新的本地化根因：在运行时 `resolvedLocale=zhs` 已正确命中的情况下，原版卡仍显示英文 key，是因为导出到 PCK 的 `res://localization/*/cards.json` 覆盖了游戏原版 cards 表。
+- 已完成系统性修复：`src/export_presets.cfg` 现在会把 `localization/`、`bin/`、`obj/` 从 PCK 导出中过滤掉。2026-03-26 再次执行 `build-deploy-debug.sh` 后，Godot 导出日志中已不再出现 `res://localization/eng/cards.json` 或 `res://localization/zhs/cards.json`，新的 Debug PCK 体积为 `7,590,148` 字节。
+- 已完成最终验收：用户在 2026-03-26 最后一轮复测中确认“卡图问题、翻译问题都已经完美解决”。
 
 ## 风险
-- 在获取新的运行时日志前，仍不能宣称图鉴回归已被最终关闭。
-- 若继续误用旧日志文件或内容被覆盖的日志文件作为验证依据，会导致对修复状态的判断失真。
-- 当前“卡牌总览卡死”更像无异常栈落盘的 UI 卡住；若关闭图鉴强制可见后仍复现，需要进一步抓取进入页面前后的新增日志或性能采样。
-- 若卡图路径修复后仍复现，则需要继续检查卡牌总览访问的其他同步属性，例如卡牌描述、本地化或 BaseLib 对自定义卡的预览构造流程。
-- 若当前热路径收紧后卡牌总览仍然明显卡顿，则下一轮应直接补“卡牌总览是否枚举全部卡并触发 PortraitPath”的诊断，而不是继续凭直觉扩大资源调参范围。
-- 最新日志仍出现 `Progress parse: Unknown card ID: CARD.DISCARDMOD-*`，说明“把模组卡持久标记为已发现”这条能力目前没有发现安全 API；在找到安全进度/奖励挂点前，不应为了恢复更强 Debug 验证而重新启用旧的全局卡池裁剪或图鉴强制可见 override。
-- 即使导入参数已调整，若游戏仍反复使用旧 `.ctex` 缓存或旧进程未完全退出，首次验证结果仍可能受旧资源影响。
-- 当前回退方案不再提供“全局只从模组卡池拿牌”的 Debug 加速路径；若后续仍需要该能力，必须在更安全的奖励/提供链路上重新实现。
+- 当前问题范围内的卡图与翻译回归已关闭。
+- `Progress parse: Unknown card ID: CARD.DISCARDMOD-*` 仍说明“把模组卡持久标记为已发现”这条能力没有安全 API；若未来要恢复更强 Debug 快速验证，仍应走奖励/提供链路，而不是回到全局卡池裁剪或图鉴强制可见 override。
 
 ## 决策日志
 - 2026-03-25：确认图鉴回归由 DebugCardPoolFilter 通过反射改写 `RegentCardPool` 缓存引起。
@@ -121,6 +131,9 @@
 - 2026-03-25：在用户补充“局内抽牌也会因卡图逐步加载而卡顿”后，先实施资源导入参数优化，把纹理加载成本降下来，再继续处理卡图错配和本地化。
 - 2026-03-25：在用户确认非 Mod 卡也会触发明显长时间卡顿后，本轮优先级改为先收紧 `LocalizationRuntimePatch` 的全局 `cards` 文本热路径，再决定是否回到卡图枚举/映射问题。
 - 2026-03-25：在用户确认“加载速度正常”后，剩余工作改为处理卡图错配，并只在找到安全的奖励/提供边界时再增强 Debug 快速验证能力。
+- 2026-03-26：对比 build output 与 live mod 目录的 PCK 时间戳后，确认最近几轮运行时一直在读陈旧 `STS2DiscardMod.pck`；本轮改为由脚本显式执行 Godot 导出并验证 PCK 已刷新，避免继续依赖隐式 MSBuild 导出行为。
+- 2026-03-26：结合 `zh_CN` 运行日志中“localizedHits 很高但仍显示英文”的证据，将运行时语言解析改为聚合 culture + reflection 线索后再决定 locale，并把最终解析结果写入一次性聚合日志。
+- 2026-03-26：在确认 `resolvedLocale=zhs` 已生效后，将排查重点从语言判定转移到导出内容污染；最终通过收紧 `export_presets.cfg`，阻止 `src/localization/*/cards.json` 覆盖游戏原版 cards 表。
 
 ## 进展日志
 - 2026-03-25：对照最新日志确认图鉴回归链路。
@@ -138,7 +151,4 @@
 - 2026-03-25：结合最新日志里的 `CARD.DISCARDMOD-*` 形态，补齐运行时本地化 key 归一化逻辑，使模组卡标题/描述不再因为完整模型 ID 前缀而回退英文。
 
 ## 后续事项
-- 启动游戏并重新打开百科大全中的卡牌总览页面，收集一份与当前 live `BUILD_FLAVOR.txt` 时间一致的新日志证据。
-- 在同一轮复测里，再验证局内抽到单张模组卡时是否仍出现明显长时间卡顿。
-- 若再次卡死且无异常栈，结束游戏进程后保留新的 `godot.log` 尾部，作为下一轮定位的现场证据。
 - 若后续仍需要“只出模组卡”的 Debug 奖励路径，优先寻找奖励生成或卡牌提供边界做定向过滤，不再回到 `ModelDb.Init()` 后修改 `CardPoolModel` 内部缓存的方案。

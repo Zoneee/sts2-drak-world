@@ -7,6 +7,7 @@ PROJECT_FILE="$PROJECT_ROOT/src/STS2_Discard_Mod.csproj"
 TARGET_FRAMEWORK="net9.0"
 MOD_ID_DIR="STS2_Discard_Mod"
 DISABLED_MODS_PATH="/tmp/sts2-mod-disabled"
+GODOT_EXPORT_PRESET="STS2 Mod Pack"
 
 read_vscode_setting() {
     local key="$1"
@@ -52,6 +53,37 @@ build_output_dir() {
     printf '%s\n' "$PROJECT_ROOT/src/bin/$configuration/$TARGET_FRAMEWORK"
 }
 
+export_godot_pack() {
+    local configuration="$1"
+    local godot_cli="$2"
+    local output_dir
+    local pack_path
+    local marker_file
+
+    output_dir="$(build_output_dir "$configuration")"
+    pack_path="$output_dir/STS2DiscardMod.pck"
+    marker_file="$(mktemp)"
+
+    rm -f "$pack_path"
+
+    printf '==> %s --headless --path %s --export-pack %s %s\n' "$godot_cli" "$PROJECT_ROOT/src" "$GODOT_EXPORT_PRESET" "$pack_path"
+    "$godot_cli" --headless --path "$PROJECT_ROOT/src" --export-pack "$GODOT_EXPORT_PRESET" "$pack_path"
+
+    if [[ ! -f "$pack_path" ]]; then
+        rm -f "$marker_file"
+        printf 'ERROR: Godot export did not create %s\n' "$pack_path" >&2
+        return 1
+    fi
+
+    if [[ ! "$pack_path" -nt "$marker_file" ]]; then
+        rm -f "$marker_file"
+        printf 'ERROR: Godot export left a stale %s in place\n' "$pack_path" >&2
+        return 1
+    fi
+
+    rm -f "$marker_file"
+}
+
 run_build() {
     local configuration="$1"
     local deploy_mode="$2"
@@ -63,6 +95,7 @@ run_build() {
 
     if [[ -n "$godot_cli" ]]; then
         args+=("-p:GodotCliCommand=$godot_cli")
+        args+=("-p:SkipGodotPackExport=true")
     fi
 
     if [[ "$deploy_mode" == "build-only" ]]; then
@@ -71,6 +104,13 @@ run_build() {
 
     printf '==> dotnet %s\n' "${args[*]}"
     dotnet "${args[@]}"
+
+    if [[ -z "$godot_cli" ]]; then
+        printf 'ERROR: Godot CLI is required to export a fresh STS2DiscardMod.pck for runtime card art. Configure GODOT_CLI_COMMAND or sts2.godotCliCommand.\n' >&2
+        return 1
+    fi
+
+    export_godot_pack "$configuration" "$godot_cli"
 }
 
 copy_if_exists() {

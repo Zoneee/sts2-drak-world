@@ -93,7 +93,14 @@ Get-Content BepInEx\LogOutput.log -Wait | Select-String 'STS2DiscardMod'
 优先检查：
 - 是否设置了 `GODOT_CLI_COMMAND`
 - live 目录里是否存在 `STS2DiscardMod.pck`
+- `STS2DiscardMod.pck` 的修改时间是否与本次 DLL 构建时间一致；如果 PCK 明显更旧，游戏会继续从旧包读取 `res://` 资源，即使 loose 图片文件已经复制过去
 - `.godot/imported/` 资源是否一并部署
+
+当前脚本约束：
+- `scripts/build-debug.sh` / `build-release.sh` / `build-deploy-debug.sh` 现在会在 `dotnet build` 后显式执行一次 Godot `--export-pack`。
+- 若导出没有生成新的 `STS2DiscardMod.pck`，脚本会直接失败，而不是继续把旧 PCK 复制到 live 模组目录。
+- 最新已验证信号：新导出的 PCK 体积约 7.59 MB；若仍停留在数百 KB 级别，通常说明实际运行的仍是旧资源包。
+- 额外约束：不要把 `src/localization/*/cards.json` 打进 PCK。它们仅用于构建期 analyzer 与生成流程；若进入 `res://localization/...`，会覆盖游戏原版的 cards 表，表现为“原版卡牌显示英文 key / Mod 卡牌仍能单独显示中文”。
 
 ### 卡牌能打出，但没有效果
 按顺序看：
@@ -161,6 +168,9 @@ Get-Content BepInEx\LogOutput.log -Wait | Select-String 'STS2DiscardMod'
 - 运行时本地化需要同时兼容 `CARD.DISCARDMOD-*` 这类完整模型 ID 形态，否则在 `zh_CN` 下也可能回退成英文。
 - 非模组卡的 `cards` 查询必须在语言解析前被快速拒绝。
 - 语言标记应在首次解析后缓存复用，不允许在卡牌总览批量渲染时反复扫描 `LocTable` 反射成员。
+- 语言解析不能只信任某一个最先读到的字段；应合并 `CurrentUICulture`、`CurrentCulture` 与 `LocTable` 暴露出的运行时语言描述，再统一映射到 `eng` / `zhs`。
+- 若用户反馈“日志显示 localizedHits>0，但界面仍是英文”，优先查看 `[LocalizationRuntimePatch]` 日志里的 `resolvedLocale=` 与 `languageMarker=`，确认最终命中的不是英文描述符缓存。
+- 若 `[LocalizationRuntimePatch]` 已显示 `resolvedLocale=zhs`，但原版卡仍显示 `cards.*` key 或英文，优先怀疑 Godot PCK 导出把 `res://localization/*/cards.json` 覆盖进了游戏根资源路径，而不是继续修改运行时语言判定。
 
 如果这些信号都正常，但卡牌总览仍明显卡顿，再回到“是否枚举了全部卡并触发 PortraitPath / CustomPortraitPath”的方向继续定位。
 

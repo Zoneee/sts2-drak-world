@@ -14,6 +14,7 @@ namespace DiscardMod.Patches;
 public static class LocalizationRuntimePatch
 {
     private const int StatsLogThreshold = 256;
+    private const int MarkerLogMaxLength = 160;
 
     private static string? cachedLanguageMarker;
     private static int statsLogged;
@@ -77,19 +78,23 @@ public static class LocalizationRuntimePatch
 
     private static string ResolveLanguageMarker(LocTable locTable)
     {
-        if (TryReadLanguageDescriptor(locTable, out var instanceDescriptor))
-        {
-            return instanceDescriptor;
-        }
+        var candidates = new List<string>();
+        AppendCultureDescriptors(candidates);
+        AppendLanguageDescriptors(candidates, locTable);
 
         foreach (var type in typeof(LocTable).Assembly.GetTypes())
         {
-            if (!TryReadLanguageDescriptor(type, out var staticDescriptor))
-            {
-                continue;
-            }
+            AppendLanguageDescriptors(candidates, type);
+        }
 
-            return staticDescriptor;
+        var descriptor = string.Join('|',
+            candidates
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(descriptor))
+        {
+            return descriptor;
         }
 
         return string.Join('|',
@@ -117,8 +122,50 @@ public static class LocalizationRuntimePatch
         }
 
         var resolutionMs = TimeSpan.FromSeconds(Interlocked.Read(ref languageResolutionTicks) / (double)Stopwatch.Frequency).TotalMilliseconds;
+        var resolvedMarker = Volatile.Read(ref cachedLanguageMarker) ?? string.Empty;
+        var resolvedLocale = CardCatalog.ResolveLocale(resolvedMarker);
         DiscardModMain.Logger.Info(
-            $"[LocalizationRuntimePatch] cardsLookups={totalLookups}; fastRejected={Interlocked.Read(ref fastRejectedLookups)}; modKeys={Interlocked.Read(ref modKeyLookups)}; localizedHits={Interlocked.Read(ref localizedHits)}; localizedMisses={Interlocked.Read(ref localizedMisses)}; languageResolutions={Interlocked.Read(ref languageResolutions)}; languageResolutionMs={resolutionMs:F2}");
+            $"[LocalizationRuntimePatch] cardsLookups={totalLookups}; fastRejected={Interlocked.Read(ref fastRejectedLookups)}; modKeys={Interlocked.Read(ref modKeyLookups)}; localizedHits={Interlocked.Read(ref localizedHits)}; localizedMisses={Interlocked.Read(ref localizedMisses)}; languageResolutions={Interlocked.Read(ref languageResolutions)}; languageResolutionMs={resolutionMs:F2}; resolvedLocale={resolvedLocale}; languageMarker={FormatMarkerForLog(resolvedMarker)}");
+    }
+
+    private static void AppendCultureDescriptors(ICollection<string> candidates)
+    {
+        foreach (var culture in new[] { CultureInfo.CurrentUICulture, CultureInfo.CurrentCulture })
+        {
+            candidates.Add(culture.Name);
+            candidates.Add(culture.EnglishName);
+            candidates.Add(culture.NativeName);
+            candidates.Add(culture.ThreeLetterISOLanguageName);
+            candidates.Add(culture.TwoLetterISOLanguageName);
+        }
+    }
+
+    private static void AppendLanguageDescriptors(ICollection<string> candidates, object source)
+    {
+        if (TryReadLanguageDescriptor(source, out var descriptor))
+        {
+            candidates.Add(descriptor);
+        }
+    }
+
+    private static void AppendLanguageDescriptors(ICollection<string> candidates, Type type)
+    {
+        if (TryReadLanguageDescriptor(type, out var descriptor))
+        {
+            candidates.Add(descriptor);
+        }
+    }
+
+    private static string FormatMarkerForLog(string marker)
+    {
+        if (string.IsNullOrWhiteSpace(marker))
+        {
+            return "<empty>";
+        }
+
+        return marker.Length <= MarkerLogMaxLength
+            ? marker
+            : $"{marker[..MarkerLogMaxLength]}...";
     }
 
     private static bool TryReadLanguageDescriptor(object source, out string descriptor)

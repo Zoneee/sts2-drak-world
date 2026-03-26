@@ -20,6 +20,7 @@
     <BuildFlavorFilePath>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/$(BuildFlavorFileName)</BuildFlavorFilePath>
     <GodotExportPreset Condition="'$(GodotExportPreset)' == ''">STS2 Mod Pack</GodotExportPreset>
     <GodotCliCommand Condition="'$(GodotCliCommand)' == '' and '$(GODOT_CLI_COMMAND)' != ''">$(GODOT_CLI_COMMAND)</GodotCliCommand>
+    <SkipGodotPackExport Condition="'$(SkipGodotPackExport)' == ''">false</SkipGodotPackExport>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -140,7 +141,7 @@
   </Target>
 
   <Target Name="ExportGodotPack" AfterTargets="Build"
-          Condition="'$(GodotCliCommand)' != ''">
+      Condition="'$(GodotCliCommand)' != '' and '$(SkipGodotPackExport)' != 'true'">
     <Message Text="Exporting $(GodotPackName) with $(GodotCliCommand)" Importance="high"/>
     <Exec Command='$(GodotCliCommand) --headless --path &quot;$(MSBuildProjectDirectory)&quot; --export-pack &quot;$(GodotExportPreset)&quot; &quot;$(GodotPackPath)&quot;' />
   </Target>
