@@ -11,8 +11,8 @@ namespace DiscardMod.Cards;
 [Pool(typeof(RegentCardPool))]
 public class ToxinRecord : DiscardModCard
 {
-    private decimal playPoison = 4m;
-    private decimal discardPoison = 2m;
+    private decimal playPoison = 5m;
+    private decimal discardPoison = 3m;
 
     public ToxinRecord()
         : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy, "toxin_record", true)

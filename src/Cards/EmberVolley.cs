@@ -13,25 +13,24 @@ namespace DiscardMod.Cards;
 [Pool(typeof(RegentCardPool))]
 public class EmberVolley : DiscardModCard
 {
-    private decimal discardDamage = 4m;
+    private decimal discardDamage = 12m;
 
-    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(7m, ValueProp.Move)];
+    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(10m, ValueProp.Move)];
 
     public EmberVolley()
-        : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "ember_volley", true)
+        : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy, "ember_volley", true)
     {
     }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardDamage={discardDamage}; discardDraw=1");
+        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardDamage={discardDamage}");
         await CommonActions.CardAttack(this, cardPlay).Execute(choiceContext);
     }
 
     protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)
     {
         await AttackRandomEnemy(choiceContext, discardDamage);
-        await DrawCards(choiceContext, 1);
     }
 
     public override void OnUpgrade()

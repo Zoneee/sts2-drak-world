@@ -13,7 +13,7 @@ namespace DiscardMod.Cards;
 [Pool(typeof(RegentCardPool))]
 public class AshenAegis : DiscardModCard
 {
-    private decimal discardBlock = 5m;
+    private decimal discardBlock = 10m;
 
     public override IEnumerable<DynamicVar> CanonicalVars => [new BlockVar(8m, ValueProp.Move)];
 

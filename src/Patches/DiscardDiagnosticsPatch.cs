@@ -1,4 +1,5 @@
 using DiscardMod.Cards;
+using DiscardMod.Utils;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
@@ -15,7 +16,8 @@ public static class DiscardDiagnosticsPatch
     [HarmonyPatch(nameof(CardCmd.Discard), typeof(PlayerChoiceContext), typeof(CardModel))]
     private static void LogSingleDiscard(PlayerChoiceContext choiceContext, CardModel card)
     {
-        DiscardModMain.Logger.Info($"[DiscardCmd] single discard requested | card={DescribeCard(card)}; tracked={card is DiscardModCard}");
+        DiscardTriggerRuntime.RegisterDiscards(choiceContext, card == null ? [] : [card]);
+        DiscardModMain.Logger.Info($"[DiscardCmd] single discard requested | source={DiscardTriggerRuntime.CurrentScopeDescription}; card={DescribeCard(card)}; tracked={card is DiscardModCard}");
     }
 
     [HarmonyPrefix]
@@ -23,7 +25,8 @@ public static class DiscardDiagnosticsPatch
     private static void LogMultiDiscard(PlayerChoiceContext choiceContext, IEnumerable<CardModel> cards)
     {
         var array = cards?.ToArray() ?? [];
-        DiscardModMain.Logger.Info($"[DiscardCmd] batch discard requested | count={array.Length}; cards={string.Join(", ", array.Select(DescribeCard))}");
+        DiscardTriggerRuntime.RegisterDiscards(choiceContext, array);
+        DiscardModMain.Logger.Info($"[DiscardCmd] batch discard requested | source={DiscardTriggerRuntime.CurrentScopeDescription}; count={array.Length}; cards={string.Join(", ", array.Select(DescribeCard))}");
     }
 
     [HarmonyPrefix]

@@ -1,5 +1,6 @@
 using BaseLib.Abstracts;
 using BaseLib.Utils;
+using DiscardMod.Utils;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
@@ -13,30 +14,37 @@ namespace DiscardMod.Cards;
 [Pool(typeof(RegentCardPool))]
 public class FinalDraft : DiscardModCard
 {
-    private decimal discardDamage = 8m;
+    private decimal discardDamage = 10m;
+    private decimal discardBonusDamage = 4m;
+    private const int BonusDiscardThreshold = 2;
 
-    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(12m, ValueProp.Move)];
+    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(16m, ValueProp.Move)];
 
     public FinalDraft()
-        : base(2, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, "final_draft", true)
+        : base(3, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy, "final_draft", true)
     {
     }
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardAoeDamage={discardDamage}; discardDraw=1");
+        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardAoeDamage={discardDamage}; bonusThreshold={BonusDiscardThreshold}; bonusDamage={discardBonusDamage}");
         await CommonActions.CardAttack(this, cardPlay).Execute(choiceContext);
     }
 
-    protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)
+    protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext, DiscardEventContext discardContext)
     {
-        await AttackAllEnemies(choiceContext, discardDamage);
-        await DrawCards(choiceContext, 1);
+        var damage = discardDamage;
+        if (discardContext.DiscardCountThisTurn >= BonusDiscardThreshold)
+        {
+            damage += discardBonusDamage;
+        }
+
+        await AttackAllEnemies(choiceContext, damage);
     }
 
     public override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(4m);
-        discardDamage += 4m;
+        discardBonusDamage += 4m;
     }
 }

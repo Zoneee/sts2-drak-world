@@ -9,21 +9,22 @@
 - 已补全初始化、建模、弃牌命令、单卡触发等运行时诊断日志
 - 已建立新的 `docs/` 结构，收敛快速上手、开发、调试、架构与设计文档
 
-当前仍建议继续做游戏内数值验证。另一个已知边界是：目前采用“任何弃牌都会触发这张牌的弃牌效果”的规则，尚未继续细分“主动弃牌 / 回合结束弃牌 / 其他来源弃牌”。
+当前仍建议继续做游戏内数值验证。当前规则边界已经收紧为：默认只有因卡牌效果导致的弃牌才会触发弃牌效果，`FadingFormula` 是牌面明确写出的显式例外。
+另外，带有打出时弃牌要求的卡会在打出前检查当前手中是否已有足够其他手牌可弃；待生效的额外弃牌次数也会计入该检查。
 
 ## 当前卡组
-| 卡牌     | 类名                  | 类型   | 稀有度   | 费用 | 核心效果                             |
-| -------- | --------------------- | ------ | -------- | ---- | ------------------------------------ |
-| 迅影斩   | `SwiftCut`            | Attack | Common   | 0    | 打出单体伤害；弃牌时随机补刀         |
-| 暗焰残页 | `DarkFlameFragment`   | Skill  | Common   | 1    | 抽 1 弃 1；弃牌时全体伤害            |
-| 毒素记录 | `ToxinRecord`         | Skill  | Uncommon | 1    | 打出上中毒；弃牌时群体上毒           |
-| 破碎回响 | `ShatteredEcho`       | Skill  | Rare     | 2    | 抽 2 弃 1；弃牌时再抽牌              |
-| 灰烬庇护 | `AshenAegis`          | Skill  | Common   | 1    | 打出得格挡；弃牌时也得格挡           |
-| 崩坏手稿 | `CripplingManuscript` | Skill  | Uncommon | 1    | 打出上虚弱/易伤；弃牌时群体虚弱      |
-| 余烬连射 | `EmberVolley`         | Attack | Common   | 1    | 打出伤害；弃牌时随机伤害并抽牌       |
-| 回收思路 | `RecallSurge`         | Skill  | Uncommon | 1    | 抽 2 弃 1；弃牌时得格挡              |
-| 褪色公式 | `FadingFormula`       | Skill  | Common   | 0    | 打出抽牌；回合结束自动弃掉自身并触发 |
-| 终稿余烬 | `FinalDraft`          | Attack | Rare     | 2    | 打出单体伤害；弃牌时全体伤害并抽牌   |
+| 卡牌     | 类名                  | 类型   | 稀有度   | 费用 | 核心效果                                 |
+| -------- | --------------------- | ------ | -------- | ---- | ---------------------------------------- |
+| 迅影斩   | `SwiftCut`            | Attack | Common   | 1    | 打出单体伤害；弃牌时随机高伤补刀         |
+| 暗焰残页 | `DarkFlameFragment`   | Skill  | Uncommon | 2    | 抽 1 弃 2；弃牌时继续推进弃牌链          |
+| 毒素记录 | `ToxinRecord`         | Skill  | Uncommon | 1    | 打出上中毒；弃牌时群体上毒               |
+| 破碎回响 | `ShatteredEcho`       | Skill  | Rare     | 3    | 抽 2 弃 3；弃牌时抽 1 弃 1               |
+| 灰烬庇护 | `AshenAegis`          | Skill  | Common   | 1    | 打出得格挡；弃牌时也得格挡               |
+| 崩坏手稿 | `CripplingManuscript` | Skill  | Uncommon | 1    | 打出上虚弱/易伤；弃牌时群体双减益        |
+| 余烬连射 | `EmberVolley`         | Attack | Uncommon | 2    | 打出伤害；弃牌时随机高伤                 |
+| 回收思路 | `RecallSurge`         | Skill  | Common   | 1    | 抽 1 弃 1；弃牌时得较高格挡              |
+| 褪色公式 | `FadingFormula`       | Skill  | Rare     | 3    | 打出伤害并得格挡；弃牌时按奇偶次数结算   |
+| 终稿余烬 | `FinalDraft`          | Attack | Rare     | 3    | 打出单体高伤；弃牌时全体高伤并吃弃牌阈值 |
 
 ## 快速开始
 ### 1. 准备依赖

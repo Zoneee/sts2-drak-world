@@ -12,12 +12,14 @@ namespace DiscardMod.Cards;
 [Pool(typeof(RegentCardPool))]
 public class RecallSurge : DiscardModCard
 {
-    private decimal discardBlock = 4m;
+    private decimal discardBlock = 7m;
 
-    public override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2)];
+    protected override int RequiredDiscardableCardsInHandToPlay => 1;
+
+    public override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(1)];
 
     public RecallSurge()
-        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self, "recall_surge", true)
+        : base(1, CardType.Skill, CardRarity.Common, TargetType.Self, "recall_surge", true)
     {
     }
 
@@ -36,6 +38,6 @@ public class RecallSurge : DiscardModCard
     public override void OnUpgrade()
     {
         DynamicVars.Cards.UpgradeValueBy(1m);
-        discardBlock += 2m;
+        discardBlock += 3m;
     }
 }

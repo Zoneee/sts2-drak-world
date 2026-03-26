@@ -13,12 +13,12 @@ namespace DiscardMod.Cards;
 [Pool(typeof(RegentCardPool))]
 public class SwiftCut : DiscardModCard
 {
-    private decimal discardDamage = 3m;
+    private decimal discardDamage = 7m;
 
-    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(5m, ValueProp.Move)];
+    public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(6m, ValueProp.Move)];
 
     public SwiftCut()
-        : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "swift_cut", true)
+        : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy, "swift_cut", true)
     {
     }
 

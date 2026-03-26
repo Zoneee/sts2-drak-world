@@ -6,11 +6,11 @@
             "localization": {
                 "eng": {
                     "title": "Dark Flame Fragment",
-                    "description": "Draw 1 card, then discard 1 card. Discard: Deal 6 damage to all enemies."
+                    "description": "Draw 1 card, then discard 2 cards. Discard: Discard 1 card."
                 },
                 "zhs": {
                     "title": "暗焰残页",
-                    "description": "抽 1 张牌，然后弃 1 张牌。弃牌触发：对所有敌人造成 6 点伤害。"
+                    "description": "抽 1 张牌，然后弃 2 张牌。弃牌触发：再弃 1 张牌。"
                 }
             }
         },
@@ -20,11 +20,11 @@
             "localization": {
                 "eng": {
                     "title": "Swift Cut",
-                    "description": "Deal 5 damage. Discard: Deal 3 damage to a random enemy."
+                    "description": "Deal 6 damage. Discard: Deal 7 damage to a random enemy."
                 },
                 "zhs": {
                     "title": "迅影斩",
-                    "description": "造成 5 点伤害。弃牌触发：对随机敌人造成 3 点伤害。"
+                    "description": "造成 6 点伤害。弃牌触发：对随机敌人造成 7 点伤害。"
                 }
             }
         },
@@ -34,11 +34,11 @@
             "localization": {
                 "eng": {
                     "title": "Toxin Record",
-                    "description": "Apply 4 poison stacks. Discard: apply 2 poison stacks to all enemies."
+                    "description": "Apply 5 poison stacks. Discard: Apply 3 poison stacks to all enemies."
                 },
                 "zhs": {
                     "title": "毒素记录",
-                    "description": "施加 4 层中毒。弃牌触发：对所有敌人施加 2 层中毒。"
+                    "description": "施加 5 层中毒。弃牌触发：对所有敌人施加 3 层中毒。"
                 }
             }
         },
@@ -48,11 +48,11 @@
             "localization": {
                 "eng": {
                     "title": "Shattered Echo",
-                    "description": "Draw 2 cards, then discard 1 card. Discard: Draw 2 cards."
+                    "description": "Draw 2 cards, then discard 3 cards. Discard: Draw 1 card, then discard 1 card."
                 },
                 "zhs": {
                     "title": "破碎回响",
-                    "description": "抽 2 张牌，然后弃 1 张牌。弃牌触发：抽 2 张牌。"
+                    "description": "抽 2 张牌，然后弃 3 张牌。弃牌触发：抽 1 张牌，然后弃 1 张牌。"
                 }
             }
         },
@@ -62,11 +62,11 @@
             "localization": {
                 "eng": {
                     "title": "Ashen Aegis",
-                    "description": "Gain 8 Block. Discard: Gain 5 Block."
+                    "description": "Gain 8 Block. Discard: Gain 10 Block."
                 },
                 "zhs": {
                     "title": "灰烬庇护",
-                    "description": "获得 8 点格挡。弃牌触发：获得 5 点格挡。"
+                    "description": "获得 8 点格挡。弃牌触发：获得 10 点格挡。"
                 }
             }
         },
@@ -76,11 +76,11 @@
             "localization": {
                 "eng": {
                     "title": "Crippling Manuscript",
-                    "description": "Apply 2 Weak and 2 Vulnerable. Discard: Apply 1 Weak to all enemies."
+                    "description": "Apply 2 Weak and 2 Vulnerable. Discard: Apply 1 Weak and 1 Vulnerable to all enemies."
                 },
                 "zhs": {
                     "title": "崩坏手稿",
-                    "description": "施加 2 层虚弱和 2 层易伤。弃牌触发：对所有敌人施加 1 层虚弱。"
+                    "description": "施加 2 层虚弱和 2 层易伤。弃牌触发：对所有敌人施加 1 层虚弱和 1 层易伤。"
                 }
             }
         },
@@ -90,11 +90,11 @@
             "localization": {
                 "eng": {
                     "title": "Ember Volley",
-                    "description": "Deal 7 damage. Discard: Deal 4 damage to a random enemy and draw 1 card."
+                    "description": "Deal 10 damage. Discard: Deal 12 damage to a random enemy."
                 },
                 "zhs": {
                     "title": "余烬连射",
-                    "description": "造成 7 点伤害。弃牌触发：对随机敌人造成 4 点伤害并抽 1 张牌。"
+                    "description": "造成 10 点伤害。弃牌触发：对随机敌人造成 12 点伤害。"
                 }
             }
         },
@@ -104,11 +104,11 @@
             "localization": {
                 "eng": {
                     "title": "Recall Surge",
-                    "description": "Draw 2 cards, then discard 1 card. Discard: Gain 4 Block."
+                    "description": "Draw 1 card, then discard 1 card. Discard: Gain 7 Block."
                 },
                 "zhs": {
                     "title": "回收思路",
-                    "description": "抽 2 张牌，然后弃 1 张牌。弃牌触发：获得 4 点格挡。"
+                    "description": "抽 1 张牌，然后弃 1 张牌。弃牌触发：获得 7 点格挡。"
                 }
             }
         },
@@ -118,11 +118,11 @@
             "localization": {
                 "eng": {
                     "title": "Fading Formula",
-                    "description": "Draw 1 card. If this remains in your hand at end of turn, discard it. Discard: Gain 6 Block."
+                    "description": "Deal 10 damage and gain 10 Block. If this remains in your hand at end of turn, discard it and trigger its discard effect. Discard: If this is your odd-numbered discard this turn, deal 18 damage to a random enemy. If this is your even-numbered discard this turn, gain 18 Block."
                 },
                 "zhs": {
                     "title": "褪色公式",
-                    "description": "抽 1 张牌。回合结束时若仍在手牌中，将其弃掉。弃牌触发：获得 6 点格挡。"
+                    "description": "对一个敌人造成 10 点伤害并获得 10 点格挡。回合结束时若仍在手牌中，将其弃掉并触发其弃牌效果。弃牌触发：若这是你本回合第奇数次弃牌，对随机敌人造成 18 点伤害；若这是你本回合第偶数次弃牌，获得 18 点格挡。"
                 }
             }
         },
@@ -132,11 +132,11 @@
             "localization": {
                 "eng": {
                     "title": "Final Draft",
-                    "description": "Deal 12 damage. Discard: Deal 8 damage to all enemies and draw 1 card."
+                    "description": "Deal 16 damage. Discard: Deal 10 damage to all enemies. If you have already discarded at least 2 cards this turn, deal 14 instead."
                 },
                 "zhs": {
                     "title": "终稿余烬",
-                    "description": "造成 12 点伤害。弃牌触发：对所有敌人造成 8 点伤害并抽 1 张牌。"
+                    "description": "造成 16 点伤害。弃牌触发：对所有敌人造成 10 点伤害。若你本回合已弃掉至少 2 张牌，则改为造成 14 点伤害。"
                 }
             }
         }

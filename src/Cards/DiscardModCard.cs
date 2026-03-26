@@ -1,5 +1,6 @@
 using BaseLib.Abstracts;
 using BaseLib.Utils;
+using DiscardMod.Utils;
 using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
@@ -41,6 +42,10 @@ public abstract class DiscardModCard : CustomCardModel
 
     public override string CustomPortraitPath => BuildGodotResourcePath(assetName, "big");
 
+    public override bool IsPlayable => base.IsPlayable && HasRequiredDiscardableCardsInHand();
+
+    protected virtual int RequiredDiscardableCardsInHandToPlay => 0;
+
     private static string BuildGodotResourcePath(string assetName, string? variant = null)
     {
         return string.IsNullOrEmpty(variant)
@@ -55,9 +60,21 @@ public abstract class DiscardModCard : CustomCardModel
             return;
         }
 
-        LogLifecycle("discard-trigger:start", $"owner={Owner}; currentTarget={CurrentTarget}");
-        await OnSelfDiscarded(choiceContext);
+        var discardContext = DiscardTriggerRuntime.ConsumeDiscardEvent(choiceContext, card);
+        if (!discardContext.ShouldTrigger)
+        {
+            LogLifecycle("discard-trigger:skip", $"source={discardContext.Source}; discardCountThisTurn={discardContext.DiscardCountThisTurn}");
+            return;
+        }
+
+        LogLifecycle("discard-trigger:start", $"source={discardContext.Source}; discardCountThisTurn={discardContext.DiscardCountThisTurn}; owner={Owner}; currentTarget={CurrentTarget}");
+        await OnSelfDiscarded(choiceContext, discardContext);
         LogLifecycle("discard-trigger:end", $"owner={Owner}; currentTarget={CurrentTarget}");
+    }
+
+    protected virtual Task OnSelfDiscarded(PlayerChoiceContext choiceContext, DiscardEventContext discardContext)
+    {
+        return OnSelfDiscarded(choiceContext);
     }
 
     protected virtual Task OnSelfDiscarded(PlayerChoiceContext choiceContext) => Task.CompletedTask;
@@ -146,6 +163,34 @@ public abstract class DiscardModCard : CustomCardModel
         return await CardPileCmd.Draw(choiceContext, count, Owner);
     }
 
+    private bool HasRequiredDiscardableCardsInHand()
+    {
+        var requiredCards = GetEffectiveDiscardableCardsRequiredToPlay();
+        if (requiredCards <= 0)
+        {
+            return true;
+        }
+
+        var hand = CardPile.Get(PileType.Hand, Owner);
+        if (hand == null)
+        {
+            return true;
+        }
+
+        var availableCards = hand.Cards.Count(card => !ReferenceEquals(card, this));
+        return availableCards >= requiredCards;
+    }
+
+    private int GetEffectiveDiscardableCardsRequiredToPlay()
+    {
+        if (RequiredDiscardableCardsInHandToPlay <= 0 || !IsInCombat || Pile?.Type != PileType.Hand)
+        {
+            return 0;
+        }
+
+        return RequiredDiscardableCardsInHandToPlay + DiscardTriggerRuntime.PeekBonusDiscard(Owner);
+    }
+
     protected async Task<IReadOnlyList<CardModel>> DiscardFromHand(PlayerChoiceContext choiceContext, int count)
     {
         if (count <= 0)
@@ -153,24 +198,32 @@ public abstract class DiscardModCard : CustomCardModel
             return Array.Empty<CardModel>();
         }
 
+        var bonusDiscards = DiscardTriggerRuntime.ConsumeBonusDiscard(Owner);
+        var totalCount = count + bonusDiscards;
+        if (bonusDiscards > 0)
+        {
+            LogLifecycle("discard-bonus", $"base={count}; bonus={bonusDiscards}; total={totalCount}");
+        }
+
         var selectedCards = await CardSelectCmd.FromHandForDiscard(
             choiceContext,
             Owner,
-            new CardSelectorPrefs(CardSelectorPrefs.DiscardSelectionPrompt, count),
+            new CardSelectorPrefs(CardSelectorPrefs.DiscardSelectionPrompt, totalCount),
             null,
             this);
 
         if (selectedCards == null)
         {
-            LogLifecycle("discard-select", $"count={count}; selection returned null");
+            LogLifecycle("discard-select", $"count={totalCount}; selection returned null");
             return Array.Empty<CardModel>();
         }
 
         var cards = selectedCards.ToArray();
-        LogLifecycle("discard-select", $"requested={count}; selected={cards.Length}; cards={string.Join(", ", cards.Select(DescribeCard))}");
+        LogLifecycle("discard-select", $"requested={totalCount}; selected={cards.Length}; cards={string.Join(", ", cards.Select(DescribeCard))}");
 
         if (cards.Length > 0)
         {
+            using var scope = DiscardTriggerRuntime.BeginCardEffectDiscardScope();
             await CardCmd.Discard(choiceContext, cards);
         }
 

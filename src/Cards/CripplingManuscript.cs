@@ -14,6 +14,7 @@ public class CripplingManuscript : DiscardModCard
     private decimal playWeak = 2m;
     private decimal playVulnerable = 2m;
     private decimal discardWeak = 1m;
+    private decimal discardVulnerable = 1m;
 
     public CripplingManuscript()
         : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy, "crippling_manuscript", true)
@@ -23,7 +24,7 @@ public class CripplingManuscript : DiscardModCard
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         var target = GetRequiredTarget(cardPlay);
-        LogPlay(cardPlay, $"weak={playWeak}; vulnerable={playVulnerable}; discardWeakAll={discardWeak}");
+        LogPlay(cardPlay, $"weak={playWeak}; vulnerable={playVulnerable}; discardWeakAll={discardWeak}; discardVulnerableAll={discardVulnerable}");
         await CommonActions.Apply<WeakPower>(target, this, playWeak);
         await CommonActions.Apply<VulnerablePower>(target, this, playVulnerable);
     }
@@ -31,6 +32,7 @@ public class CripplingManuscript : DiscardModCard
     protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)
     {
         await ApplyToAllEnemies<WeakPower>(discardWeak);
+        await ApplyToAllEnemies<VulnerablePower>(discardVulnerable);
     }
 
     public override void OnUpgrade()
@@ -38,5 +40,6 @@ public class CripplingManuscript : DiscardModCard
         playWeak += 1m;
         playVulnerable += 1m;
         discardWeak += 1m;
+        discardVulnerable += 1m;
     }
 }
