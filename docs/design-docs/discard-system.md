@@ -2,7 +2,7 @@
 
 状态：有效
 负责人：产品与工程团队
-最后评审：2026-03-26
+最后评审：2026-03-27
 
 ## 设计目标
 这套卡组的核心体验不是“打出才有收益”，而是让同一张牌在两个时点都具备价值：
@@ -16,11 +16,12 @@
 
 ## 当前已落地内容
 ### 核心牌组
-当前已实现 10 张牌，覆盖：
+当前已实现 13 张牌（10 张弃牌触发牌 + 3 张能力牌），覆盖：
 - 基础启动与中继
 - 中段转换与兑现
 - 稀有引擎与终端
 - 规则例外牌
+- 能力牌（弃牌累积回报）
 
 ### 诊断与可观察性
 为了让设计验证可落地，当前实现把以下信号做成了常规日志：
@@ -33,31 +34,34 @@
 
 ## 体系分层
 ### 基础启动与中继
-- `SwiftCut`
-- `AshenAegis`
-- `RecallSurge`
+- `SwiftCut`（迅影斩）
+- `AshenAegis`（灰烬庇护）：打出时弃 1 换格挡，主动交互
+- `RecallSurge`（回收思路）：从弃牌堆取回 1 张牌
+- `AshVeil`（灰烬面纱）：能力牌，每次弃牌获得格挡
 
 ### 转换与兑现
-- `DarkFlameFragment`
-- `EmberVolley`
-- `ToxinRecord`
-- `CripplingManuscript`
+- `DarkFlameFragment`（暗焰残页）
+- `EmberVolley`（余烬连射）：打出 4×3，弃牌 4×2 多段伤害
+- `ToxinRecord`（毒素记录）
+- `CripplingManuscript`（崩坏手稿）
+- `DarkMomentum`（暗涌动能）：能力牌，每 N 次弃牌获得能量
 
 ### 稀有引擎与终端
-- `ShatteredEcho`
-- `FinalDraft`
+- `ShatteredEcho`（破碎回响）：打出弃 2（降低入手成本）
+- `FinalDraft`（终稿余烬）：弃牌 ≥2 触发强化
+- `VoidSurge`（虚空涌动）：能力牌，每次弃牌输出持续伤害
 
 ### 规则例外
-- `FadingFormula`
+- `FadingFormula`（褪色公式）
 
 ## 当前规则取舍
 当前版本采用收紧后的规则：
 
-> 默认只有因卡牌效果导致的弃牌，才会触发这张牌的弃牌效果。
+> 默认只有因卡牌效果导致的弃牌，才会触发这张牌的弃牌效果及能力牌效果。
 
 唯一显式例外：
 
-> `FadingFormula` 在牌面明确写明，回合结束自弃也会触发其弃牌效果。
+> `FadingFormula`（褪色公式）在牌面明确写明，回合结束自弃也会触发其弃牌效果。
 
 打出约束：
 
@@ -77,15 +81,27 @@
 - 每张牌同时有打出价值与弃牌价值，减少“抽到但不想打”的死牌感。
 - 体系可以通过抽弃链条把局部收益叠成一个更大的回合。
 - 费用、稀有度与身份已经拉开：common 负责启动，uncommon 负责转换，rare 负责引擎、终结与规则例外。
+- 能力牌提供跨张牌的弃牌累积回报，填补了纯触发式设计缺少的"持续压力"感。
+
+## 能力牌（Power Cards）机制
+三张能力牌通过 `PowerModel.AfterCardDiscarded` 响应弃牌事件，触发判断与普通弃牌触发完全一致：
+
+```
+DiscardTriggerRuntime.ConsumePowerDiscardEvent(card)
+```
+
+- `DarkMomentumPower`：累计计数，每 Amount 次弃牌获得 1 点能量，回合结束重置
+- `AshVeilPower`：每次弃牌即时获得 Amount 格挡，回合结束重置计数
+- `VoidSurgePower`：每次弃牌对随机敌人造成 Amount 伤害 ×2，回合结束重置
 
 ## 高风险设计点
-### `ShatteredEcho`
+### `ShatteredEcho`（破碎回响）
 高压缩引擎在升级后会继续放大下一次弃牌链路，需要重点观察是否造成异常高频弃牌回合。
 
-### `FinalDraft`
+### `FinalDraft`（终稿余烬）
 作为稀有终结件，阈值奖励若过高，可能让第二次弃牌后的战斗 swing 过早失衡。
 
-### `FadingFormula`
+### `FadingFormula`（褪色公式）
 作为明确规则例外牌，需要重点验证奇偶弃牌判定是否清晰、回报是否足够戏剧化且不过稳。
 
 ## 后续方向
@@ -93,4 +109,4 @@
 - 增加与弃牌联动的能量牌、返手牌或防御终端牌。
 - 评估能力牌、消散牌和“打出两次后消散”类高辨识度设计。
 - 继续完善卡图资源导出与部署流程，减少资源问题对设计验证的干扰。
-- 做实机数值验证，优先覆盖 `ShatteredEcho`、`FinalDraft`、`FadingFormula`。
+- 做实机数值验证，优先覆盖 `ShatteredEcho`（破碎回响）、`FinalDraft`（终稿余烬）、`FadingFormula`（褪色公式）。

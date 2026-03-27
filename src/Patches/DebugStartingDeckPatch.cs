@@ -20,7 +20,10 @@ public static class DebugStartingDeckPatch
         typeof(AshenAegis),
         typeof(ToxinRecord),
         typeof(CripplingManuscript),
-        typeof(FinalDraft)
+        typeof(FinalDraft),
+        typeof(DarkMomentum),
+        typeof(AshVeil),
+        typeof(VoidSurge)
     ];
 
     [HarmonyPostfix]

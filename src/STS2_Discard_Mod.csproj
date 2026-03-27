@@ -101,8 +101,7 @@
 
   <!-- Localization files for STS build analyzer (STS001 compliance) -->
   <ItemGroup>
-    <AdditionalFiles Include="localization/eng/cards.json"/>
-    <AdditionalFiles Include="localization/zhs/cards.json"/>
+    <AdditionalFiles Include="localization/**/*.json"/>
   </ItemGroup>
 
   <!-- Manifest shown in project but not compiled -->

@@ -24,8 +24,9 @@ public class AshenAegis : DiscardModCard
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        LogPlay(cardPlay, $"block={DynamicVars.Block.IntValue}; discardBlock={discardBlock}");
+        LogPlay(cardPlay, $"block={DynamicVars.Block.IntValue}; discardBlock={discardBlock}; trigger-discard=1");
         await CommonActions.CardBlock(this, cardPlay);
+        await DiscardFromHand(choiceContext, 1);
     }
 
     protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext)

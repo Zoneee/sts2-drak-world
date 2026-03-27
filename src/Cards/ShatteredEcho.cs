@@ -13,12 +13,12 @@ namespace DiscardMod.Cards;
 [Pool(typeof(RegentCardPool))]
 public class ShatteredEcho : DiscardModCard
 {
-    private int playDiscardCount = 3;
+    private int playDiscardCount = 2;
     private int discardDrawCount = 1;
     private int discardCount = 1;
     private int bonusNextDiscardCount;
 
-    protected override int RequiredDiscardableCardsInHandToPlay => playDiscardCount;
+    protected override int RequiredDiscardableCardsInHandToPlay => 2;
 
     public override IEnumerable<DynamicVar> CanonicalVars => [new CardsVar(2)];
 

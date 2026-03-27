@@ -139,6 +139,96 @@
                     "description": "造成 16 点伤害。弃牌触发：对所有敌人造成 10 点伤害。若你本回合已弃掉至少 2 张牌，则改为造成 14 点伤害。"
                 }
             }
+        },
+        {
+            "id": "DISCARDMOD-DARK_MOMENTUM",
+            "assetName": "dark_momentum",
+            "localization": {
+                "eng": {
+                    "title": "Dark Momentum",
+                    "description": "Apply 1 Dark Momentum (threshold 3). Every 3 card-effect discards, gain 1 Energy."
+                },
+                "zhs": {
+                    "title": "暗涌动能",
+                    "description": "施加 1 层暗涌动能（阈值 3）。每弃掉 3 张牌，获得 1 点能量。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-ASH_VEIL",
+            "assetName": "ash_veil",
+            "localization": {
+                "eng": {
+                    "title": "Ash Veil",
+                    "description": "Apply 3 Ash Veil. Each card-effect discard, gain 3 Block."
+                },
+                "zhs": {
+                    "title": "灰烬面纱",
+                    "description": "施加 3 层灰烬面纱。每次弃牌，获得 3 点格挡。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-VOID_SURGE",
+            "assetName": "void_surge",
+            "localization": {
+                "eng": {
+                    "title": "Void Surge",
+                    "description": "Apply 1 Void Surge. Each card-effect discard, deal 3 damage twice to a random enemy."
+                },
+                "zhs": {
+                    "title": "虚空涌动",
+                    "description": "施加 1 层虚空涌动。每次弃牌，对随机敌人造成 3 点伤害两次。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-DARK_MOMENTUM_POWER",
+            "assetName": "dark_momentum_power",
+            "localization": {
+                "eng": {
+                    "title": "Dark Momentum",
+                    "description": "Every !A! card-effect discards this turn, gain 1 Energy.",
+                    "smartDescription": "Every !A! card-effect discards this turn, gain 1 Energy."
+                },
+                "zhs": {
+                    "title": "暗涌动能",
+                    "description": "本回合每弃掉 !A! 张牌，获得 1 点能量。",
+                    "smartDescription": "本回合每弃掉 !A! 张牌，获得 1 点能量。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-ASH_VEIL_POWER",
+            "assetName": "ash_veil_power",
+            "localization": {
+                "eng": {
+                    "title": "Ash Veil",
+                    "description": "Each card-effect discard, gain !A! Block.",
+                    "smartDescription": "Each card-effect discard, gain !A! Block."
+                },
+                "zhs": {
+                    "title": "灰烬面纱",
+                    "description": "每次弃牌，获得 !A! 点格挡。",
+                    "smartDescription": "每次弃牌，获得 !A! 点格挡。"
+                }
+            }
+        },
+        {
+            "id": "DISCARDMOD-VOID_SURGE_POWER",
+            "assetName": "void_surge_power",
+            "localization": {
+                "eng": {
+                    "title": "Void Surge",
+                    "description": "Each card-effect discard, deal !A! damage twice to a random enemy.",
+                    "smartDescription": "Each card-effect discard, deal !A! damage twice to a random enemy."
+                },
+                "zhs": {
+                    "title": "虚空涌动",
+                    "description": "每次弃牌，对随机敌人造成 !A! 点伤害两次。",
+                    "smartDescription": "每次弃牌，对随机敌人造成 !A! 点伤害两次。"
+                }
+            }
         }
     ]
 }

@@ -15,8 +15,8 @@ namespace DiscardMod.Cards;
 public class FinalDraft : DiscardModCard
 {
     private decimal discardDamage = 10m;
-    private decimal discardBonusDamage = 4m;
-    private const int BonusDiscardThreshold = 2;
+    private decimal discardBonusDamagePerExcess = 3m;
+    private int bonusDiscardThreshold = 3;
 
     public override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(16m, ValueProp.Move)];
 
@@ -27,24 +27,27 @@ public class FinalDraft : DiscardModCard
 
     public override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardAoeDamage={discardDamage}; bonusThreshold={BonusDiscardThreshold}; bonusDamage={discardBonusDamage}");
+        LogPlay(cardPlay, $"damage={DynamicVars.Damage.IntValue}; discardAoeDamage={discardDamage}; bonusThreshold={bonusDiscardThreshold}; bonusDamagePerExcess={discardBonusDamagePerExcess}");
         await CommonActions.CardAttack(this, cardPlay).Execute(choiceContext);
     }
 
     protected override async Task OnSelfDiscarded(PlayerChoiceContext choiceContext, DiscardEventContext discardContext)
     {
         var damage = discardDamage;
-        if (discardContext.DiscardCountThisTurn >= BonusDiscardThreshold)
+        if (discardContext.DiscardCountThisTurn >= bonusDiscardThreshold)
         {
-            damage += discardBonusDamage;
+            var excess = discardContext.DiscardCountThisTurn - bonusDiscardThreshold + 1;
+            var bonus = Math.Min(excess * discardBonusDamagePerExcess, 9m);
+            damage += bonus;
         }
 
+        LogLifecycle("discard-final-draft", $"discardCountThisTurn={discardContext.DiscardCountThisTurn}; threshold={bonusDiscardThreshold}; damage={damage}");
         await AttackAllEnemies(choiceContext, damage);
     }
 
     public override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(4m);
-        discardBonusDamage += 4m;
+        discardBonusDamagePerExcess += 2m;
     }
 }

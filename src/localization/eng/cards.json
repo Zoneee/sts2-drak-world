@@ -1,10 +1,14 @@
 {
   "DISCARDMOD-ASHEN_AEGIS.description": "Gain 8 Block. Discard: Gain 10 Block.",
   "DISCARDMOD-ASHEN_AEGIS.title": "Ashen Aegis",
+  "DISCARDMOD-ASH_VEIL.description": "Apply 3 Ash Veil. Each card-effect discard, gain 3 Block.",
+  "DISCARDMOD-ASH_VEIL.title": "Ash Veil",
   "DISCARDMOD-CRIPPLING_MANUSCRIPT.description": "Apply 2 Weak and 2 Vulnerable. Discard: Apply 1 Weak and 1 Vulnerable to all enemies.",
   "DISCARDMOD-CRIPPLING_MANUSCRIPT.title": "Crippling Manuscript",
   "DISCARDMOD-DARK_FLAME_FRAGMENT.description": "Draw 1 card, then discard 2 cards. Discard: Discard 1 card.",
   "DISCARDMOD-DARK_FLAME_FRAGMENT.title": "Dark Flame Fragment",
+  "DISCARDMOD-DARK_MOMENTUM.description": "Apply 1 Dark Momentum (threshold 3). Every 3 card-effect discards, gain 1 Energy.",
+  "DISCARDMOD-DARK_MOMENTUM.title": "Dark Momentum",
   "DISCARDMOD-EMBER_VOLLEY.description": "Deal 10 damage. Discard: Deal 12 damage to a random enemy.",
   "DISCARDMOD-EMBER_VOLLEY.title": "Ember Volley",
   "DISCARDMOD-FADING_FORMULA.description": "Deal 10 damage and gain 10 Block. If this remains in your hand at end of turn, discard it and trigger its discard effect. Discard: If this is your odd-numbered discard this turn, deal 18 damage to a random enemy. If this is your even-numbered discard this turn, gain 18 Block.",
@@ -18,5 +22,7 @@
   "DISCARDMOD-SWIFT_CUT.description": "Deal 6 damage. Discard: Deal 7 damage to a random enemy.",
   "DISCARDMOD-SWIFT_CUT.title": "Swift Cut",
   "DISCARDMOD-TOXIN_RECORD.description": "Apply 5 poison stacks. Discard: Apply 3 poison stacks to all enemies.",
-  "DISCARDMOD-TOXIN_RECORD.title": "Toxin Record"
+  "DISCARDMOD-TOXIN_RECORD.title": "Toxin Record",
+  "DISCARDMOD-VOID_SURGE.description": "Apply 1 Void Surge. Each card-effect discard, deal 3 damage twice to a random enemy.",
+  "DISCARDMOD-VOID_SURGE.title": "Void Surge"
 }

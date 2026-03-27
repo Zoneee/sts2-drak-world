@@ -1,0 +1,11 @@
+{
+  "DISCARDMOD-ASH_VEIL_POWER.description": "Each card-effect discard, gain !A! Block.",
+  "DISCARDMOD-ASH_VEIL_POWER.smartDescription": "Each card-effect discard, gain !A! Block.",
+  "DISCARDMOD-ASH_VEIL_POWER.title": "Ash Veil",
+  "DISCARDMOD-DARK_MOMENTUM_POWER.description": "Every !A! card-effect discards this turn, gain 1 Energy.",
+  "DISCARDMOD-DARK_MOMENTUM_POWER.smartDescription": "Every !A! card-effect discards this turn, gain 1 Energy.",
+  "DISCARDMOD-DARK_MOMENTUM_POWER.title": "Dark Momentum",
+  "DISCARDMOD-VOID_SURGE_POWER.description": "Each card-effect discard, deal !A! damage twice to a random enemy.",
+  "DISCARDMOD-VOID_SURGE_POWER.smartDescription": "Each card-effect discard, deal !A! damage twice to a random enemy.",
+  "DISCARDMOD-VOID_SURGE_POWER.title": "Void Surge"
+}

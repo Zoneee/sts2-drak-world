@@ -31,6 +31,7 @@ internal static class DiscardTriggerRuntime
 
     private static readonly object SyncRoot = new();
     private static readonly Dictionary<CardModel, Queue<DiscardEventContext>> PendingEvents = new(ReferenceEqualityComparer.Instance);
+    private static readonly Dictionary<CardModel, Queue<bool>> PowerPendingEvents = new(ReferenceEqualityComparer.Instance);
     private static readonly Dictionary<object, int> PendingBonusDiscards = new(ReferenceEqualityComparer.Instance);
     private static readonly AsyncLocal<Stack<DiscardScope>?> ScopeStack = new();
 
@@ -84,6 +85,17 @@ internal static class DiscardTriggerRuntime
                 }
 
                 queue.Enqueue(context);
+
+                if (context.ShouldTrigger)
+                {
+                    if (!PowerPendingEvents.TryGetValue(card, out var powerQueue))
+                    {
+                        powerQueue = new Queue<bool>();
+                        PowerPendingEvents[card] = powerQueue;
+                    }
+
+                    powerQueue.Enqueue(true);
+                }
             }
         }
     }
@@ -106,6 +118,25 @@ internal static class DiscardTriggerRuntime
             }
 
             return context;
+        }
+    }
+
+    public static bool ConsumePowerDiscardEvent(CardModel card)
+    {
+        lock (SyncRoot)
+        {
+            if (!PowerPendingEvents.TryGetValue(card, out var queue) || queue.Count == 0)
+            {
+                return false;
+            }
+
+            queue.Dequeue();
+            if (queue.Count == 0)
+            {
+                PowerPendingEvents.Remove(card);
+            }
+
+            return true;
         }
     }
 
@@ -168,6 +199,7 @@ internal static class DiscardTriggerRuntime
         if (!ReferenceEquals(currentCombatState, marker.CombatState) || currentTurnNumber != marker.TurnNumber)
         {
             PendingEvents.Clear();
+            PowerPendingEvents.Clear();
             PendingBonusDiscards.Clear();
             currentCombatState = marker.CombatState;
             currentTurnNumber = marker.TurnNumber;
