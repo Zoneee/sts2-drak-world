@@ -119,6 +119,33 @@ SPECS = [
         particles=(255, 179, 105),
         motif="draft",
     ),
+    CardArtSpec(
+        name="dark_momentum",
+        background=(8, 18, 42),
+        glow=(92, 185, 255),
+        accent=(220, 245, 255),
+        border=(110, 210, 255),
+        particles=(150, 230, 255),
+        motif="surge",
+    ),
+    CardArtSpec(
+        name="ash_veil",
+        background=(22, 22, 28),
+        glow=(210, 215, 230),
+        accent=(240, 242, 248),
+        border=(200, 205, 225),
+        particles=(225, 228, 240),
+        motif="shield",
+    ),
+    CardArtSpec(
+        name="void_surge",
+        background=(14, 8, 30),
+        glow=(175, 80, 255),
+        accent=(238, 215, 255),
+        border=(185, 96, 255),
+        particles=(210, 150, 255),
+        motif="fragment",
+    ),
 ]
 
 
@@ -456,7 +483,17 @@ def load_catalog_asset_names() -> list[str]:
     with CATALOG_PATH.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
 
-    return [card["assetName"] for card in data["cards"]]
+    # Exclude Power model entries (those with smartDescription in any locale) — they don't get card art
+    result = []
+    for card in data["cards"]:
+        localization = card.get("localization", {})
+        is_power = any(
+            "smartDescription" in locale_data
+            for locale_data in localization.values()
+        )
+        if not is_power:
+            result.append(card["assetName"])
+    return result
 
 
 def validate_specs() -> None:

@@ -48,11 +48,11 @@
             "localization": {
                 "eng": {
                     "title": "Shattered Echo",
-                    "description": "Draw 2 cards, then discard 3 cards. Discard: Draw 1 card, then discard 1 card."
+                    "description": "Draw 2 cards, then discard 2 cards. Discard: Draw 1 card, then discard 1 card."
                 },
                 "zhs": {
                     "title": "破碎回响",
-                    "description": "抽 2 张牌，然后弃 3 张牌。弃牌触发：抽 1 张牌，然后弃 1 张牌。"
+                    "description": "抽 2 张牌，然后弃 2 张牌。弃牌触发：抽 1 张牌，然后弃 1 张牌。"
                 }
             }
         },
@@ -62,11 +62,11 @@
             "localization": {
                 "eng": {
                     "title": "Ashen Aegis",
-                    "description": "Gain 8 Block. Discard: Gain 10 Block."
+                    "description": "Gain 8 Block, then discard 1 card. Discard: Gain 10 Block."
                 },
                 "zhs": {
                     "title": "灰烬庇护",
-                    "description": "获得 8 点格挡。弃牌触发：获得 10 点格挡。"
+                    "description": "获得 8 点格挡，然后弃 1 张牌。弃牌触发：获得 10 点格挡。"
                 }
             }
         },
@@ -90,11 +90,11 @@
             "localization": {
                 "eng": {
                     "title": "Ember Volley",
-                    "description": "Deal 10 damage. Discard: Deal 12 damage to a random enemy."
+                    "description": "Deal 4 damage 3 times. Discard: Deal 4 damage twice to a random enemy."
                 },
                 "zhs": {
                     "title": "余烬连射",
-                    "description": "造成 10 点伤害。弃牌触发：对随机敌人造成 12 点伤害。"
+                    "description": "造成 4 点伤害 3 次。弃牌触发：对随机敌人造成 4 点伤害 2 次。"
                 }
             }
         },
@@ -104,11 +104,11 @@
             "localization": {
                 "eng": {
                     "title": "Recall Surge",
-                    "description": "Draw 1 card, then discard 1 card. Discard: Gain 7 Block."
+                    "description": "Return a card from your discard pile to your hand. Discard: Choose a card from your discard pile and return it to your hand, draw 1, discard 1, then place 1 card on top of your draw pile."
                 },
                 "zhs": {
                     "title": "回收思路",
-                    "description": "抽 1 张牌，然后弃 1 张牌。弃牌触发：获得 7 点格挡。"
+                    "description": "将弃牌堆中一张牌归还手牌。弃牌触发：从弃牌堆选 1 张归还手牌，抽 1 弃 1，然后将手牌中 1 张置于牌堆顶。"
                 }
             }
         },
@@ -132,11 +132,11 @@
             "localization": {
                 "eng": {
                     "title": "Final Draft",
-                    "description": "Deal 16 damage. Discard: Deal 10 damage to all enemies. If you have already discarded at least 2 cards this turn, deal 14 instead."
+                    "description": "Deal 16 damage. Discard: Deal 10 damage to all enemies. For each card discarded at or beyond the 3rd this turn, deal 3 more (max +9)."
                 },
                 "zhs": {
                     "title": "终稿余烬",
-                    "description": "造成 16 点伤害。弃牌触发：对所有敌人造成 10 点伤害。若你本回合已弃掉至少 2 张牌，则改为造成 14 点伤害。"
+                    "description": "造成 16 点伤害。弃牌触发：对所有敌人造成 10 点伤害。本回合第 3 次起每多弃 1 张牌，额外造成 3 点伤害（最多 +9）。"
                 }
             }
         },
