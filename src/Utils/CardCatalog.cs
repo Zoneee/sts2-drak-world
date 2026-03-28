@@ -112,6 +112,16 @@ public static class CardCatalog
                 table[$"{CardsTablePrefix}{descriptionKey}"] = entry.Description;
                 table[runtimeDescriptionKey] = entry.Description;
                 table[$"{CardsTablePrefix}{runtimeDescriptionKey}"] = entry.Description;
+
+                if (!string.IsNullOrEmpty(entry.SmartDescription))
+                {
+                    var smartDescriptionKey = $"{card.Id}.smartDescription";
+                    var runtimeSmartDescriptionKey = $"{CardIdPrefix}{smartDescriptionKey}";
+                    table[smartDescriptionKey] = entry.SmartDescription;
+                    table[$"{CardsTablePrefix}{smartDescriptionKey}"] = entry.SmartDescription;
+                    table[runtimeSmartDescriptionKey] = entry.SmartDescription;
+                    table[$"{CardsTablePrefix}{runtimeSmartDescriptionKey}"] = entry.SmartDescription;
+                }
             }
         }
 
@@ -251,5 +261,7 @@ public static class CardCatalog
         public string Title { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
+
+        public string? SmartDescription { get; set; }
     }
 }
