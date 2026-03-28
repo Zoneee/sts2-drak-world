@@ -22,7 +22,7 @@ internal static class DebugCardPoolSettings
 
     private static bool GetDefaultStartingDeckReplacement()
     {
-#if DEBUG
+#if DEBUG || STARTER_DECK_ENABLED
         return true;
 #else
         return false;

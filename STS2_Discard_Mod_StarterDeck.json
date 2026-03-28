@@ -1,0 +1,13 @@
+{
+    "id": "STS2DiscardMod",
+    "name": "STS2 Discard-Trigger Mod (弃触发) — 预组卡组版",
+    "author": "alphonse-bot",
+    "description": "Discard-trigger card mechanics for the Mystic character. 弃牌触发系统 — 13张专属卡牌。预组卡组版：游戏开始时自动替换为包含全部弃触发卡牌的初始卡组，帮助新玩家快速上手。",
+    "version": "v0.1.0",
+    "has_pck": true,
+    "has_dll": true,
+    "dependencies": [
+        "BaseLib"
+    ],
+    "affects_gameplay": true
+}
