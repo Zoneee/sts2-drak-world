@@ -142,6 +142,7 @@ deploy_runtime() {
     copy_if_exists "$output_dir/BUILD_FLAVOR.txt" "$mod_dir"
     copy_if_exists "$output_dir/STS2DiscardMod.pck" "$mod_dir"
     copy_if_exists "$PROJECT_ROOT/STS2_Discard_Mod.json" "$mod_dir"
+    copy_if_exists "$PROJECT_ROOT/STS2DiscardMod_config.json" "$mod_dir"
 
     if [[ -d "$PROJECT_ROOT/src/STS2DiscardMod" ]]; then
         mkdir -p "$mod_dir/STS2DiscardMod"

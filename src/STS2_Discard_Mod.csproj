@@ -35,19 +35,6 @@
     <DebugMerchantColorlessReplacementEnabled>false</DebugMerchantColorlessReplacementEnabled>
   </PropertyGroup>
 
-  <!-- StarterDeck: Release-quality build with pre-built starter deck for onboarding -->
-  <PropertyGroup Condition="'$(Configuration)' == 'StarterDeck'">
-    <Optimize>true</Optimize>
-    <DebugCardPoolFilterEnabled>false</DebugCardPoolFilterEnabled>
-    <DebugStarterDeckReplacementEnabled>true</DebugStarterDeckReplacementEnabled>
-    <DebugMerchantColorlessReplacementEnabled>false</DebugMerchantColorlessReplacementEnabled>
-  </PropertyGroup>
-
-  <!-- Wire DebugStarterDeckReplacementEnabled → STARTER_DECK_ENABLED compile-time symbol -->
-  <PropertyGroup Condition="'$(DebugStarterDeckReplacementEnabled)' == 'true'">
-    <DefineConstants>$(DefineConstants);STARTER_DECK_ENABLED</DefineConstants>
-  </PropertyGroup>
-
   <!-- OS Detection -->
   <PropertyGroup>
     <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>

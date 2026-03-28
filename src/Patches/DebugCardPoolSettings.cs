@@ -1,3 +1,5 @@
+using DiscardMod.Utils;
+
 namespace DiscardMod.Patches;
 
 internal static class DebugCardPoolSettings
@@ -22,10 +24,10 @@ internal static class DebugCardPoolSettings
 
     private static bool GetDefaultStartingDeckReplacement()
     {
-#if DEBUG || STARTER_DECK_ENABLED
+#if DEBUG
         return true;
 #else
-        return false;
+        return ModConfig.Instance.StarterDeckEnabled;
 #endif
     }
 
