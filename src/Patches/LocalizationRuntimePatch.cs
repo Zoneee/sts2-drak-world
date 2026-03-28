@@ -28,7 +28,9 @@ public static class LocalizationRuntimePatch
 
     public static bool Prefix(string key, string ____name, LocTable __instance, ref string __result)
     {
-        if (!string.Equals(____name, "cards", StringComparison.OrdinalIgnoreCase))
+        var isCardsTable = string.Equals(____name, "cards", StringComparison.OrdinalIgnoreCase);
+        var isPowersTable = string.Equals(____name, "powers", StringComparison.OrdinalIgnoreCase);
+        if (!isCardsTable && !isPowersTable)
         {
             return true;
         }

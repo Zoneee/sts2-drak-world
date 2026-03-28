@@ -22,6 +22,11 @@ public class VoidSurgePower : CustomPowerModel
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
 
+    public override string? CustomPackedIconPath =>
+        $"res://{DiscardModMain.ModId}/images/powers/void_surge_power_64.png";
+    public override string? CustomBigIconPath =>
+        $"res://{DiscardModMain.ModId}/images/powers/void_surge_power.png";
+
     internal void SetHits(int hitCount) => hits = hitCount;
 
     public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)

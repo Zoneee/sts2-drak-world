@@ -2,7 +2,7 @@
 
 状态：有效
 负责人：工程团队
-最后评审：2026-03-24
+最后评审：2026-03-28
 
 ## 概览
 本仓库实现的是《Slay the Spire 2》实验性弃牌触发卡组模组。当前目标不是构建通用引擎，而是在可编译、可部署、可观察的前提下，围绕“打出收益 + 弃牌收益”这条核心机制持续扩展卡牌与调试能力。
@@ -14,9 +14,13 @@ STS2-Dark-World/
 │   ├── Main.cs
 │   ├── STS2_Discard_Mod.csproj
 │   ├── Cards/
+│   ├── Powers/
 │   ├── Patches/
 │   ├── Data/
 │   ├── STS2DiscardMod/
+│   │   └── images/
+│   │       ├── cards/        # 卡图 PNG（256×256）
+│   │       └── powers/       # 能力图标 PNG（64×64 和 256×256）
 │   ├── localization/
 │   └── .godot/
 ├── scripts/
@@ -46,12 +50,19 @@ STS2-Dark-World/
 每张具体卡牌类只负责：
 - 数值与元数据
 - `OnPlay()`
-- `OnUpgrade()`
+- `OnUpgrade()`（含 `CanonicalVars` 声明，供升级对比 UI 使用）
 - 需要时实现 `OnSelfDiscarded()`
+
+### `src/Powers/`
+能力层以 `CustomPowerModel`（BaseLib）为基类，每个 Power 类负责：
+- 重写 `CustomPackedIconPath`（64×64 PNG，格式 `res://STS2DiscardMod/images/powers/{name}_64.png`）
+- 重写 `CustomBigIconPath`（256×256 PNG，格式 `res://STS2DiscardMod/images/powers/{name}.png`）
+- 实现 `AfterCardDiscarded()` 通过 `DiscardTriggerRuntime.ConsumePowerDiscardEvent(card)` 判断弃牌来源
+- 实现 `BeforeTurnEnd()` 清零回合内累计计数（若有）
 
 ### `src/Patches/`
 补丁层负责把 BaseLib、游戏运行时与本模组的诊断能力接起来：
-- `LocalizationRuntimePatch`：运行时文本兜底
+- `LocalizationRuntimePatch`：运行时文本兜底，以 `[HarmonyBefore("BaseLib")]` 优先截取 `cards` 和 `powers` 两张表的文本查询，通过 CardCatalog 提供本地化文本
 - `CardLibraryVisibilityPatch`：保证卡牌在卡库中可见
 - `ModelDbDiagnosticsPatch`：在 `ModelDb.Init()` 后验证进库与进池情况
 - `DiscardDiagnosticsPatch`：记录弃牌命令链路
@@ -90,10 +101,11 @@ STS2-Dark-World/
 - 若探测到 `ModsPath`，自动复制 DLL、manifest、Harmony 依赖、`.pck`、Godot 资源和导入缓存到 live 模组目录
 
 ## 当前不变量
-- 当前共有 10 张自定义卡牌，且全部属于 `RegentCardPool`。
+- 当前共有 13 张自定义卡牌（10 张普通卡 + 3 张能力牌），全部属于 `RegentCardPool`。
 - `BaseLib` 作为独立依赖必须已安装到游戏目录。
 - `cards.json` 不能直接复制进 live 模组目录。
 - 调试构建与发布构建的行为差异以 `BUILD_FLAVOR.txt` 为准。
+- 能力牌图标路径遵守约定：`res://STS2DiscardMod/images/powers/{snake_case_name}.png`（256×256）和 `{snake_case_name}_64.png`（64×64）。
 
 ## 主要风险
 - 旧文档与实际代码可能在路径、任务名、卡牌数量上存在漂移，必须以当前仓库文件为准。

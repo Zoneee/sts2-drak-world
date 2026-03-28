@@ -22,6 +22,11 @@ public class DarkMomentumPower : CustomPowerModel
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
 
+    public override string? CustomPackedIconPath =>
+        $"res://{DiscardModMain.ModId}/images/powers/dark_momentum_power_64.png";
+    public override string? CustomBigIconPath =>
+        $"res://{DiscardModMain.ModId}/images/powers/dark_momentum_power.png";
+
     public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)
     {
         if (!DiscardTriggerRuntime.ConsumePowerDiscardEvent(card))

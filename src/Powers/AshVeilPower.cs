@@ -22,6 +22,11 @@ public class AshVeilPower : CustomPowerModel
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
 
+    public override string? CustomPackedIconPath =>
+        $"res://{DiscardModMain.ModId}/images/powers/ash_veil_power_64.png";
+    public override string? CustomBigIconPath =>
+        $"res://{DiscardModMain.ModId}/images/powers/ash_veil_power.png";
+
     internal void SetUpgraded() => upgraded = true;
 
     public override async Task AfterCardDiscarded(PlayerChoiceContext choiceContext, CardModel card)
