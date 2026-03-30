@@ -1,8 +1,8 @@
 {
     "id": "STS2DiscardMod",
-    "name": "STS2 Discard-Trigger Mod (弃触发)",
+    "name": "STS2 Discard-Trigger Mod (\u5f03\u89e6\u53d1)",
     "author": "alphonse-bot",
-    "description": "Discard-trigger card mechanics for the Mystic character. 弃牌触发系统 — 4 unique cards.",
+    "description": "Discard-trigger card mechanics for the Mystic character. \u5f03\u724c\u89e6\u53d1\u7cfb\u7edf \u2014 4 unique cards.",
     "version": "v1.2.1",
     "has_pck": true,
     "has_dll": true,

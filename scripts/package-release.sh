@@ -30,11 +30,26 @@ printf '==> Packaging version %s\n' "$VERSION"
 DIST_DIR="$PROJECT_ROOT/dist"
 mkdir -p "$DIST_DIR"
 
+# ── Verify CHANGELOG entry for current version ────────────────────────────────
+if ! grep -q "^## ${VERSION}" "$PROJECT_ROOT/CHANGELOG.md" 2>/dev/null; then
+    printf 'ERROR: CHANGELOG.md missing entry for %s — update it before releasing.\n' "$VERSION" >&2
+    exit 1
+fi
+
 # ── Build once ─────────────────────────────────────────────────────────────────
 printf '\n==> Building Release...\n'
 run_build "Release" "build-only"
 
 RELEASE_OUT="$(build_output_dir "Release")"
+
+# ── Extract release notes for current version ─────────────────────────────────
+RELEASE_NOTES_FILE="$DIST_DIR/RELEASE_NOTES_${VERSION}.md"
+awk -v ver="$VERSION" '
+    /^## /{found=0}
+    $0 ~ ("^## " ver "( |$)"){found=1}
+    found{print}
+' "$PROJECT_ROOT/CHANGELOG.md" > "$RELEASE_NOTES_FILE"
+printf '==> Release notes: %s\n' "$RELEASE_NOTES_FILE"
 
 # ── Helper: stage shared files into a temp mod folder ─────────────────────────
 stage_common_files() {
@@ -55,6 +70,9 @@ stage_common_files() {
         mkdir -p "$mod_staging/.godot/imported"
         cp -a "$PROJECT_ROOT/src/.godot/imported/." "$mod_staging/.godot/imported/"
     fi
+
+    cp "$RELEASE_NOTES_FILE"              "$mod_staging/RELEASE_NOTES.md"
+    cp "$PROJECT_ROOT/docs/mod-intro.md"  "$mod_staging/MOD_INTRO.md"
 }
 
 # ── Package original (starter_deck_enabled: false) ────────────────────────────
